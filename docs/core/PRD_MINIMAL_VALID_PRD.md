@@ -39,6 +39,8 @@ The minimum legal package must remain readable without:
 
 Required identifying metadata must remain in the public/header area.
 
+**Authoring vs distribution:** The minimum legal *interchange* artifact is still a `.prd` ZIP. Reference validators (including the PRD CLI) may also validate an **unpacked directory** whose files match that same logical package; see `core/PRD_MINIMAL_VALID_SPEC.md` §10–§11 and §13.
+
 ---
 
 ## 3. Required Files
@@ -77,8 +79,9 @@ Minimum profile declaration rules:
 - `profile` MUST use a canonical machine-readable ID such as `general-document`, not a friendly UI label such as `Document`.
 - `profileVersion` is not required in the minimum legal package.
 - `general-document` is the baseline example value for the tiny example in this doc.
+- optional `identity`, `public`, and `localization` fields may appear, but they do not change the minimum legal baseline.
 
-No rights, payment, ownership, encryption, signature, attachment, localization, or Cloud fields are required in the minimum manifest.
+No rights, payment, ownership, encryption, signature, attachment, localization, Cloud, or supplemental metadata fields are required in the minimum manifest.
 
 ---
 
@@ -171,9 +174,11 @@ Distributed form: `hello-prd.prd`
 
 ## 8. Validation Checklist
 
+The checklist below applies to the **logical file set** inside a package (the contents of a `.prd` archive or the same paths in an unpacked directory). When validating a **`.prd` file**, the first bullet MUST hold. When validating an **unpacked directory** with reference tooling, skip the `.prd`/ZIP requirement and apply all other bullets to the directory tree root.
+
 A package passes the minimum legal PRD baseline only if all of the following are true:
 
-- it is a ZIP archive with the `.prd` extension
+- it is a ZIP archive with the `.prd` extension (required for the distribution artifact; not required when the validator target is a directory)
 - `manifest.json` exists at the archive root
 - `manifest.json` parses as one JSON object
 - `prdVersion`, `manifestVersion`, `id`, `profile`, `title`, and `entry` all exist and are strings

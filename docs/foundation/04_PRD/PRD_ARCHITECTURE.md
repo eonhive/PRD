@@ -37,7 +37,9 @@ Responsibilities:
 * package integrity
 * manifest
 * assets
-* metadata
+* required package identity/opening fields
+* optional supplemental identity references
+* lean public metadata
 * profile declaration
 * resource linking
 * optional security/protection hooks
@@ -49,7 +51,9 @@ The canonical source-of-truth description of the document package.
 Responsibilities:
 
 * versioning
-* document metadata
+* required package identity/opening data
+* optional supplemental identity references
+* lean public metadata
 * profile type
 * structure references
 * resource references
@@ -173,11 +177,12 @@ The file format should not be confused with one specific viewer implementation.
 The manifest should eventually include concepts such as:
 
 * format version
-* document ID
+* required package/document ID
+* optional identity references
 * title
-* author/publisher metadata
+* lean byline/publisher/summary metadata
 * profile type
-* language metadata
+* localization declarations
 * theme/layout references
 * resource map
 * content entry points
@@ -186,6 +191,7 @@ The manifest should eventually include concepts such as:
 * protected/private section references where needed
 
 A clean public-header vs protected/private extension strategy is important for future growth.
+Current canon keeps the minimal required top-level fields fixed and uses optional `identity`, `public`, and `localization` objects rather than reviving a required nested `header` / `metadata` / `structure` manifest shape.
 
 ---
 
@@ -206,15 +212,13 @@ For profile examples:
 
 ## General Document
 
-Section and block-based text/media flow.
+Section and block-based text/media flow, including novels and web novels.
 
-## Resume Variant
-
-Structured sections like profile, experience, skills, education, links.
+General-document variants such as resumes may use structured sections like profile, experience, skills, education, and links without leaving the `general-document` family.
 
 ## Comic
 
-Panels, pages, reading order, speech/narration blocks, visual asset references.
+Panels, pages, reading order, speech/narration blocks, visual asset references, including manhua and manhwa-style serial works.
 
 ## Storyboard
 

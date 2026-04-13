@@ -4,19 +4,29 @@
   "id": "urn:prd:example:storyboard-basic",
   "profile": "storyboard",
   "title": "PRD Storyboard Fixture",
-  "entry": "content/index.html",
+  "entry": "content/root.json",
   "compatibility": {
     "minViewer": "0.1",
     "capabilities": {
-      "required": ["base-entry-html"],
+      "required": [],
       "optional": ["review-grid"]
     }
   },
   "assets": [
     {
-      "id": "storyboard-style",
-      "href": "assets/styles/base.css"
+      "id": "frame-1-art",
+      "href": "assets/frames/frame-1.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "id": "frame-2-art",
+      "href": "assets/frames/frame-2.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "id": "frame-3-art",
+      "href": "assets/frames/frame-3.svg",
+      "type": "image/svg+xml"
     }
   ]
 }
-

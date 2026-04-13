@@ -52,9 +52,11 @@
       "type": "string",
       "minLength": 1
     },
+    "identity": {
+      "$ref": "#/$defs/identity"
+    },
     "public": {
-      "type": "object",
-      "additionalProperties": true
+      "$ref": "#/$defs/publicMetadata"
     },
     "localization": {
       "$ref": "#/$defs/localization"
@@ -63,16 +65,8 @@
       "$ref": "#/$defs/compatibility"
     },
     "assets": {
-      "oneOf": [
-        {
-          "type": "array",
-          "items": { "$ref": "#/$defs/assetDeclaration" }
-        },
-        {
-          "type": "object",
-          "additionalProperties": true
-        }
-      ]
+      "type": "array",
+      "items": { "$ref": "#/$defs/assetDeclaration" }
     },
     "attachments": {
       "type": "array",
@@ -111,10 +105,223 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile": {
+            "enum": ["comic", "storyboard"]
+          }
+        },
+        "required": ["profile"]
+      },
+      "then": {
+        "properties": {
+          "entry": {
+            "pattern": "^content/.+\\.(json|html?)$"
+          }
+        }
+      }
     }
   ],
   "additionalProperties": true,
   "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nonEmptyStringArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "revisionId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "parentId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "originId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "authorRefs": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        },
+        "publisherRef": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "ownerRef": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "series": {
+          "$ref": "#/$defs/identitySeriesMembership"
+        },
+        "collections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/identityCollectionMembership"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "seriesSequence": {
+      "type": "object",
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "volume": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "issue": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "chapter": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "episode": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "part": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "anyOf": [
+        { "required": ["index"] },
+        { "required": ["volume"] },
+        { "required": ["issue"] },
+        { "required": ["chapter"] },
+        { "required": ["episode"] },
+        { "required": ["part"] }
+      ],
+      "additionalProperties": true
+    },
+    "identitySeriesMembership": {
+      "type": "object",
+      "required": ["ref"],
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sequence": {
+          "$ref": "#/$defs/seriesSequence"
+        }
+      },
+      "additionalProperties": true
+    },
+    "identityCollectionMembership": {
+      "type": "object",
+      "required": ["ref"],
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": true
+    },
+    "publicContributor": {
+      "type": "object",
+      "required": ["name", "role"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "role": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "displayName": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": true
+    },
+    "publicMetadata": {
+      "type": "object",
+      "properties": {
+        "subtitle": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "summary": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "byline": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "contributors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/publicContributor"
+          }
+        },
+        "publisher": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "genres": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        },
+        "subgenres": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        },
+        "tags": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        },
+        "contentWarnings": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        },
+        "contentRating": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "status": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "cover": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "series": {
+          "$ref": "#/$defs/publicSeriesMetadata"
+        },
+        "collections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/publicCollectionMetadata"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "publicSeriesMetadata": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": true
+    },
+    "publicCollectionMetadata": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": true
+    },
     "localization": {
       "type": "object",
       "required": ["defaultLocale"],
@@ -189,7 +396,14 @@
         },
         "href": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "allOf": [
+            { "not": { "pattern": "^/" } },
+            { "not": { "pattern": "\\\\" } },
+            { "not": { "pattern": "(^|/)\\.\\.(?:/|$)" } },
+            { "not": { "pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*:" } },
+            { "pattern": "^assets/.+" }
+          ]
         },
         "type": {
           "type": "string",

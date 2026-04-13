@@ -17,7 +17,6 @@ Clear notes on where “no third party” is and isn’t possible for fiat (gove
 Reality check on “no third party” for fiat (USD)
 For fiat rails (cards, bank transfers), you almost always touch an intermediary:
 
-
 Card networks (Visa/Mastercard) or ACH (Automated Clearing House) in the U.S.
 
 A PSP (Payment Service Provider) such as PayPal / Stripe / Adyen.
@@ -72,7 +71,7 @@ Pay Manifest (embedded in the PRD)
   "schema": "com.prd.pay.manifest.v1",
   "creator": {
     "displayName": "Indies Web",
-    "contact": "mailto:indies@example.com",
+    "contact": "mailto:[indies@example.com](mailto:indies@example.com)",
     "did": "did:key:z6Mkf....",
     "pubkey": "ed25519:8aE2kY...."
   },
@@ -114,7 +113,7 @@ Pay Manifest (embedded in the PRD)
   "metadata": {
     "prdDocId": "PRD-12345-ABCDE",
     "description": "Donate to support my work.",
-    "website": "https://indiesweb.example"
+    "website": "[https://indiesweb.example](https://indiesweb.example)"
   },
   "signature": {
     "alg": "Ed25519",
@@ -169,7 +168,7 @@ export interface PaymentAdapter {
   supports(manifest: any, init: PaymentInit): boolean;
 
   /** Render or launch the payment flow. */
-  start(manifest: any, init: PaymentInit): Promise<PaymentResult>;
+  start(manifest: any, init: PaymentInit): Promise;
 }
 Explained simply:
 
@@ -197,26 +196,29 @@ export class PayPalAdapter implements PaymentAdapter {
       && manifest.adapters?.some((a: any) => a.id === "paypal");
   }
 
-  async start(manifest: any, init: PaymentInit): Promise<PaymentResult> {
+  async start(manifest: any, init: PaymentInit): Promise {
     // 1) Locate the PayPal block from the manifest for configuration.
     const paypal = manifest.adapters.find((a: any) => a.id === "paypal");
     if (!paypal) return { status: "failed", reason: "PayPal not configured" };
 
-    // 2) Pull creator's PayPal username and client id (public).
-    const { paypalUsername, paypalClientId } = paypal.fields;
+```
+// 2) Pull creator's PayPal username and client id (public).
+const { paypalUsername, paypalClientId } = paypal.fields;
 
-    // 3) Create a lightweight redirect URL to PayPal’s donation page.
-    //    (This can be the standard PayPal "Pay Now" link or a hosted button URL.)
-    const amount = init.amount.toFixed(2);
-    const currency = init.currency;
+// 3) Create a lightweight redirect URL to PayPal’s donation page.
+//    (This can be the standard PayPal "Pay Now" link or a hosted button URL.)
+const amount = init.amount.toFixed(2);
+const currency = init.currency;
 
-    // A simple "pay to user" URL (illustrative; use PayPal's documented URLs/buttons in prod).
-    const redirectUrl =
-      `https://www.paypal.com/paypalme/${encodeURIComponent(paypalUsername)}/${amount}` +
-      `?currencyCode=${encodeURIComponent(currency)}`;
+// A simple "pay to user" URL (illustrative; use PayPal's documented URLs/buttons in prod).
+const redirectUrl =
+  `https://www.paypal.com/paypalme/${encodeURIComponent(paypalUsername)}/${amount}` +
+  `?currencyCode=${encodeURIComponent(currency)}`;
 
-    // 4) Optionally render a popup or open in new tab. Viewers differ; we return a link.
-    return { status: "pending", redirectUrl };
+// 4) Optionally render a popup or open in new tab. Viewers differ; we return a link.
+return { status: "pending", redirectUrl };
+```
+
   }
 }
 What each section does (in plain English):
@@ -246,21 +248,24 @@ export class NectarPayAdapter implements PaymentAdapter {
       manifest.adapters?.some((a: any) => a.id === "nectarpay");
   }
 
-  async start(manifest: any, init: PaymentInit): Promise<PaymentResult> {
+  async start(manifest: any, init: PaymentInit): Promise {
     const nx = manifest.adapters.find((a: any) => a.id === "nectarpay");
     if (!nx) return { status: "failed", reason: "NectarPay not configured" };
 
-    const { address, memoTag } = nx.fields;
+```
+const { address, memoTag } = nx.fields;
 
-    // Construct a deeplink / URI that wallet apps can handle:
-    // nectar:<address>?amount=...&memo=...
-    const uri = `nectar:${encodeURIComponent(address)}?amount=${encodeURIComponent(
-      init.amount.toString()
-    )}&memo=${encodeURIComponent(init.note || memoTag || "")}`;
+// Construct a deeplink / URI that wallet apps can handle:
+// nectar:<address>?amount=...&memo=...
+const uri = `nectar:${encodeURIComponent(address)}?amount=${encodeURIComponent(
+  init.amount.toString()
+)}&memo=${encodeURIComponent(init.note || memoTag || "")}`;
 
-    // If a desktop wallet is installed, the PRD viewer can try window.open(uri).
-    // Otherwise, show a QR code with the same URI for mobile wallets to scan.
-    return { status: "pending", redirectUrl: uri };
+// If a desktop wallet is installed, the PRD viewer can try window.open(uri).
+// Otherwise, show a QR code with the same URI for mobile wallets to scan.
+return { status: "pending", redirectUrl: uri };
+```
+
   }
 }
 In simple terms:
@@ -287,20 +292,23 @@ export class BankQrAdapter implements PaymentAdapter {
       && manifest.adapters?.some((a: any) => a.id === "bankqr");
   }
 
-  async start(manifest: any, init: PaymentInit): Promise<PaymentResult> {
+  async start(manifest: any, init: PaymentInit): Promise {
     const bank = manifest.adapters.find((a: any) => a.id === "bankqr");
     if (!bank) return { status: "failed", reason: "Bank QR not configured" };
 
-    const { iban, beneficiary, swiftBic, instructions } = bank.fields;
+```
+const { iban, beneficiary, swiftBic, instructions } = bank.fields;
 
-    // Build a standardized "payto:" URI (Uniform Resource Identifier) where supported.
-    // Example format: payto://iban/DE... ?amount=12.34&message=Thanks
-    const uri = `payto://iban/${encodeURIComponent(iban)}?amount=${encodeURIComponent(
-      init.amount.toString()
-    )}&message=${encodeURIComponent(init.note || instructions || "")}`;
+// Build a standardized "payto:" URI (Uniform Resource Identifier) where supported.
+// Example format: payto://iban/DE... ?amount=12.34&message=Thanks
+const uri = `payto://iban/${encodeURIComponent(iban)}?amount=${encodeURIComponent(
+  init.amount.toString()
+)}&message=${encodeURIComponent(init.note || instructions || "")}`;
 
-    // The PRD viewer: render QR of 'uri' or show "Open in Banking App".
-    return { status: "pending", redirectUrl: uri };
+// The PRD viewer: render QR of 'uri' or show "Open in Banking App".
+return { status: "pending", redirectUrl: uri };
+```
+
   }
 }
 Plain English:
@@ -312,97 +320,9 @@ The viewer renders a QR or a deeplink.
 Money still moves via banks (ACH/SWIFT/SEPA)—but directly to the creator’s account.
 
 The PRD “Donate” Widget (web as example)
-<!-- Minimal markup -->
-<div id="prd-donate">
-  <div id="prd-donate-title"></div>
-  <select id="prd-donate-amount"></select>
-  <input id="prd-donate-note" placeholder="Say thanks…" />
-  <select id="prd-donate-method"></select>
-  <button id="prd-donate-go">Donate</button>
-  <div id="prd-donate-next"></div>
-</div>
 
-<script type="module">
-// === EXPLAINED ===
-// - We load the Pay Manifest from the PRD file (here simulated).
-// - We register adapters (PayPal, NectarPay, BankQR).
-// - We let the user pick amount + method, then call adapter.start.
-// - If adapter returns a redirectUrl, we open it or show it for the user.
+Donate
 
-import { PayPalAdapter } from './PayPalAdapter.js';
-import { NectarPayAdapter } from './NectarPayAdapter.js';
-import { BankQrAdapter } from './BankQrAdapter.js';
-
-const manifest = /* fetched or embedded JSON from PRD */ window.PRD_PAY_MANIFEST;
-
-// 1) Minimal signature check (pseudo): verify Ed25519(manifest.signature, selected fields)
-await verifyManifestSignature(manifest); // viewer-provided function
-
-// 2) Register adapters.
-const adapters = [
-  new PayPalAdapter(),
-  new NectarPayAdapter(),
-  new BankQrAdapter()
-];
-
-// 3) Populate UI.
-document.getElementById('prd-donate-title').textContent =
-  `Support ${manifest.creator.displayName}`;
-
-const amountSel = document.getElementById('prd-donate-amount');
-manifest.suggestedAmounts.forEach(a => {
-  const opt = document.createElement('option');
-  opt.value = `${a.amount}:${a.currency}`;
-  opt.textContent = `${a.label} — ${a.amount} ${a.currency}`;
-  amountSel.appendChild(opt);
-});
-
-const methodSel = document.getElementById('prd-donate-method');
-// Show only adapters that support the default amount/currency.
-function refreshMethods() {
-  methodSel.innerHTML = '';
-  const [amt, cur] = amountSel.value.split(':');
-  adapters
-    .filter(ad => ad.supports(manifest, { amount: Number(amt), currency: cur }))
-    .forEach(ad => {
-      const opt = document.createElement('option');
-      opt.value = ad.id;
-      opt.textContent = ad.label;
-      methodSel.appendChild(opt);
-    });
-}
-amountSel.addEventListener('change', refreshMethods);
-refreshMethods();
-
-document.getElementById('prd-donate-go').addEventListener('click', async () => {
-  const note = (document.getElementById('prd-donate-note') as HTMLInputElement).value;
-  const [amountStr, currency] = (amountSel as HTMLSelectElement).value.split(':');
-  const amount = Number(amountStr);
-
-  const adapterId = (methodSel as HTMLSelectElement).value;
-  const adapter = adapters.find(a => a.id === adapterId);
-  if (!adapter) {
-    showNext("No adapter found.");
-    return;
-  }
-
-  const result = await adapter.start(manifest, { amount, currency, note });
-  // Handle outcomes:
-  if (result.status === "pending" && result.redirectUrl) {
-    // For web: open in new tab. Native viewers might use in-app webview or QR.
-    window.open(result.redirectUrl, "_blank");
-    showNext("Complete the payment in the opened window/app.");
-  } else if (result.status === "succeeded") {
-    showNext("Thank you! Payment succeeded.");
-  } else {
-    showNext(`Payment failed: ${result['reason'] ?? 'Unknown error'}`);
-  }
-});
-
-function showNext(msg) {
-  document.getElementById('prd-donate-next').textContent = msg;
-}
-</script>
 Why this works well:
 
 The widget UI is tiny and adapter-agnostic.
@@ -480,7 +400,6 @@ A minimal themable Donate UI block.
 
 Just say the word and I’ll drop it in ready-to-run form.
 
-
 prd gives creators freedoms hehe even if we have a plan system we still want people to enjoy prd and earn form it with ease
 
 Exactly 💯 — that’s one of PRD’s biggest differentiators:
@@ -522,12 +441,12 @@ That way PRD becomes known as the most creator-friendly doc format — not just 
 
 👉 Do you want me to sketch how this could be visualized in PRD’s marketing site? Like a side-by-side “Creator Freedom vs Plan Perks” chart so it’s crystal clear what’s always free vs. what’s gated?
 
-
 Can prd also add viewrrs engagement analytics and creators can see it and can their also bcan prd prevent plagiarism of ones work in case one recreate a prd doc with someone else story and add donations 
 
 Yes — both are not only possible but very powerful features for PRD as a creator-first publishing format. Let’s unpack both:
 
 1. Viewer Engagement Analytics (non-intrusive)
+
 Think of this as YouTube-style analytics but inside a document.
 
 📊 Metrics a creator could see:
@@ -564,7 +483,8 @@ Free creators might just get basic counts (“X views, Y donations”).
 
 So creators get insights → better content → more donations.
 
-2. Preventing Plagiarism / Unauthorized Reuse
+1. Preventing Plagiarism / Unauthorized Reuse
+
 This is trickier, but PRD can use a multi-layer defense:
 
 a) Content Hashing / Fingerprinting
@@ -599,7 +519,8 @@ Subtle digital watermarking (in text spacing, metadata, or embedded invisible SV
 
 Helps track “who copied from whom” in disputes.
 
-3. How it fits PRD’s Philosophy
+1. How it fits PRD’s Philosophy
+
 🔑 Freedom: anyone can still make PRDs, remix, translate, adapt — that’s the open spirit.
 
 🛡 Protection: only the original creator gets the green “Verified” badge + trusted donations.
@@ -613,7 +534,6 @@ PDF = static, no creator protections.
 PRD = living doc: creators earn, get analytics, and keep ownership.
 
 Would you like me to sketch a flow diagram showing how PRD could detect and flag plagiarized copies (original → clone → viewer verification → donation blocked)? That might help you visualize the trust system.
-
 
 We l
 
@@ -639,7 +559,6 @@ Or draft the copy for PRD’s positioning statement: “The document that protec
 
 👉 Do you want me to continue with (1) the diagram, (2) the dashboard concept, or (3) the positioning copy first?
 
-
 Sure
 
 Perfect 👍 Let’s start with (1) the trust/verification flow diagram so it’s clear how PRD can guard creators against plagiarism and protect donations.
@@ -649,26 +568,36 @@ Perfect 👍 Let’s start with (1) the trust/verification flow diagram so it’
         |
         v
 [ Export as PRD ]
-  - Content is hashed (SHA-256)
-  - PRD signed with creator's private key
-  - Pay Manifest (donation config) also signed
-        |
-        v
+
+- Content is hashed (SHA-256)
+- PRD signed with creator's private key
+- Pay Manifest (donation config) also signed
+|
+v
+
 [ PRD Published ]
-  - Distributed anywhere (web, mobile, email, etc.)
-        |
-        v
-===============================
+
+- Distributed anywhere (web, mobile, email, etc.)
+|
+v
+
+# ===============================
+
    When a Reader Opens PRD
-===============================
-        |
-        v
+
+```
+    |
+    v
+```
+
 [ Viewer Verification Step ]
-  - Check digital signature (creator key)
-  - Compare content hash to registry
-  - Validate Pay Manifest signature
-        |
-        v
+
+- Check digital signature (creator key)
+- Compare content hash to registry
+- Validate Pay Manifest signature
+|
+v
+
  ┌─────────────────────────────┐
  |  Verified Original PRD      |
  |  ✅ "Creator: Indies Web"   |
@@ -703,7 +632,6 @@ Alerts if clones are detected (hash similarity scan).
 
 👉 Do you want me to sketch that Creator Dashboard mockup next so you can see how analytics + earnings + verification all show up in one place?
 
-
 Creators can copy or clone prd but with approval and cities by original created and if commercial split benefit or pay royalties 
 
 Exactly 💡 — you’re describing a “PRD Remix & Royalty System”, where copying isn’t forbidden but becomes structured, credited, and fair. This turns PRD into a creator economy ecosystem, not just a document format.
@@ -711,6 +639,7 @@ Exactly 💡 — you’re describing a “PRD Remix & Royalty System”, where c
 Let’s break it down:
 
 1. Controlled Copying / Cloning
+
 ✅ Allowed with approval: A creator can mark their PRD as:
 
 Closed (no clones allowed).
@@ -731,7 +660,8 @@ Viewer shows:
 
 Original creator gets a notification: “Stanley wants to clone your PRD. Approve? (Yes / No / Yes with royalty).”
 
-2. Royalty & Revenue Split (Commercial Remixes)
+1. Royalty & Revenue Split (Commercial Remixes)
+
 If the clone adds monetization (donate/pay widgets):
 
 Revenue is auto-split between original creator and remixer.
@@ -756,7 +686,8 @@ Example (JSON snippet):
 ]
 The PRD Viewer automatically splits donation flows between addresses (PayPal, NectarPay, etc.).
 
-3. Benefits of this System
+1. Benefits of this System
+
 👏 Protects originals: No one can steal your PRD and pass it as theirs without credit.
 
 🎨 Encourages remix culture: Fans, students, or collaborators can build on existing works legally and fairly.
@@ -765,7 +696,8 @@ The PRD Viewer automatically splits donation flows between addresses (PayPal, Ne
 
 🏛 Proof of originality: Since the first signed PRD + hash is timestamped, disputes are easy to resolve.
 
-4. Example Flow
+1. Example Flow
+
 Case: Fan wants to remix a PRD story into a comic.
 
 Fan clicks “Clone PRD”.
@@ -787,7 +719,6 @@ Fans can safely remix without guilt.
 Everyone gets credit + fair royalties.
 
 👉 Do you want me to show you a visual flow diagram of the Remix + Royalty process (Original → Clone → Approval → Publish → Split Earnings)?
-
 
 Sure … but other companies can create  their own prd and also viewers too
 
@@ -842,21 +773,20 @@ Think of it like web browsers: Chrome, Firefox, Safari → all different, but th
    |
    v
 [ Remix PRD Published ]
-   - Metadata: "Derived from PRD #123 by Indies Web"
-   - Payout: Auto-splits (e.g. 70% / 30%)
-   - Signature: Signed by remixer too
-   |
-   v
-===============================
-   Reader Opens Remix PRD
-===============================
-   |
-   | (Viewer verifies BOTH signatures + payout splits)
-   |
-   v
-[ Donations Flow ]
-   - Viewer auto-routes 70% → Original Creator
-   - Viewer auto-routes 30% → Remixer
+
+- Metadata: "Derived from PRD #123 by Indies Web"
+- Payout: Auto-splits (e.g. 70% / 30%)
+- Signature: Signed by remixer too
+ |
+  # v
+  # Reader Opens Remix PRD
+     |
+     | (Viewer verifies BOTH signatures + payout splits)
+     |
+     v
+  [ Donations Flow ]
+- Viewer auto-routes 70% → Original Creator
+- Viewer auto-routes 30% → Remixer
 ⚡ Why This Works Even If Others Build PRDs
 Verification is cryptographic, not company-controlled → anyone can check.
 
@@ -873,7 +803,6 @@ PDF + Patreon + Creative Commons + Royalty System all in one format.
 Open for everyone, but with built-in protections + monetization + remix fairness.
 
 👉 Stan, do you want me to next design how the PRD Viewer might visually show these trust signals? (e.g., “✅ Verified Original,” “📖 Remix of Indies Web,” “💸 Auto-Split Royalties Enabled”). This would make it crystal clear for readers who they’re supporting.
-
 
 Should royalties be based on clone percentage right…and is this a simple prd feature of this is crypt-prd , and don’t forget we still have live-prd but they are connected to EonHive right not opensoirc or im I mistaken and the payout donation/support stuff is like live prd subscription right
 
@@ -948,24 +877,22 @@ In Live-PRD, support = ongoing subscription tier (monthly/annual), managed via E
 📊 Visual Summary
 PRD MODES
 ─────────────────────────────
-1) Base PRD (open doc format)
-   - Responsive file format
-   - Donations via Pay Manifest
-   - Clone tracking + royalty splits (manual)
 
-2) Crypt-PRD (blockchain upgrade)
-   - Chrona-Chain anchored
-   - Auto-enforced royalties
-   - Tokenized PRDs (unique editions)
-
-3) Live-PRD (cloud/sync)
-   - Connected to EonHive
-   - Viewer analytics + engagement
-   - Subscriptions (recurring support)
-   - Dynamic blocks (chat, polls, updates)
-👉 Question for you:
-Do you want me to map out the exact royalty calculation formula (e.g., plagiarism % detection → split rules → on-chain payout logic), or would you prefer I first design how the Live-PRD subscription model looks in the creator dashboard?
-
+1. Base PRD (open doc format)
+  - Responsive file format
+  - Donations via Pay Manifest
+  - Clone tracking + royalty splits (manual)
+2. Crypt-PRD (blockchain upgrade)
+  - Chrona-Chain anchored
+  - Auto-enforced royalties
+  - Tokenized PRDs (unique editions)
+3. Live-PRD (cloud/sync)
+  - Connected to EonHive
+  - Viewer analytics + engagement
+  - Subscriptions (recurring support)
+  - Dynamic blocks (chat, polls, updates)
+  👉 Question for you:
+  Do you want me to map out the exact royalty calculation formula (e.g., plagiarism % detection → split rules → on-chain payout logic), or would you prefer I first design how the Live-PRD subscription model looks in the creator dashboard?
 
 Sure
 
@@ -1100,20 +1027,22 @@ Royalty splits (auto-calculated).
 
 Clone approvals (pending remix requests)?
 
-
 K
 
 Alright Stan 👍 — here’s a concept for the Live-PRD Creator Dashboard. Think of it as the control panel where a creator sees analytics, earnings, royalties, and remix approvals all in one clean UI.
 
 🖥 Live-PRD Creator Dashboard (Concept)
+
 1. Header / Identity
+
 Creator avatar + name (✅ Verified Creator)
 
 DID (Decentralized Identifier) displayed for trust
 
 Current PRD projects listed as tabs
 
-2. Analytics Overview
+1. Analytics Overview
+
 Views: total + unique (e.g. 12,400 views, 7,890 unique)
 
 Avg. Read Time: 4m 32s
@@ -1122,7 +1051,8 @@ Scroll Depth Heatmap: visual chart showing where readers stop or linger
 
 Engagement: % of readers who clicked links, attachments, or donate buttons
 
-3. Monetization Panel
+1. Monetization Panel
+
 Donations (one-off):
 
 USD: $340 this month
@@ -1141,7 +1071,8 @@ Payout Accounts: PayPal, BankQR, NectarPay
 
 Next Payout Date: Aug 31, 2025
 
-4. Royalty Splits
+1. Royalty Splits
+
 Table showing active clones/remixes:
 
 PRD Title (Remix)	Similarity	Split Rule	Earnings (This Month)
@@ -1159,7 +1090,8 @@ Default Remix Policy: [Open / Approval Required / Closed]
 
 Default Royalty Formula: [Auto by similarity / Fixed % / Manual]
 
-6. Notifications / Alerts
+1. Notifications / Alerts
+
 “⚠️ PRD Clone detected: similarity 95%, donation address mismatch → blocked.”
 
 “🎉 Your PRD reached 10,000 total reads!”
@@ -1177,14 +1109,7 @@ EonHive ties it together → Live-PRD subscriptions, payouts, and royalties flow
 
 👉 Do you want me to sketch a visual wireframe UI of this dashboard (boxes + layout), or keep it at this structured “spec level” for now?
 
-
-
-
-
-
-
 With your new Brain how would you go about PRD and what you think about it and how it’s better a and. An beat the pdf and what I can do to accomplish that 
-
 
 Thought for 21s
 Blunt take: PRD can be huge, but only if you stop thinking of it as “a better Portable Document Format (PDF)” and start thinking of it as the document format for the modern internet.
@@ -1342,6 +1267,7 @@ Where PRD can beat PDF for real
 These are the real battlefields where PRD can genuinely win.
 
 1. Responsive layout
+
 PDF is basically fixed paper.
 
 That is terrible for:
@@ -1382,7 +1308,8 @@ all from one document source.
 
 That alone is a massive advantage.
 
-2. Interactive documents
+1. Interactive documents
+
 PDF interactivity exists, but it feels ancient and limited.
 
 PRD should support interaction as a first-class feature:
@@ -1434,7 +1361,8 @@ medical document with layered detail levels
 
 PDF is weak here. PRD can dominate here.
 
-3. Structured intelligence
+1. Structured intelligence
+
 A PDF mostly knows where pixels are.
 
 A PRD should know what things are.
@@ -1484,7 +1412,8 @@ This is huge.
 Because the future is not just “documents humans read.”
 It is also “documents machines understand.”
 
-4. Component-based documents
+1. Component-based documents
+
 This is where PRD could become dangerous in a good way.
 
 Imagine documents built from reusable components, like:
@@ -1530,7 +1459,8 @@ company document systems
 
 That is how PRD becomes a platform, not just a file format.
 
-5. Embedded assets and dependency packaging
+1. Embedded assets and dependency packaging
+
 A PRD should package everything needed to render properly:
 
 fonts
@@ -1559,7 +1489,8 @@ a zipped, structured, secure, renderable document application package
 
 That is much stronger than “a page file.”
 
-6. Dual-mode rendering: live + frozen
+1. Dual-mode rendering: live + frozen
+
 This is one of the smartest things PRD could do.
 
 A PRD document should support both:
@@ -1663,6 +1594,7 @@ The real product stack I would build
 Here is how I would structure the PRD ecosystem.
 
 1. PRD Core Format
+
 This is the file specification.
 
 It defines:
@@ -1697,7 +1629,8 @@ This is the heart.
 
 Without a solid spec, the whole thing becomes tool-dependent garbage.
 
-2. PRD Renderer
+1. PRD Renderer
+
 This is the engine that displays the document.
 
 It must support:
@@ -1721,7 +1654,8 @@ PDF won because viewers existed everywhere.
 
 PRD needs the same lesson.
 
-3. PRD Viewer
+1. PRD Viewer
+
 This is the user-facing reader.
 
 It should feel beautiful, lightweight, and trustworthy.
@@ -1748,7 +1682,8 @@ embed mode for websites/apps
 
 The viewer is your adoption weapon.
 
-4. PRD Studio
+1. PRD Studio
+
 This is the authoring environment.
 
 It should let users create PRDs visually and structurally.
@@ -1776,7 +1711,8 @@ test fallback modes
 
 This is where you win creators.
 
-5. PRD Software Development Kit
+1. PRD Software Development Kit
+
 Software Development Kit means tools developers use to build on your format.
 
 This should include:
@@ -1983,6 +1919,7 @@ Technical architecture I would push for
 Here is how I would design it at a high level.
 
 1. Package container
+
 A PRD file should probably be a packaged container, like a structured archive.
 
 Inside it:
@@ -2007,7 +1944,8 @@ signature data
 
 This makes it portable and inspectable.
 
-2. JSON or binary-backed structured document tree
+1. JSON or binary-backed structured document tree
+
 Use a structured data model, not page-paint chaos.
 
 The document tree should define:
@@ -2026,7 +1964,8 @@ behavior hooks
 
 This lets tools understand the doc properly.
 
-3. Declarative behavior model
+1. Declarative behavior model
+
 Do not start with arbitrary scripting everywhere.
 
 That will become a security nightmare.
@@ -2059,7 +1998,8 @@ Safe, controlled, portable.
 
 Later, allow trusted extensions.
 
-4. Multi-render target system
+1. Multi-render target system
+
 One source, many outputs:
 
 interactive runtime
@@ -2076,7 +2016,8 @@ thumbnail preview
 
 That flexibility matters.
 
-5. Compatibility fallback
+1. Compatibility fallback
+
 This is critical.
 
 A PRD should always be able to generate or include:
@@ -2173,17 +2114,21 @@ The hard truths you need to respect
 Here is the no-BS part.
 
 1. Nobody cares about a format by itself
+
 They care about what it lets them do.
 
 So PRD must be sold as outcomes, not as file engineering.
 
-2. Compatibility matters more than elegance
+1. Compatibility matters more than elegance
+
 You can have the cleanest spec in the world and still lose if opening a PRD is annoying.
 
-3. Viewer adoption is everything
+1. Viewer adoption is everything
+
 If people cannot easily view PRD, it dies.
 
-4. Conversion path matters
+1. Conversion path matters
+
 You need:
 
 import from existing formats
@@ -2198,7 +2143,8 @@ static fallback
 
 No migration path = no adoption.
 
-5. Security can kill you
+1. Security can kill you
+
 Interactive documents can become malware nightmares if you are careless.
 
 So sandboxing, permissions, safe behavior rules, and trust validation are non-negotiable.
@@ -2309,6 +2255,7 @@ What can make PRD truly unbeatable
 These are the features that could make PRD feel like the future.
 
 1. Document states
+
 A document can change based on state.
 
 Example:
@@ -2329,12 +2276,14 @@ Same source. Different presentation.
 
 That is crazy useful.
 
-2. Live data with frozen fallback
+1. Live data with frozen fallback
+
 A chart can be live when online but fall back to a signed snapshot when offline or archived.
 
 That is a beautiful hybrid model.
 
-3. Native accessibility-first structure
+1. Native accessibility-first structure
+
 PRD should be born accessibility-first, not patched later.
 
 That means:
@@ -2355,7 +2304,8 @@ responsive scaling
 
 This can become a major advantage.
 
-4. Time-aware versioning
+1. Time-aware versioning
+
 Imagine a PRD that can show:
 
 current version
@@ -2368,7 +2318,8 @@ annotated change history
 
 That is very valuable for policy docs, manuals, specs, reports.
 
-5. Smart component marketplace
+1. Smart component marketplace
+
 This is where the business gets strong.
 
 People can sell or share:
@@ -2501,9 +2452,7 @@ And that lane is big.
 
 If you want, I’ll map the exact PRD architecture stack next — file format, renderer, viewer, studio, cloud, software development kit, and how PRDc fits in cleanly.
 
-
 Sure also  architecture stacks with their master prompts 
-
 
 Thought for 32s
 Yes. Here’s the exact PRD architecture stack I’d push, plus master prompts for each part.
@@ -2522,6 +2471,7 @@ not
 PRD = one app that does everything
 
 1. First, the clean product hierarchy
+
 This is the hierarchy I recommend:
 
 PRD
@@ -2672,7 +2622,8 @@ PRDc should not be confused with Studio or Viewer.
 
 PRDc is more like the vault + index + brain + marketplace + archive.
 
-3. The architecture stack I recommend
+1. The architecture stack I recommend
+
 Here is the stack in the order I would build it.
 
 Layer 1: PRD Core Spec
@@ -2700,12 +2651,15 @@ You add PRDc when you want archive, search, marketplace, and intelligence
 
 That is the sane order.
 
-4. The internal architecture of each stack
+1. The internal architecture of each stack
+
 STACK 1 — PRD Core
 This is the most important stack.
 
 What PRD Core should contain
+
 1. Package container
+
 A PRD file should probably be a packaged archive, like a structured bundle.
 
 Example:
@@ -2743,7 +2697,8 @@ security info
 
 fallback info
 
-3. Document schema
+1. Document schema
+
 This is the structured model of the document.
 
 It should describe:
@@ -2766,7 +2721,8 @@ semantic meaning
 
 reading order
 
-4. Layout system
+1. Layout system
+
 This is what makes PRD truly different from PDF.
 
 It should support:
@@ -2787,7 +2743,8 @@ print layout mode
 
 presentation mode
 
-5. Style system
+1. Style system
+
 This should define:
 
 typography tokens
@@ -2804,7 +2761,8 @@ accessibility variants
 
 brand kits
 
-6. Behavior system
+1. Behavior system
+
 Do not start with arbitrary scripting chaos.
 
 Start with safe declarative behaviors like:
@@ -2831,7 +2789,8 @@ layer switch
 
 state change
 
-7. Accessibility model
+1. Accessibility model
+
 This should be baked in at the schema level.
 
 It should support:
@@ -2850,7 +2809,8 @@ contrast metadata
 
 assistive labels
 
-8. Security model
+1. Security model
+
 This should support:
 
 digital signatures
@@ -2865,7 +2825,8 @@ permission scopes
 
 safe execution boundaries
 
-9. Snapshot / fallback model
+1. Snapshot / fallback model
+
 This is critical.
 
 Every PRD should optionally carry or generate:
@@ -2901,6 +2862,7 @@ You are a principal document-format architect designing PRD, which stands for Po
 Your job is to define the PRD Core architecture as a serious next-generation document standard that can outperform Portable Document Format files for modern screen-native use cases while preserving portability, trust, and fallback safety.
 
 Design the PRD Core with these goals:
+
 1. Portable package-based file structure.
 2. Responsive layout system that preserves author intent across phone, tablet, desktop, presentation, and print modes.
 3. Structured semantic document tree rather than pixel-only page capture.
@@ -2912,6 +2874,7 @@ Design the PRD Core with these goals:
 9. Strong validation and forward-compatibility strategy.
 
 Output the following:
+
 - Design goals
 - Non-goals
 - Core architectural principles
@@ -3004,6 +2967,7 @@ You are a principal rendering-engine architect designing the PRD Renderer for PR
 The renderer must display structured PRD documents consistently across web, desktop, mobile, embed, and print/export targets.
 
 Design a renderer architecture that supports:
+
 1. Package loading and manifest reading.
 2. Schema validation and diagnostics.
 3. Asset loading and dependency resolution.
@@ -3016,6 +2980,7 @@ Design a renderer architecture that supports:
 10. High reliability, predictable output, and strong debugging tools.
 
 Output:
+
 - Renderer goals and constraints
 - Full renderer pipeline
 - Subsystem breakdown
@@ -3107,6 +3072,7 @@ You are a principal product architect designing the PRD Viewer for PRD, which st
 The Viewer is the main end-user reading application for PRD files. It must feel trustworthy, simple, responsive, and modern while supporting rich interactive documents safely.
 
 Design the Viewer with these goals:
+
 1. Fast open and smooth navigation.
 2. Clean reading experience across phone, tablet, desktop, and embed.
 3. Support for responsive layout, rich media, and safe interaction.
@@ -3116,6 +3082,7 @@ Design the Viewer with these goals:
 7. Export, print, and snapshot support where allowed.
 
 Output:
+
 - Product goals
 - Viewer personas
 - Core user flows
@@ -3217,6 +3184,7 @@ You are a principal editor and creative-tool architect designing PRD Studio for 
 PRD Studio is the visual authoring environment for building responsive, structured, interactive documents.
 
 Design PRD Studio with these goals:
+
 1. Make authoring modern documents easier than building a custom website.
 2. Preserve structured semantic content rather than flattening everything into painted pages.
 3. Support responsive layouts across device classes.
@@ -3226,6 +3194,7 @@ Design PRD Studio with these goals:
 7. Support preview, export, and publish workflows.
 
 Output:
+
 - Studio vision and product goals
 - Target users
 - Core workflows
@@ -3250,22 +3219,29 @@ Without the SDK, PRD stays locked inside your own tools.
 With the SDK, PRD spreads.
 
 What the SDK should include
+
 1. Parser SDK
+
 Open and inspect PRD packages.
 
-2. Validator SDK
+1. Validator SDK
+
 Check if a PRD file is valid, safe, or degraded.
 
-3. Renderer SDK
+1. Renderer SDK
+
 Embed PRD rendering into apps.
 
-4. Component SDK
+1. Component SDK
+
 Let developers make reusable PRD components.
 
-5. Converter SDK
+1. Converter SDK
+
 Import/export to other formats.
 
-6. Command Line Interface
+1. Command Line Interface
+
 “CLI” means “Command Line Interface.”
 
 This is for power users and automation.
@@ -3302,6 +3278,7 @@ You are a platform architect designing the PRD SDK for PRD, which stands for Por
 The SDK must allow external developers to read, validate, render, embed, convert, extend, and automate PRD workflows.
 
 Design the SDK with these goals:
+
 1. Clean developer-facing APIs.
 2. Safe and predictable behavior.
 3. Support for parser, validator, renderer, component, converter, and embed scenarios.
@@ -3310,6 +3287,7 @@ Design the SDK with these goals:
 6. Extensibility without breaking the core format.
 
 Output:
+
 - SDK goals and audience
 - Package breakdown
 - Public API design
@@ -3380,6 +3358,7 @@ You are a principal cloud-platform architect designing PRD Cloud for PRD, which 
 PRD Cloud is the optional service layer for hosting, collaboration, sharing, analytics, versioning, permissions, and conversion workflows around PRD documents.
 
 Design PRD Cloud with these goals:
+
 1. Cloud services must enhance PRD, not make the core format dependent on the cloud.
 2. Support hosting, sharing, collaboration, permissions, versioning, asset storage, and analytics.
 3. Support conversion and rendering jobs at scale.
@@ -3387,6 +3366,7 @@ Design PRD Cloud with these goals:
 5. Keep the architecture clean for both solo creators and enterprise teams.
 
 Output:
+
 - Cloud platform goals
 - Service boundaries
 - Core domain model
@@ -3480,6 +3460,7 @@ You are a principal archive and knowledge-system architect designing PRDc, the D
 PRDc is not the base file format. It is the archive, codex, indexing, search, metadata, provenance, discovery, and marketplace intelligence layer around PRD documents and related assets.
 
 Design PRDc with these goals:
+
 1. Ingest PRD files and extract structured metadata.
 2. Build a searchable archive and vault for documents, components, themes, and assets.
 3. Support indexing, graph relationships, provenance, lineage, and trust metadata.
@@ -3488,6 +3469,7 @@ Design PRDc with these goals:
 6. Be useful both for individuals and organizations.
 
 Output:
+
 - PRDc vision
 - Domain model
 - Ingestion architecture
@@ -3608,7 +3590,8 @@ reusable knowledge layer
 
 That separation is clean and future-proof.
 
-6. Recommended repo structure
+1. Recommended repo structure
+
 Here is the repo/org shape I’d recommend.
 
 prd/
@@ -3657,7 +3640,8 @@ marketplace intelligence/recommendation systems
 
 That split gives you adoption plus moat.
 
-7. The one master prompt for the entire ecosystem
+1. The one master prompt for the entire ecosystem
+
 This is the “mother prompt” for PRD architecture.
 
 You are a principal systems architect, product strategist, and document-platform designer.
@@ -3665,21 +3649,23 @@ You are a principal systems architect, product strategist, and document-platform
 Help me design PRD, which stands for Portable Responsive Document, as a next-generation document ecosystem that can outperform Portable Document Format files for modern screen-native, interactive, structured, and trustworthy documents.
 
 Important goals:
+
 1. PRD must not just be a prettier PDF clone.
 2. PRD should be excellent for responsive, interactive, semantic, media-rich, and portable documents.
 3. PRD must preserve trust through validation, signatures, fallback snapshots, and deterministic rendering.
 4. The ecosystem must be split into clean architecture layers:
-   - PRD Core
-   - PRD Renderer
-   - PRD Viewer
-   - PRD Studio
-   - PRD SDK
-   - PRD Cloud
-   - PRDc (Document Archive Codex)
+  - PRD Core
+  - PRD Renderer
+  - PRD Viewer
+  - PRD Studio
+  - PRD SDK
+  - PRD Cloud
+  - PRDc (Document Archive Codex)
 5. PRDc is the archive/codex/intelligence layer, not the base file format or basic viewer/editor.
 6. The design should support long-term extensibility, marketplace potential, and enterprise trust.
 
 For each layer, output:
+
 - purpose
 - responsibilities
 - non-responsibilities
@@ -3692,6 +3678,7 @@ For each layer, output:
 - relationship to other layers
 
 Then provide:
+
 - end-to-end ecosystem diagram
 - recommended repo structure
 - public/private split recommendation
@@ -3763,29 +3750,36 @@ marketplace foundations
 
 That proves PRD becomes a platform.
 
-9. My honest opinion on what matters most
+1. My honest opinion on what matters most
+
 If you ask me what the 5 most important things are, it is this:
 
 1. PRD Core must be clean
+
 If the format is ugly, everything breaks later.
 
-2. Renderer must be trustworthy
+1. Renderer must be trustworthy
+
 If rendering is inconsistent, PRD loses.
 
-3. Studio must feel magical but structured
+1. Studio must feel magical but structured
+
 If Studio is too technical, adoption suffers.
 If Studio is too freeform, PRD loses its structural power.
 
-4. PDF fallback/export must exist
+1. PDF fallback/export must exist
+
 This is non-negotiable.
 People need a bridge.
 
-5. PRDc should come after the core platform works
+1. PRDc should come after the core platform works
+
 PRDc is powerful, but it is not the first thing to build.
 
 That is the real answer.
 
-10. My recommendation in one sentence
+1. My recommendation in one sentence
+
 Build PRD Core first, then Renderer, then Viewer, then Studio, then SDK, then Cloud, and only then expand into PRDc as the archive/codex intelligence moat.
 
 Audit Trail
@@ -3803,7 +3797,6 @@ Sanity check
 If any module starts owning responsibilities from three other modules, that module is too fat and needs to be split.
 
 Next, I can map the exact folder structure and internal module tree for each repo in GitHub style, with naming, packages, and what should be public vs private.
-
 
 Shouldn’t we also create a master foundation and architecture and structural doc .md that master prompt should read from when crafting every prompt….and I’m curious what if wanna update core or the manifest in the future like adding cryto and author owner right here shred and also payments prd or also encryption. And does the manifest Jaon needs any sort of encryption for security purpose and what about file size ….etc what are your thoughts??
 
@@ -4119,6 +4112,7 @@ show a safe preview
 So I would split metadata into three zones:
 
 1. Public manifest header
+
 This stays readable.
 
 Used for:
@@ -4143,7 +4137,8 @@ This is like the shipping label on a package.
 
 You need it to know what the box is and how to handle it.
 
-2. Protected metadata
+1. Protected metadata
+
 This may be signed and tamper-checked, but not necessarily encrypted.
 
 Used for:
@@ -4162,7 +4157,8 @@ trust metadata
 
 This is visible when allowed, but integrity protected.
 
-3. Encrypted payload sections
+1. Encrypted payload sections
+
 This is for sensitive content.
 
 Used for:
@@ -4522,7 +4518,9 @@ unused components/themes bundled in the package
 So yes, file size needs discipline.
 
 My recommendation for file size strategy
+
 1. Keep manifest lean
+
 The manifest should be a compact control file, not a novel.
 
 It should describe where things are, not contain giant blobs.
@@ -4537,7 +4535,8 @@ no giant repeated metadata structures
 
 no giant permissions trees unless necessary
 
-2. Package assets separately
+1. Package assets separately
+
 Let the manifest point to:
 
 images
@@ -4554,7 +4553,8 @@ metadata files
 
 instead of embedding them directly.
 
-3. Support compression at the package level
+1. Support compression at the package level
+
 Use archive compression for textual and structured content.
 
 That helps a lot.
@@ -4569,10 +4569,12 @@ schemas
 
 text-heavy documents
 
-4. Use asset deduplication
+1. Use asset deduplication
+
 If the same font or image appears multiple times, package it once.
 
-5. Make snapshots optional or profile-based
+1. Make snapshots optional or profile-based
+
 Do not always bundle every possible fallback.
 
 Instead allow profiles like:
@@ -4609,7 +4611,8 @@ include integrity bundle
 
 That keeps packages tailored.
 
-6. Support external linked assets in hosted mode
+1. Support external linked assets in hosted mode
+
 For cloud-hosted or web-embedded PRDs, some assets can be externalized if policy allows.
 
 But for true portability mode, they should be embeddable.
@@ -4620,7 +4623,8 @@ fully self-contained package
 
 portable-plus-linked mode
 
-7. Consider binary encoding later, not first
+1. Consider binary encoding later, not first
+
 For v1, human-readable JSON-based structure is fine.
 
 Later, if needed, you can introduce:
@@ -4703,6 +4707,7 @@ The right extensibility model
 You need these three mechanisms:
 
 1. Versioning
+
 Example:
 
 manifestVersion
@@ -4711,7 +4716,8 @@ schemaVersion
 
 packageVersion
 
-2. Capabilities
+1. Capabilities
+
 Example:
 
 signatures
@@ -4724,7 +4730,8 @@ richMedia
 
 interactiveBehavior
 
-3. Namespaced extensions
+1. Namespaced extensions
+
 Example:
 
 x-prd-payments
@@ -4764,6 +4771,7 @@ My recommended master source-of-truth docs
 If you want the exact must-have docs, here they are.
 
 1. PRD_FOUNDATION.md
+
 Contains:
 
 mission
@@ -4776,7 +4784,8 @@ value proposition
 
 design principles
 
-2. PRD_SYSTEM_ARCHITECTURE.md
+1. PRD_SYSTEM_ARCHITECTURE.md
+
 Contains:
 
 all layers
@@ -4789,7 +4798,8 @@ data flow
 
 public/private split
 
-3. PRD_PACKAGE_AND_MANIFEST_SPEC.md
+1. PRD_PACKAGE_AND_MANIFEST_SPEC.md
+
 Contains:
 
 package structure
@@ -4802,7 +4812,8 @@ optional fields
 
 extension rules
 
-4. PRD_SECURITY_AND_TRUST_MODEL.md
+1. PRD_SECURITY_AND_TRUST_MODEL.md
+
 Contains:
 
 signatures
@@ -4817,7 +4828,8 @@ encryption zones
 
 public/protected/private metadata
 
-5. PRD_VERSIONING_AND_MIGRATION.md
+1. PRD_VERSIONING_AND_MIGRATION.md
+
 Contains:
 
 version policy
@@ -4830,7 +4842,8 @@ downgrade rules
 
 migration adapters
 
-6. PRD_PROMPT_DOCTRINE.md
+1. PRD_PROMPT_DOCTRINE.md
+
 Contains:
 
 every prompt must obey foundation docs
@@ -4849,6 +4862,7 @@ Something like this:
 All PRD-related prompts must treat the official PRD documentation set as the source of truth.
 
 Priority order:
+
 1. Foundation and architecture documents
 2. Package, manifest, schema, security, and versioning specifications
 3. Architecture Decision Records
@@ -4932,7 +4946,6 @@ Plan for crypto, ownership, payments, and encryption through extensions + capabi
 If you want, next I’ll draft the actual first version of:
 PRD_FOUNDATION.md, PRD_SYSTEM_ARCHITECTURE.md, and PRD_PACKAGE_AND_MANIFEST_SPEC.md in clean GitHub-ready markdown.
 
-
 So prd can’t be a large WebNovel for novelist online 
 
 It can be.
@@ -4998,7 +5011,9 @@ That is not the best model for online fiction.
 For online novels, PRD should support multiple publishing modes.
 
 The 3 modes PRD should support for novels
+
 1. Single-file portable edition
+
 This is like:
 
 a full ebook bundle
@@ -5027,7 +5042,8 @@ print/export fallback
 
 This can be large, but that is okay if it is meant to be a packaged edition.
 
-2. Serialized hosted edition
+1. Serialized hosted edition
+
 This is better for true web novels.
 
 Instead of one giant file, the novel is structured as:
@@ -5070,7 +5086,8 @@ optional extras
 
 That keeps performance sane.
 
-3. Hybrid edition
+1. Hybrid edition
+
 This is probably the best overall model.
 
 Example:
@@ -5442,7 +5459,6 @@ Judgment: PRD can support web novels very well, but the right model is serialize
 
 If you want, I’ll map a PRD-for-WebNovels architecture next — series manifest, chapter schema, reader features, premium chapter locking, and online/offline publishing flow.
 
-
 What about comic? And storyboards 
 
 Updated saved memory
@@ -5537,7 +5553,9 @@ PRD can preserve the meaning of the comic, not just the picture of the page.
 That is a huge advantage.
 
 What PRD can do better than PDF for comics
+
 1. Responsive reading
+
 A comic can adapt to:
 
 phone
@@ -5562,7 +5580,8 @@ print-safe fixed layout for collectors
 
 That is a big win.
 
-2. Panel-aware structure
+1. Panel-aware structure
+
 Instead of one flat image page, PRD can understand:
 
 this is panel 1
@@ -5579,7 +5598,8 @@ this page has alternate mobile layout
 
 That lets the viewer do smart things.
 
-3. Guided reading mode
+1. Guided reading mode
+
 A reader could choose:
 
 full-page mode
@@ -5592,7 +5612,8 @@ accessibility mode with readable text extraction
 
 That is far better than zooming around a static PDF page.
 
-4. Rich extras
+1. Rich extras
+
 PRD comic packages could support:
 
 character cards
@@ -5611,7 +5632,8 @@ hidden commentary layers
 
 collector metadata
 
-5. Better monetization and packaging
+1. Better monetization and packaging
+
 You could support:
 
 free preview pages
@@ -5688,7 +5710,9 @@ That is highly structured.
 PRD is very good when content is structured.
 
 Where PRD could beat PDF hard for storyboards
+
 1. Multiple viewing modes
+
 A storyboard PRD could show the same data in different modes:
 
 sheet mode
@@ -5711,7 +5735,8 @@ One source, many views.
 
 That is a serious advantage.
 
-2. Layered information
+1. Layered information
+
 Not everyone needs the same amount of detail.
 
 Example:
@@ -5730,7 +5755,8 @@ Same storyboard, different detail layers.
 
 That is very powerful.
 
-3. Revisions and approvals
+1. Revisions and approvals
+
 Storyboards change constantly.
 
 PRD can structure:
@@ -5749,7 +5775,8 @@ diff views between revisions
 
 Portable Document Format files are terrible at this.
 
-4. Sequence-aware navigation
+1. Sequence-aware navigation
+
 A storyboard is not just pages.
 It is a flow.
 
@@ -5767,7 +5794,8 @@ this board is omitted in client cut
 
 That is way smarter than static document pages.
 
-5. Animatic bridge
+1. Animatic bridge
+
 This is a huge one.
 
 A storyboard PRD could later connect to:
@@ -6082,6 +6110,7 @@ My recommendation
 PRD should officially support three major content families from early on:
 
 1. Textual documents
+
 reports
 
 proposals
@@ -6090,7 +6119,8 @@ novels
 
 manuals
 
-2. Visual narrative documents
+1. Visual narrative documents
+
 comics
 
 manga
@@ -6099,7 +6129,8 @@ webtoons
 
 illustrated stories
 
-3. Production sequence documents
+1. Production sequence documents
+
 storyboards
 
 shot lists
@@ -6131,11 +6162,6 @@ Judgment: yes, both fit, but they should be treated as first-class PRD profiles 
 Best strategic call: support comics as a visual-reading profile and storyboards as a structured production-sequence profile.
 
 Next step: I can map the exact PRD Comic Profile and PRD Storyboard Profile schemas, manifests, viewer modes, and Studio tooling.
-
-
-
-
-
 
 do i create a new orgaization for Flaggr or i should create a repo under eonHive?
 
@@ -6220,7 +6246,6 @@ Under EonHive.
 Only spin up a dedicated Flaggr org later when Flaggr is clearly operationally separate.
 
 If you want, I’ll give you the exact GitHub org/repo structure I’d use for Flaggr from day one.
-
 
 sure
 
@@ -6458,7 +6483,6 @@ The only reason to make a Flaggr org now is if you want to publicly present it a
 
 Next, I can give you the exact README, repo description, labels, milestones, and folder bootstrap for the eonhive/flaggr repo.
 
-
 coool... what abour prd
 
 I’m checking one thing that actually matters here: whether “PRD” is too overloaded publicly, because that affects whether it deserves its own org or should stay under EonHive.
@@ -6539,7 +6563,6 @@ That’s cleaner.
 
 I can map the full GitHub structure for EonHive umbrella repos next — like exactly where flaggr, prdc, aeonhive, shared libs, docs, and infra should sit.
 
-
 ok
 
 Thought for 7s
@@ -6569,7 +6592,9 @@ eonhive-infra — infra, deployment, Terraform, Docker, secrets strategy
 eonhive-ai — shared AI tooling, prompts, evals, embeddings, experiments
 
 Suggested structure by repo purpose
+
 1. eonhive/flaggr
+
 Use for:
 
 dashboard
@@ -6734,7 +6759,6 @@ That’s the cleanest hierarchy.
 
 Next, I can draft the exact repo descriptions, README intros, and pinned repo strategy for the whole EonHive org.
 
-
 diff between prd and prdc
 
 Thought for 4s
@@ -6894,11 +6918,9 @@ That’s the cleanest version.
 If you want, I can define the full naming stack next, like:
 PRD, PRDc, PRD Core, PRD SDK, PRD Cloud, PRD Studio, PRD Viewer, PRD Runtime.
 
-
 cool
 
 👌
-
 
 ok contnbue
 
@@ -6906,7 +6928,9 @@ Thought for 7s
 Here’s the clean naming stack I’d lock in.
 
 Core naming stack
-1) PRD
+
+1. PRD
+
 The document format / standard / protocol
 
 Use PRD for:
@@ -6929,7 +6953,8 @@ PRD spec
 
 PRD file
 
-2) PRD Core
+1. PRD Core
+
 The core parser + schema + validation + base logic
 
 Use for:
@@ -6950,7 +6975,8 @@ prd-core
 
 @eonhive/prd-core
 
-3) PRD Runtime
+1. PRD Runtime
+
 The runtime engine that loads and executes PRD behavior/features
 
 Use for:
@@ -6969,7 +6995,8 @@ prd-runtime
 
 @eonhive/prd-runtime
 
-4) PRD Renderer
+1. PRD Renderer
+
 The render engine for displaying PRD documents
 
 Use for:
@@ -6990,7 +7017,8 @@ prd-renderer
 
 @eonhive/prd-renderer
 
-5) PRD SDK
+1. PRD SDK
+
 The developer toolkit
 
 Use for:
@@ -7009,7 +7037,8 @@ prd-sdk
 
 @eonhive/prd-sdk
 
-6) PRD Viewer
+1. PRD Viewer
+
 The lightweight app/component for opening PRD documents
 
 Use for:
@@ -7026,7 +7055,8 @@ PRD Viewer
 
 prd-viewer
 
-7) PRD Studio
+1. PRD Studio
+
 The authoring/editor experience
 
 Use for:
@@ -7049,7 +7079,8 @@ prd-studio
 
 This should be the creator tool.
 
-8) PRD Cloud
+1. PRD Cloud
+
 The cloud platform/services layer
 
 Use for:
@@ -7074,7 +7105,8 @@ PRD Cloud
 
 prd-cloud
 
-9) PRDc
+1. PRDc
+
 The Codex / archive / platform shell / ecosystem hub
 
 This is the big one.
@@ -7261,7 +7293,6 @@ That gives you clean naming without fragmenting too early.
 
 Next, I can map the full PRD ecosystem architecture in a proper stack diagram: format, renderer, runtime, studio, cloud, codex, plugins, and marketplace.
 
-
 sure and if its under eonhive wuld strill be openspiurce for outside contributors etc
 
 Thought for 8s
@@ -7399,7 +7430,6 @@ Yes, absolutely.
 A repo under EonHive can still be fully open source and accept outside contributors. The org is just the container; the repo’s visibility, license, and governance decide the rest.
 
 I can draft the exact open-source structure for EonHive/prdc next: license choice, governance model, labels, contributor flow, and what should stay public vs private.
-
 
 ok.. and is PRDc an app> and is it like PRD Studio, or Viewer whaqt makw sir diffrnetr
 
@@ -7710,16 +7740,13 @@ That gives you room to grow without renaming stuff later.
 If you want, next I’ll map the exact brand hierarchy and repo/folder naming for:
 PRD → PRDc → Studio → Viewer → Cloud → SDK → Renderer.
 
-
 cool
 
 👌
 
-
 cool
 
 👌
-
 
 map the exact brand hierarchy and repo/folder naming for:
 PRD → PRDc → Studio → Viewer → Cloud → SDK → Renderer.
@@ -7794,7 +7821,9 @@ EonHive
 That is the cleanest split.
 
 What each one is
+
 1. PRD
+
 The technology standard.
 
 This is not “the app.”
@@ -7824,7 +7853,8 @@ Good usage
 
 “PRD SDK helps developers generate PRD docs.”
 
-2. PRDc
+1. PRDc
+
 The platform brand.
 
 This is the thing users interact with as a product ecosystem.
@@ -7856,7 +7886,8 @@ Good usage
 So PRD is the standard.
 PRDc is the product world around it.
 
-3. PRDc Studio
+1. PRDc Studio
+
 The authoring app.
 
 Use for:
@@ -7875,7 +7906,8 @@ publishing/export
 
 This is the creator-facing tool.
 
-4. PRDc Viewer
+1. PRDc Viewer
+
 The reader app.
 
 Use for:
@@ -7892,7 +7924,8 @@ interactive playback of PRD features
 
 This is the consumption-facing tool.
 
-5. PRDc Cloud
+1. PRDc Cloud
+
 The hosted services platform.
 
 Use for:
@@ -7915,7 +7948,8 @@ collaboration
 
 This is where PRDc becomes a real platform, not just a local app.
 
-6. PRD SDK
+1. PRD SDK
+
 The developer toolkit.
 
 This belongs under PRD, not PRDc.
@@ -7943,7 +7977,8 @@ PRD SDK
 
 not PRDc SDK, unless later you make a separate SDK specifically for PRDc cloud APIs.
 
-7. PRD Renderer
+1. PRD Renderer
+
 The rendering engine.
 
 This also belongs under PRD, not PRDc.
@@ -8258,9 +8293,9 @@ packages/prd-types
 That is the exact hierarchy I would use.
 
 Next step should be either:
+
 1. repo descriptions + README naming, or
 2. a full architecture diagram of how PRD Core/Runtime/Renderer feed Studio/Viewer/Cloud.
-
 
 so all PRD are public while PRDc is private for eonHive?
 
@@ -8502,7 +8537,6 @@ That’s the cleanest and most monetizable setup.
 
 I can map the exact public vs private repo matrix next for the whole stack.
 
-
 Make sure you read every discussion history about prd from
 The start to end not only in prd but also in other areas like eonhive, aeonHive, before making decisions or creating any foundation and architecture documents  
 
@@ -8527,9 +8561,7 @@ related naming, ownership, monetization, plugin, cloud, security, and publishing
 
 Then I’ll build the architecture from that combined context, not from a narrow slice.
 
-
 Nuts look through every history and files of discussion …although outdated  and some ideas redundant but with your new brain we can use it to know what’s good and bad and what can be implements for the present and provide ways for future too so it be scalable to accommodate all cool ideas and be the best in the future 
-
 
 Thought for 1m 5s
 Yes. That’s the right approach.
@@ -8588,6 +8620,7 @@ The important correction
 So before creating any final foundation/architecture docs, I should do this in order:
 
 1. Build a canonical synthesis
+
 One master markdown file that separates:
 
 enduring ideas
@@ -8598,7 +8631,8 @@ future extension ideas
 
 core present-day MVP architecture
 
-2. Separate present from future
+1. Separate present from future
+
 This is important because your older discussions contain:
 
 good ideas
@@ -8618,7 +8652,8 @@ Later
 
 Possible future hooks
 
-3. Design for extension, not bloat
+1. Design for extension, not bloat
+
 That means the base PRD architecture should include planned seams for future things like:
 
 ownership metadata
@@ -8661,9 +8696,11 @@ What should be inside that file
 At minimum:
 
 1. Vision and scope
+
 What PRD is, what it is not, what it must beat, and what first-class publishing types it supports.
 
-2. Cross-project alignment
+1. Cross-project alignment
+
 How PRD fits inside:
 
 EonHive
@@ -8674,7 +8711,8 @@ PRDc
 
 future creator/business ecosystem plans
 
-3. Canonical terminology
+1. Canonical terminology
+
 Lock terms like:
 
 PRD
@@ -8701,10 +8739,12 @@ Package
 
 Extension
 
-4. Core architecture
+1. Core architecture
+
 The stable technical foundation.
 
-5. Public vs protected/private layers
+1. Public vs protected/private layers
+
 Which parts are:
 
 standard/public
@@ -8715,7 +8755,8 @@ optional/commercial
 
 future decentralized hooks
 
-6. Manifest strategy
+1. Manifest strategy
+
 Including:
 
 versioning
@@ -8728,7 +8769,8 @@ extension namespaces
 
 future ownership/payment/encryption hooks
 
-7. Content profiles
+1. Content profiles
+
 Because you already pushed an important correction:
 PRD must support not only text docs, but also:
 
@@ -8739,7 +8781,8 @@ comics
 storyboards
 and other structured responsive publishing forms.
 
-8. Evolution model
+1. Evolution model
+
 How PRD can evolve without breaking older documents.
 
 Best principle going forward
@@ -8790,9 +8833,7 @@ The job is to extract the strong parts, reject the weak parts, and design a stru
 
 The next thing I should produce is the actual PRD_MASTER_FOUNDATION.md structure and content outline.
 
-
 Do you also read all 6-7 chats under prd 
-
 
 Thought for 40s
 Not fully, no.
@@ -8820,13 +8861,6 @@ all accessible PRD/EonHive/AeonHive discussions + any exported old chats/files y
 
 The cleanest move is to gather those 6–7 PRD chats into one export or file set so the foundation work is based on the full corpus instead of partial memory.
 
-
-
-
-
-
-
-
 An doc. PDF open directly in prd viewer
 
 Do you mean you want a PDF file to open directly inside your PRD (Product Requirements Document) viewer—like when someone clicks a link and instead of downloading, it opens inline in the same viewer/app?
@@ -8836,12 +8870,10 @@ Here are the main approaches depending on your context:
 🔹 1. If you’re talking about a web-based PRD viewer (e.g., Confluence, Notion, custom PRD SaaS)
 You usually need to embed the PDF:
 
-HTML <embed> or <iframe>:
+HTML  or :
 
-<embed src="yourfile.pdf" type="application/pdf" width="100%" height="600px" />
 or
 
-<iframe src="yourfile.pdf" width="100%" height="600px"></iframe>
 👉 This loads the PDF directly into the page without download.
 
 Many PRD tools have their own file viewer integrations. For example:
@@ -8857,7 +8889,6 @@ Instead of linking externally, the PDF should be opened via the app’s internal
 
 Example (web app with PDF.js):
 
-<iframe src="pdfjs/web/viewer.html?file=yourfile.pdf" width="100%" height="100%"></iframe>
 This opens inside the viewer with full navigation.
 
 🔹 3. If you mean your own PRD format (like your Crypto-PRD project)
@@ -8879,7 +8910,6 @@ Embed/Render → Inline viewing (what you want).
 
 👉 Stan, do you want me to show you a working HTML/JS demo snippet where a PDF opens directly inside a PRD-style viewer (like an inline panel with navigation)? That way you can reuse it for your PRD project.
 
-
 Yes
 
 awesome — here’s a drop-in PRD-style viewer that opens a PDF (Portable Document Format) directly inside the page, with a slim toolbar (prev/next page, zoom, page indicator). It uses PDF.js so it renders inline rather than forcing a download.
@@ -8887,37 +8917,11 @@ awesome — here’s a drop-in PRD-style viewer that opens a PDF (Portable Docum
 Option A — Minimal “just works” embed
 Super simple. Browser handles it.
 
-<!-- prd-viewer-minimal.html -->
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>PRD Inline PDF (Minimal)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    html, body { height: 100%; margin: 0; }
-    /* PRD panel vibe */
-    .prd-shell { display: grid; grid-template-rows: 48px 1fr; height: 100%; }
-    .prd-toolbar { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid #e5e7eb; font: 14px/1.2 system-ui, sans-serif; }
-    .prd-embed { height: 100%; border: 0; width: 100%; }
-    .btn { padding: 6px 10px; border: 1px solid #cbd5e1; background:#fff; border-radius: 6px; cursor:pointer; }
-  </style>
-</head>
-<body>
-  <div class="prd-shell">
-    <div class="prd-toolbar">
-      <strong>PRD PDF</strong>
-      <span style="opacity:.6">Embedded via &lt;iframe&gt;</span>
-      <!-- Tip: swap the src to your real file. If it’s cross-domain, ensure CORS (Cross-Origin Resource Sharing) allows it. -->
-    </div>
-    <!-- If <iframe> fails in a user’s browser, swap to <embed> or <object>. -->
-    <iframe class="prd-embed" src="yourfile.pdf"></iframe>
-  </div>
-</body>
-</html>
-What it does
+**PRD PDF** Embedded via     </body>
 
-Uses an <iframe> so the PDF opens inline in your PRD page.
+ What it does
+
+Uses an  so the PDF opens inline in your PRD page.
 
 Fastest path, but you get the browser’s default viewer (controls may vary by browser).
 
@@ -8928,235 +8932,68 @@ This ships your own lightweight viewer using PDF.js (no browser toolbar), so it 
 
 Replace sample.pdf with your file. If it’s hosted on a different domain, ensure it sends Access-Control-Allow-Origin: * (or your domain) for CORS.
 
-<!-- prd-viewer-pdfjs.html -->
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>PRD Inline PDF Viewer (PDF.js)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    /* ==== Shell & layout (PRD panel look) ==== */
-    html, body { height: 100%; margin: 0; background:#0b0c10; }
-    .prd-root { height: 100%; display: grid; grid-template-rows: 56px 1fr; }
-    .prd-toolbar {
-      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
-      background: #111827; color: #e5e7eb; border-bottom: 1px solid #1f2937;
-      font: 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    }
-    .spacer { flex: 1; }
-    .btn {
-      padding: 6px 10px; border: 1px solid #374151; background:#1f2937; color:#e5e7eb;
-      border-radius: 8px; cursor:pointer; user-select:none;
-    }
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
-    .field { padding: 6px 10px; border: 1px solid #374151; background:#0b0c10; color:#e5e7eb; border-radius: 8px; width: 100px; }
-    .link { color:#93c5fd; text-decoration: none; }
+```
+/* ==== Canvas stage ==== */
+.stage {
+  display: grid; place-items: start center; height: 100%;
+  overflow: auto; background: #0b0c10 radial-gradient(ellipse at 50% 0%, #111827 0%, #0b0c10 60%);
+  padding: 24px;
+}
+.page-wrap {
+  background:#111827; border:1px solid #1f2937; border-radius:12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  overflow:hidden; display: inline-block;
+}
+canvas { display: block; }
+.page-meta {
+  padding:8px 12px; background:#0b0c10; color:#9ca3af; font: 12px/1 system-ui, sans-serif;
+  border-top:1px solid #1f2937;
+}
+```
 
-    /* ==== Canvas stage ==== */
-    .stage {
-      display: grid; place-items: start center; height: 100%;
-      overflow: auto; background: #0b0c10 radial-gradient(ellipse at 50% 0%, #111827 0%, #0b0c10 60%);
-      padding: 24px;
-    }
-    .page-wrap {
-      background:#111827; border:1px solid #1f2937; border-radius:12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
-      overflow:hidden; display: inline-block;
-    }
-    canvas { display: block; }
-    .page-meta {
-      padding:8px 12px; background:#0b0c10; color:#9ca3af; font: 12px/1 system-ui, sans-serif;
-      border-top:1px solid #1f2937;
-    }
-  </style>
-</head>
-<body>
-  <div class="prd-root">
-    <div class="prd-toolbar">
-      <strong>PRD PDF Viewer</strong>
-      <span style="opacity:.6">Powered by PDF.js (Portable Document Format renderer)</span>
-      <div class="spacer"></div>
+**PRD PDF Viewer** Powered by PDF.js (Portable Document Format renderer)
 
-      <!-- Page controls -->
-      <button id="prev" class="btn" title="Previous page (Alt+←)">◀ Prev</button>
-      <span id="pageLabel">Page <input id="pageInput" class="field" type="number" min="1" value="1" /> / <span id="pageCount">?</span></span>
-      <button id="next" class="btn" title="Next page (Alt+→)">Next ▶</button>
+```
+  <!-- Page controls -->
+  <button id="prev" class="btn" title="Previous page (Alt+←)">◀ Prev</button>
+  <span id="pageLabel">Page <input id="pageInput" class="field" type="number" min="1" value="1" /> / <span id="pageCount">?</span></span>
+  <button id="next" class="btn" title="Next page (Alt+→)">Next ▶</button>
 
-      <!-- Zoom controls -->
-      <div style="width:8px"></div>
-      <button id="zoomOut" class="btn" title="Zoom Out (Ctrl/Cmd -)">−</button>
-      <span id="zoomLabel">100%</span>
-      <button id="zoomIn" class="btn" title="Zoom In (Ctrl/Cmd +)">+</button>
+  <!-- Zoom controls -->
+  <div style="width:8px"></div>
+  <button id="zoomOut" class="btn" title="Zoom Out (Ctrl/Cmd -)">−</button>
+  <span id="zoomLabel">100%</span>
+  <button id="zoomIn" class="btn" title="Zoom In (Ctrl/Cmd +)">+</button>
 
-      <!-- File source (optional: swap on the fly) -->
-      <div style="width:10px"></div>
-      <input id="fileUrl" class="field" style="width:260px" value="sample.pdf" title="PDF URL (ensure CORS if cross-origin)" />
-      <button id="loadBtn" class="btn">Load</button>
-    </div>
+  <!-- File source (optional: swap on the fly) -->
+  <div style="width:10px"></div>
+  <input id="fileUrl" class="field" style="width:260px" value="sample.pdf" title="PDF URL (ensure CORS if cross-origin)" />
+  <button id="loadBtn" class="btn">Load</button>
+</div>
 
-    <div class="stage">
-      <div class="page-wrap">
-        <canvas id="pdfCanvas"></canvas>
-        <div class="page-meta" id="meta">Loading…</div>
-      </div>
-    </div>
+<div class="stage">
+  <div class="page-wrap">
+    <canvas id="pdfCanvas"></canvas>
+    <div class="page-meta" id="meta">Loading…</div>
   </div>
+</div>
+```
 
-  <!-- PDF.js via CDN (Content Delivery Network) -->
-  <!-- We use the UMD build (window.pdfjsLib) for simplicity -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha512-J89OKe6Q8wJZk+2vWmnO6sOq21i0MiyXoY6m/EmwlQz9QuxpKPk2cJHPeOQa2V3j4sD3P6t6cBBWRRWu9m1jlg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script>
-    // === Initialization ===
-    // Tell PDF.js where to find its worker (separate thread for parsing PDF bytes)
-    // Worker improves responsiveness on large files.
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-    // UI (User Interface) elements
-    const $ = (sel) => document.querySelector(sel);
-    const canvas = $("#pdfCanvas");
-    const ctx = canvas.getContext("2d");
-    const prevBtn = $("#prev");
-    const nextBtn = $("#next");
-    const zoomInBtn = $("#zoomIn");
-    const zoomOutBtn = $("#zoomOut");
-    const pageCountEl = $("#pageCount");
-    const pageInput = $("#pageInput");
-    const zoomLabel = $("#zoomLabel");
-    const meta = $("#meta");
-    const fileUrlInput = $("#fileUrl");
-    const loadBtn = $("#loadBtn");
-
-    // Viewer state
-    let pdfDoc = null;          // The loaded PDF document
-    let currentPage = 1;        // 1-based index
-    let scale = 1.0;            // Zoom: 1 = 100%
-    let pageRendering = false;  // Prevent concurrent renders
-    let renderQueue = null;     // Queue next page render request
-
-    // Helper: render a specific page number
-    async function renderPage(num) {
-      pageRendering = true;
-      const page = await pdfDoc.getPage(num);
-
-      // Compute target viewport using current scale (zoom)
-      const viewport = page.getViewport({ scale });
-
-      // Resize canvas to match PDF page at chosen scale
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
-
-      // Render the page into the <canvas>
-      const renderContext = { canvasContext: ctx, viewport };
-      const renderTask = page.render(renderContext);
-
-      // Update meta UI during render
-      meta.textContent = `Rendering page ${num} of ${pdfDoc.numPages} at ${Math.round(scale*100)}%…`;
-
-      await renderTask.promise;
-      pageRendering = false;
-      meta.textContent = `Rendered page ${num} of ${pdfDoc.numPages}`;
-
-      // If a render was queued while we were busy, do it now
-      if (renderQueue !== null) {
-        const next = renderQueue;
-        renderQueue = null;
-        renderPage(next);
-      }
-    }
-
-    // Queue a render (if a render is in progress, stash the request)
-    function queueRenderPage(num) {
-      if (pageRendering) {
-        renderQueue = num;
-      } else {
-        renderPage(num);
-      }
-    }
-
-    // Navigation controls
-    function goToPage(num) {
-      // Clamp to valid range
-      const clamped = Math.max(1, Math.min(num, pdfDoc.numPages));
-      currentPage = clamped;
-      pageInput.value = clamped;
-      queueRenderPage(clamped);
-      updateButtons();
-    }
-
-    function updateButtons() {
-      prevBtn.disabled = currentPage <= 1;
-      nextBtn.disabled = currentPage >= pdfDoc.numPages;
-      pageCountEl.textContent = pdfDoc.numPages;
-      zoomLabel.textContent = `${Math.round(scale * 100)}%`;
-    }
-
-    // Zoom controls
-    function setScale(nextScale) {
-      // Sensible zoom limits (12.5%–400%)
-      scale = Math.max(0.125, Math.min(nextScale, 4));
-      queueRenderPage(currentPage);
-      updateButtons();
-    }
-
-    // Load a PDF by URL (string). Supports http(s) or relative path.
-    async function loadPdf(url) {
-      meta.textContent = "Loading PDF…";
-      try {
-        const loadingTask = pdfjsLib.getDocument({
-          url,
-          // withCredentials: true, // if you need cookies for auth’d endpoints
-        });
-        pdfDoc = await loadingTask.promise;
-        currentPage = 1;
-        pageInput.value = 1;
-        updateButtons();
-        await renderPage(1);
-      } catch (err) {
-        console.error(err);
-        meta.textContent = "Failed to load PDF. Check URL and CORS (Cross-Origin Resource Sharing).";
-      }
-    }
-
-    // Wire up UI events
-    prevBtn.addEventListener("click", () => goToPage(currentPage - 1));
-    nextBtn.addEventListener("click", () => goToPage(currentPage + 1));
-    pageInput.addEventListener("change", () => goToPage(parseInt(pageInput.value || "1", 10)));
-    zoomInBtn.addEventListener("click", () => setScale(scale * 1.15));
-    zoomOutBtn.addEventListener("click", () => setScale(scale / 1.15));
-    loadBtn.addEventListener("click", () => loadPdf(fileUrlInput.value.trim()));
-
-    // Keyboard shortcuts (nice inside a PRD app)
-    window.addEventListener("keydown", (e) => {
-      if (e.altKey && e.key === "ArrowLeft") goToPage(currentPage - 1);
-      if (e.altKey && e.key === "ArrowRight") goToPage(currentPage + 1);
-      if ((e.ctrlKey || e.metaKey) && (e.key === "=" || e.key === "+")) { e.preventDefault(); setScale(scale * 1.15); }
-      if ((e.ctrlKey || e.metaKey) && e.key === "-") { e.preventDefault(); setScale(scale / 1.15); }
-      if ((e.ctrlKey || e.metaKey) && e.key === "0") { e.preventDefault(); setScale(1.0); }
-    });
-
-    // Boot — load initial file (change this to your PRD’s PDF path)
-    loadPdf(fileUrlInput.value);
-  </script>
-</body>
-</html>
-How to use inside your PRD viewer/app
-Web app: drop prd-viewer-pdfjs.html into your app and set fileUrl to a PDF path you control.
+How to use inside your PRD viewer/app Web app: drop prd-viewer-pdfjs.html into your app and set fileUrl to a PDF path you control.
 
 Single-Page App panel: mount this UI inside your PRD “document pane” and pass the file URL dynamically (e.g., via query string or a prop/state).
 
 Security tip: if PDFs are private, serve them from your backend with an auth cookie or signed URL; make sure your response includes CORS if the viewer is on a different domain.
 
 Common gotchas (and fixes)
-CORS (Cross-Origin Resource Sharing): if your PDF is on another domain, set header Access-Control-Allow-Origin: https://your-prd.app (or * for open).
+CORS (Cross-Origin Resource Sharing): if your PDF is on another domain, set header Access-Control-Allow-Origin: [https://your-prd.app](https://your-prd.app) (or * for open).
 
 Content-Type: serve the file as application/pdf.
 
 Large files: PDF.js streams, but you’ll still want HTTP/2 and gzip/deflate (or brotli) enabled.
 
 Bonus: pass the PDF URL via query string
-If you want links like prd-viewer-pdfjs.html?file=https://cdn.example.com/docs/spec.pdf, tweak the boot:
+If you want links like prd-viewer-pdfjs.html?file=[https://cdn.example.com/docs/spec.pdf](https://cdn.example.com/docs/spec.pdf), tweak the boot:
 
 // Replace the "Boot — load initial file" section:
 const params = new URLSearchParams(location.search);
@@ -9167,15 +9004,18 @@ Now your PRD list can deep-link straight to a doc that opens inline.
 
 If you want, I can tailor this to React (with hooks) or Vue, or wire it into your AeonHive / crypto-PRD viewer (with your neon UI theme).
 
-
 Sure
 
 sweet — here’s a React + TypeScript PRD-style inline PDF (Portable Document Format) viewer built on PDF.js (Mozilla’s client-side PDF renderer). It gives you a consistent UI (User Interface), page nav, zoom, keyboard shortcuts, and works inside any SPA (Single-Page Application).
 
-1) Install
+1. Install
+
 npm i pdfjs-dist
+
 # or: yarn add pdfjs-dist  /  pnpm add pdfjs-dist
-2) Drop-in component: PRDPdfViewer.tsx
+
+1. Drop-in component: PRDPdfViewer.tsx
+
 Paste this into your project. It’s self-contained and commented line-by-line.
 Props let you pass a file URL (Uniform Resource Locator) and tweak initial zoom.
 
@@ -9199,7 +9039,7 @@ import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.js";
 
 // If your bundler struggles with the above, fall back to a CDN (Content Delivery Network):
 // (pdfjsLib as any).GlobalWorkerOptions.workerSrc =
-//   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+//   "[https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js](https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js)";
 
 // --------------------------- Props -------------------------------------------
 type PRDPdfViewerProps = {
@@ -9215,7 +9055,7 @@ type PRDPdfViewerProps = {
 };
 
 // --------------------------- Component ---------------------------------------
-export const PRDPdfViewer: React.FC<PRDPdfViewerProps> = ({
+export const PRDPdfViewer: React.FC = ({
   fileUrl,
   initialScale = 1.0,
   minScale = 0.125,
@@ -9227,12 +9067,12 @@ export const PRDPdfViewer: React.FC<PRDPdfViewerProps> = ({
 
   // Internal viewer state.
   const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1); // 1-based index (PDF standard)
-  const [scale, setScale] = useState<number>(initialScale);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState(1); // 1-based index (PDF standard)
+  const [scale, setScale] = useState(initialScale);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Re-entrancy guard: prevents overlapping renders when user clicks fast.
-  const renderingRef = useRef<boolean>(false);
+  const renderingRef = useRef(false);
   // If a render is currently in progress, we stash the next requested page here.
   const renderQueueRef = useRef<number | null>(null);
 
@@ -9248,33 +9088,36 @@ export const PRDPdfViewer: React.FC<PRDPdfViewerProps> = ({
       setPdfDoc(null);
       setCurrentPage(1);
 
-      try {
-        // pdfjsLib.getDocument can take a URL string or params object.
-        const task = pdfjsLib.getDocument({
-          url: fileUrl,
-          // withCredentials: true, // uncomment if your server requires cookies (same-site auth)
-        });
+```
+  try {
+    // pdfjsLib.getDocument can take a URL string or params object.
+    const task = pdfjsLib.getDocument({
+      url: fileUrl,
+      // withCredentials: true, // uncomment if your server requires cookies (same-site auth)
+    });
 
-        const doc = await task.promise;
-        if (canceled) return;
+    const doc = await task.promise;
+    if (canceled) return;
 
-        setPdfDoc(doc);
-        setLoading(false);
-      } catch (e: any) {
-        if (canceled) return;
-        setLoading(false);
-        setError(
-          "Failed to load PDF. Check the URL, Content-Type (application/pdf), and CORS (Cross-Origin Resource Sharing) headers."
-        );
-        console.error(e);
-      }
-    }
-    load();
+    setPdfDoc(doc);
+    setLoading(false);
+  } catch (e: any) {
+    if (canceled) return;
+    setLoading(false);
+    setError(
+      "Failed to load PDF. Check the URL, Content-Type (application/pdf), and CORS (Cross-Origin Resource Sharing) headers."
+    );
+    console.error(e);
+  }
+}
+load();
 
-    // Cleanup: if fileUrl changes/unmounts during a load, mark as canceled.
-    return () => {
-      canceled = true;
-    };
+// Cleanup: if fileUrl changes/unmounts during a load, mark as canceled.
+return () => {
+  canceled = true;
+};
+```
+
   }, [fileUrl]);
 
   // --------------------- Render a given page number --------------------------
@@ -9286,43 +9129,46 @@ export const PRDPdfViewer: React.FC<PRDPdfViewerProps> = ({
     }
     if (!pdfDoc || !canvasRef.current) return;
 
-    renderingRef.current = true;
-    try {
-      // Clamp page to valid range [1..numPages].
-      const clamped = Math.max(1, Math.min(pageNum, pdfDoc.numPages));
-      const page = await pdfDoc.getPage(clamped);
+```
+renderingRef.current = true;
+try {
+  // Clamp page to valid range [1..numPages].
+  const clamped = Math.max(1, Math.min(pageNum, pdfDoc.numPages));
+  const page = await pdfDoc.getPage(clamped);
 
-      // Create a viewport: transforms PDF points into pixel dimensions using our scale.
-      const viewport = page.getViewport({ scale });
+  // Create a viewport: transforms PDF points into pixel dimensions using our scale.
+  const viewport = page.getViewport({ scale });
 
-      // Size the canvas to the page at current zoom.
-      const canvas = canvasRef.current;
-      const context = canvas.getContext("2d");
-      if (!context) throw new Error("2D canvas context not available.");
+  // Size the canvas to the page at current zoom.
+  const canvas = canvasRef.current;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("2D canvas context not available.");
 
-      // Important: set width/height BEFORE rendering to avoid a blurry canvas.
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
+  // Important: set width/height BEFORE rendering to avoid a blurry canvas.
+  canvas.width = Math.floor(viewport.width);
+  canvas.height = Math.floor(viewport.height);
 
-      // Paint the page into the canvas.
-      const renderContext = { canvasContext: context, viewport };
-      const renderTask = page.render(renderContext);
-      await renderTask.promise;
+  // Paint the page into the canvas.
+  const renderContext = { canvasContext: context, viewport };
+  const renderTask = page.render(renderContext);
+  await renderTask.promise;
 
-      // Update our current page state after successful render.
-      setCurrentPage(clamped);
-    } finally {
-      // Allow the next render through.
-      renderingRef.current = false;
+  // Update our current page state after successful render.
+  setCurrentPage(clamped);
+} finally {
+  // Allow the next render through.
+  renderingRef.current = false;
 
-      // If a render was queued while we were busy, run it now.
-      if (renderQueueRef.current !== null) {
-        const next = renderQueueRef.current;
-        renderQueueRef.current = null;
-        // Fire and forget. No await here to avoid deep recursion.
-        void renderPage(next);
-      }
-    }
+  // If a render was queued while we were busy, run it now.
+  if (renderQueueRef.current !== null) {
+    const next = renderQueueRef.current;
+    renderQueueRef.current = null;
+    // Fire and forget. No await here to avoid deep recursion.
+    void renderPage(next);
+  }
+}
+```
+
   }
 
   // --------------------- React to (pdfDoc, currentPage, scale) changes -------
@@ -9370,87 +9216,95 @@ export const PRDPdfViewer: React.FC<PRDPdfViewerProps> = ({
       if (e.altKey && e.key === "ArrowLeft") prevPage();
       if (e.altKey && e.key === "ArrowRight") nextPage();
 
-      // Ctrl/Cmd +/-/0 → zoom controls
-      const mod = e.ctrlKey || e.metaKey;
-      if (mod && (e.key === "+" || e.key === "=")) {
-        e.preventDefault();
-        zoomIn();
-      }
-      if (mod && e.key === "-") {
-        e.preventDefault();
-        zoomOut();
-      }
-      if (mod && e.key === "0") {
-        e.preventDefault();
-        resetZoom();
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-    // currentPage/scale are intentionally NOT deps to avoid re-binding frequently
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+```
+  // Ctrl/Cmd +/-/0 → zoom controls
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && (e.key === "+" || e.key === "=")) {
+    e.preventDefault();
+    zoomIn();
+  }
+  if (mod && e.key === "-") {
+    e.preventDefault();
+    zoomOut();
+  }
+  if (mod && e.key === "0") {
+    e.preventDefault();
+    resetZoom();
+  }
+}
+window.addEventListener("keydown", onKey);
+return () => window.removeEventListener("keydown", onKey);
+// currentPage/scale are intentionally NOT deps to avoid re-binding frequently
+// eslint-disable-next-line react-hooks/exhaustive-deps
+```
+
   }, [pdfDoc]);
 
   // --------------------- Render UI ------------------------------------------
   return (
     <div className={["prd-root", className].filter(Boolean).join(" ")} style={styles.root}>
       {/* Toolbar (top) */}
-      <div style={styles.toolbar}>
-        <strong>PRD PDF Viewer</strong>
-        <span style={styles.subtle}> &nbsp;• Powered by PDF.js</span>
 
-        <div style={{ flex: 1 }} />
+```
+    **PRD PDF Viewer**
+     • Powered by PDF.js
+```
 
-        {/* Prev/Next */}
-        <button style={styles.btn} onClick={prevPage} disabled={!pdfDoc || currentPage <= 1} title="Previous page (Alt+←)">
-          ◀ Prev
-        </button>
+```
+    <div style={{ flex: 1 }} />
 
-        {/* Page input / count */}
-        <span style={styles.label}>
-          Page{" "}
-          <input
-            type="number"
-            min={1}
-            value={currentPage}
-            onChange={(e) => goToPage(Number(e.currentTarget.value || 1))}
-            style={styles.field}
-            title="Jump to page"
-          />{" "}
-          / {pdfDoc?.numPages ?? "?"}
-        </span>
+    {/* Prev/Next */}
+    <button style={styles.btn} onClick={prevPage} disabled={!pdfDoc || currentPage <= 1} title="Previous page (Alt+←)">
+      ◀ Prev
+    </button>
 
-        {/* Zoom controls */}
-        <button style={styles.btn} onClick={zoomOut} disabled={!pdfDoc} title="Zoom out (Ctrl/Cmd -)">
-          −
-        </button>
-        <span style={styles.label}>{zoomPct}</span>
-        <button style={styles.btn} onClick={zoomIn} disabled={!pdfDoc} title="Zoom in (Ctrl/Cmd +)">
-          +
-        </button>
-        <button style={styles.btn} onClick={resetZoom} disabled={!pdfDoc} title="Reset zoom (Ctrl/Cmd 0)">
-          100%
-        </button>
-      </div>
+    {/* Page input / count */}
+    <span style={styles.label}>
+      Page{" "}
+      <input
+        type="number"
+        min={1}
+        value={currentPage}
+        onChange={(e) => goToPage(Number(e.currentTarget.value || 1))}
+        style={styles.field}
+        title="Jump to page"
+      />{" "}
+      / {pdfDoc?.numPages ?? "?"}
+    </span>
 
-      {/* Stage (scrollable area with canvas) */}
-      <div style={styles.stage}>
-        <div style={styles.pageWrap}>
-          {loading && <div style={styles.meta}>Loading PDF…</div>}
-          {error && <div style={{ ...styles.meta, color: "#fca5a5" }}>{error}</div>}
+    {/* Zoom controls */}
+    <button style={styles.btn} onClick={zoomOut} disabled={!pdfDoc} title="Zoom out (Ctrl/Cmd -)">
+      −
+    </button>
+    <span style={styles.label}>{zoomPct}</span>
+    <button style={styles.btn} onClick={zoomIn} disabled={!pdfDoc} title="Zoom in (Ctrl/Cmd +)">
+      +
+    </button>
+    <button style={styles.btn} onClick={resetZoom} disabled={!pdfDoc} title="Reset zoom (Ctrl/Cmd 0)">
+      100%
+    </button>
+  </div>
 
-          {/* The canvas where we paint the PDF page */}
-          <canvas ref={canvasRef} style={{ display: loading || error ? "none" : "block" }} />
+  {/* Stage (scrollable area with canvas) */}
+  <div style={styles.stage}>
+    <div style={styles.pageWrap}>
+      {loading && <div style={styles.meta}>Loading PDF…</div>}
+      {error && <div style={{ ...styles.meta, color: "#fca5a5" }}>{error}</div>}
 
-          {/* Footer meta */}
-          {!loading && !error && pdfDoc && (
-            <div style={styles.meta}>
-              Page {currentPage} of {pdfDoc.numPages} &nbsp;•&nbsp; Zoom {zoomPct}
-            </div>
-          )}
+      {/* The canvas where we paint the PDF page */}
+      <canvas ref={canvasRef} style={{ display: loading || error ? "none" : "block" }} />
+
+      {/* Footer meta */}
+      {!loading && !error && pdfDoc && (
+        <div style={styles.meta}>
+          Page {currentPage} of {pdfDoc.numPages}  •  Zoom {zoomPct}
         </div>
-      </div>
+      )}
     </div>
+  </div>
+</div>
+```
+
   );
 };
 
@@ -9525,16 +9379,15 @@ import { PRDPdfViewer } from "./PRDPdfViewer";
 export default function App() {
   // Example sources:
   // 1) Same-origin file: /docs/spec.pdf
-  // 2) CDN (ensure CORS = Access-Control-Allow-Origin): https://cdn.example.com/specs/spec.pdf
+  // 2) CDN (ensure CORS = Access-Control-Allow-Origin): [https://cdn.example.com/specs/spec.pdf](https://cdn.example.com/specs/spec.pdf)
   return (
     <div style={{ height: "100vh" }}>
-      <PRDPdfViewer fileUrl="/docs/sample.pdf" initialScale={1.0} />
-    </div>
+
   );
 }
 Notes you’ll care about
 CORS (Cross-Origin Resource Sharing):
-If fileUrl is not same-origin, the PDF host must send Access-Control-Allow-Origin: https://your-app.domain (or * if public). Missing CORS → “Failed to load PDF”.
+If fileUrl is not same-origin, the PDF host must send Access-Control-Allow-Origin: [https://your-app.domain](https://your-app.domain) (or * if public). Missing CORS → “Failed to load PDF”.
 
 Content-Type: Serve as application/pdf. Some CDNs default to application/octet-stream and force download; set the correct MIME (Multipurpose Internet Mail Extensions) type.
 
@@ -9555,27 +9408,26 @@ export default function ViewerPage() {
   const file = params.get("file") ?? "/docs/sample.pdf";
   return (
     <div style={{ height: "100vh" }}>
-      <PRDPdfViewer fileUrl={file} />
-    </div>
+
   );
 }
-Why this over <iframe>?
-<iframe>/<embed> uses the browser’s PDF viewer (controls differ per OS/Browser; sometimes downloads instead of rendering).
+Why this over ?
+
+/ uses the browser’s PDF viewer (controls differ per OS/Browser; sometimes downloads instead of rendering). 
 
 PDF.js gives you a consistent UI, lets you theme it, and keeps users inside your PRD experience.
 
 If you want a Vue version, a Next.js route that streams signed URLs, or a neon AeonHive theme (gold glow, cyber UI), say the word and I’ll wire it up.
 
-
 Wait is there a need for this?
 
 Short answer: maybe not.
-If all you need is “click → open the PDF (Portable Document Format) inline,” a simple <iframe>/<embed> is usually enough. You only “need” a PDF.js-style viewer when you want consistent controls, theming, analytics, or auth flows.
+If all you need is “click → open the PDF (Portable Document Format) inline,” a simple / is usually enough. You only “need” a PDF.js-style viewer when you want consistent controls, theming, analytics, or auth flows.
 
 Here’s a quick decision guide:
 
 Do you actually need a custom viewer?
-Use <iframe> / <embed> (simple & fast) if:
+Use  /  (simple & fast) if:
 
 PDFs are public or same-origin (no tricky CORS = Cross-Origin Resource Sharing).
 
@@ -9609,18 +9461,15 @@ CORS (Cross-Origin Resource Sharing): your PDFs come from a different domain/CDN
 Uniform UX for support/docs/troubleshooting—teams hate “it looks different on my machine.”
 
 Minimal rule of thumb
-Building an MVP or internal PRD? Start with <iframe> (fastest).
+Building an MVP or internal PRD? Start with  (fastest).
 
 The moment you hit branding/auth/analytics requirements—or complaints about inconsistent controls—switch to PDF.js.
 
 Tiny examples (pick one)
 A) Minimal inline (no library):
 
-<iframe src="/docs/your-prd.pdf" style="width:100%;height:100vh;border:0"></iframe>
-B) PDF.js viewer (consistent UI):
-Use the earlier React/TS component I gave you, or the plain HTML version with:
+B) PDF.js viewer (consistent UI): Use the earlier React/TS component I gave you, or the plain HTML version with:
 
-<iframe src="/pdfjs/web/viewer.html?file=/docs/your-prd.pdf" style="width:100%;height:100vh;border:0"></iframe>
 (You can also fully embed PDF.js and style your own toolbar, as shown before.)
 
 If you tell me:
@@ -9633,7 +9482,6 @@ and whether you want custom UI/analytics,
 
 I’ll say “iframe is enough” or “go PDF.js” definitively and trim the code to the bare minimum for your setup.
 
-
 I just wanted prd viewers to be able to open all formats directly without converting to prd first to make no dev types of people to be able to quickly switch to prd quickly 
 
 gotcha — you want a single PRD (Product Requirements Document) viewer that can open many file formats directly (no “convert-to-PRD” step), so non-dev folks can drag-drop or click any doc and it just opens inline. below is a universal viewer architecture + a drop-in React + TypeScript implementation with a pluggable handler registry. it chooses the right renderer by MIME (Multipurpose Internet Mail Extensions) type or file extension, with fallbacks (including Office/Google viewers if you allow them).
@@ -9641,17 +9489,19 @@ gotcha — you want a single PRD (Product Requirements Document) viewer that can
 🔧 What it supports (out of the box)
 PDF — via PDF.js (consistent UI)
 
-Images (png, jpg, gif, webp, svg) — <img>
+Images (png, jpg, gif, webp, svg) — 
 
-Video (mp4, webm, ogg) — <video>
+Video (mp4, webm, ogg) — 
 
-Audio (mp3, wav, ogg) — <audio>
+Audio (mp3, wav, ogg) — 
 
 Markdown (.md) — client render (marked or markdown-it)
 
-Plain text / Code (.txt, .json, .xml, .csv, .log) — <pre> with syntax highlight (Prism)
+Plain text / Code (.txt, .json, .xml, .csv, .log) — ```
 
-HTML (.html) — sandboxed <iframe> (prevents XSS = Cross-Site Scripting)
+```with syntax highlight (Prism)
+
+HTML (.html) — sandboxed </body> (prevents XSS = Cross-Site Scripting)
 
 DOCX — client render via Mammoth (DOCX→HTML)
 
@@ -9659,7 +9509,7 @@ XLSX/CSV — client render via SheetJS (spreadsheet→table)
 
 PPTX — (best effort) PptxJS (client) or fallback to Office Web Viewer/Google Docs Viewer
 
-3D (.glb/.gltf) — <model-viewer> or Three.js
+3D (.glb/.gltf) —  or Three.js
 
 ZIP — JSZip for preview (list, inline open of contained text/markdown/images)
 
@@ -9685,15 +9535,22 @@ CSP (Content Security Policy): lock down iframes/scripts (e.g. sandbox, allow-sa
 Auth: for private docs, prefer signed URLs or cookie-based endpoints with withCredentials.
 
 📦 Install the optional libs (choose what you need)
+
 # core pickers/renderers
+
 npm i pdfjs-dist marked prismjs jszip
+
 # document formats
+
 npm i mammoth  # DOCX -> HTML
 npm i xlsx     # SheetJS for XLSX/CSV
+
 # (optional) PPTX viewer
+
 npm i pptxjs   # or a maintained fork; see notes in code
 
 # 3D model viewer (Google’s web component)
+
 npm i @google/model-viewer
 🧩 The registry-driven React component
 Paste these files into your app. They’re fully commented.
@@ -9729,7 +9586,7 @@ export type ViewerProps = {
 type Handler = {
   id: string;                                       // unique name (e.g., "pdfjs")
   test: (ctx: ViewerProps) => boolean;              // decides if this handler can render
-  Component: React.FC<ViewerProps>;                 // the actual renderer
+  Component: React.FC;                 // the actual renderer
   fallbackIds?: string[];                           // optional list of handler IDs to try if this one fails at runtime
 };
 
@@ -9761,9 +9618,9 @@ function hasMime(ctx: ViewerProps, prefixes: string[]) {
 
 // --------------------- Individual handlers ---------------------
 // 1) PDF via PDF.js (consistent viewer)
-const PdfJsView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
+const PdfJsView: React.FC = ({ fileUrl, style }) => {
   // Use the official PDF.js viewer in an iframe for brevity.
-  // For a custom toolbar, embed PDF.js like we did earlier and paint to <canvas>.
+  // For a custom toolbar, embed PDF.js like we did earlier and paint to .
   const viewer = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
   return (
     <iframe
@@ -9783,7 +9640,7 @@ const pdfHandler: Handler = {
 };
 
 // 2) Images (browser-native)
-const ImageView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
+const ImageView: React.FC = ({ fileUrl, style }) => {
   return (
     <div style={{ display: "grid", placeItems: "center", height: "100%", ...style }}>
       {/* decoding="async" hints faster LCP (Largest Contentful Paint) */}
@@ -9794,7 +9651,7 @@ const ImageView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
         loading="lazy"
         decoding="async"
       />
-    </div>
+    
   );
 };
 const imageHandler: Handler = {
@@ -9805,7 +9662,7 @@ const imageHandler: Handler = {
 };
 
 // 3) Video (browser-native)
-const VideoView: React.FC<ViewerProps> = ({ fileUrl, style }) => (
+const VideoView: React.FC = ({ fileUrl, style }) => (
   <video
     src={fileUrl}
     style={{ width: "100%", height: "100%", ...style }}
@@ -9821,7 +9678,7 @@ const videoHandler: Handler = {
 };
 
 // 4) Audio (browser-native)
-const AudioView: React.FC<ViewerProps> = ({ fileUrl, style }) => (
+const AudioView: React.FC = ({ fileUrl, style }) => (
   <audio src={fileUrl} style={{ width: "100%", ...style }} controls />
 );
 const audioHandler: Handler = {
@@ -9833,8 +9690,8 @@ const audioHandler: Handler = {
 // 5) Markdown (.md) using marked (client render)
 //    Note: for security, we sanitize or render to textContent if you expect untrusted input.
 import { marked } from "marked";
-const MarkdownView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
-  const [html, setHtml] = useState<string>("Loading…");
+const MarkdownView: React.FC = ({ fileUrl, style }) => {
+  const [html, setHtml] = useState("Loading…");
   React.useEffect(() => {
     (async () => {
       const res = await fetch(fileUrl, { credentials: "include" });
@@ -9857,7 +9714,7 @@ const mdHandler: Handler = {
 };
 
 // 6) Plain text / code (Prism highlight optional)
-const PlainTextView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
+const PlainTextView: React.FC = ({ fileUrl, style }) => {
   const [text, setText] = useState("Loading…");
   React.useEffect(() => {
     (async () => {
@@ -9874,7 +9731,7 @@ const PlainTextView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
       }}
     >
       {text}
-    </pre>
+    
   );
 };
 const textHandler: Handler = {
@@ -9886,7 +9743,7 @@ const textHandler: Handler = {
 
 // 7) HTML (sandboxed iframe to avoid XSS)
 //    NOTE: if you render foreign HTML bytes, prefer sandbox and disallow same-origin if possible.
-const HtmlSandboxView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
+const HtmlSandboxView: React.FC = ({ fileUrl, style }) => {
   return (
     <iframe
       title="HTML"
@@ -9907,7 +9764,7 @@ const htmlHandler: Handler = {
 // 8) DOCX via Mammoth (client-side)
 //    If Mammoth fails (complex layouts), we can fallback to Office/Google viewer if allowed.
 import * as mammoth from "mammoth";
-const DocxView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
+const DocxView: React.FC = ({ fileUrl, style }) => {
   const [html, setHtml] = useState("Loading DOCX…");
   const [failed, setFailed] = useState(false);
   React.useEffect(() => {
@@ -9916,7 +9773,7 @@ const DocxView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
         const res = await fetch(fileUrl, { credentials: "include" });
         const arrayBuffer = await res.arrayBuffer();
         const { value } = await mammoth.convertToHtml({ arrayBuffer });
-        setHtml(value || "<p>(Empty DOCX)</p>");
+        setHtml(value || "(Empty DOCX)");
       } catch (e) {
         console.error("Mammoth failed", e);
         setFailed(true);
@@ -9924,7 +9781,7 @@ const DocxView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
     })();
   }, [fileUrl]);
 
-  if (failed) return <div style={{ padding: 16, color: "#fca5a5" }}>Failed to render DOCX client-side.</div>;
+  if (failed) return <div style={{ padding: 16, color: "#fca5a5" }}>Failed to render DOCX client-side.;
   return (
     <div style={{ padding: 16, overflow: "auto", height: "100%", ...style }}
       dangerouslySetInnerHTML={{ __html: html }} />
@@ -9940,7 +9797,7 @@ const docxHandler: Handler = {
 
 // 9) XLSX/CSV via SheetJS
 import * as XLSX from "xlsx";
-const SheetView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
+const SheetView: React.FC = ({ fileUrl, style }) => {
   const [html, setHtml] = useState("Loading sheet…");
   const [err, setErr] = useState<string | null>(null);
   React.useEffect(() => {
@@ -9960,7 +9817,7 @@ const SheetView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
     })();
   }, [fileUrl]);
 
-  if (err) return <div style={{ padding: 16, color: "#fca5a5" }}>{err}</div>;
+  if (err) return <div style={{ padding: 16, color: "#fca5a5" }}>{err};
   return <div style={{ height: "100%", overflow: "auto", ...style }} dangerouslySetInnerHTML={{ __html: html }} />;
 };
 const xlsxHandler: Handler = {
@@ -9973,8 +9830,8 @@ const xlsxHandler: Handler = {
 
 // 10) PPTX (best-effort client) or fallback to cloud viewers
 // NOTE: pptxjs ecosystem is spotty. You may prefer Office/Google embeds as primary for PPTX.
-const PptxFallbackView: React.FC<ViewerProps> = ({ fileUrl, style }) => (
-  <div style={{ padding: 16, ...style }}>Attempting PPTX client render… (consider enabling Office/Google viewer fallback)</div>
+const PptxFallbackView: React.FC = ({ fileUrl, style }) => (
+  <div style={{ padding: 16, ...style }}>Attempting PPTX client render… (consider enabling Office/Google viewer fallback)
 );
 const pptxHandler: Handler = {
   id: "pptx",
@@ -9984,8 +9841,8 @@ const pptxHandler: Handler = {
   fallbackIds: ["officeEmbed", "gdocEmbed"],
 };
 
-// 11) 3D Models via <model-viewer> (GLB/GLTF)
-const ModelView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
+// 11) 3D Models via  (GLB/GLTF)
+const ModelView: React.FC = ({ fileUrl, style }) => {
   // Lazy import so SSR won't choke on custom element
   React.useEffect(() => {
     // @ts-ignore
@@ -10011,9 +9868,9 @@ const modelHandler: Handler = {
 
 // 12) ZIP preview via JSZip (list files, open text inline)
 import JSZip from "jszip";
-const ZipView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
+const ZipView: React.FC = ({ fileUrl, style }) => {
   const [entries, setEntries] = useState<{ name: string; size: number }[]>([]);
-  const [preview, setPreview] = useState<string>("Select a text/markdown file to preview");
+  const [preview, setPreview] = useState("Select a text/markdown file to preview");
   React.useEffect(() => {
     (async () => {
       const res = await fetch(fileUrl, { credentials: "include" });
@@ -10038,16 +9895,16 @@ const ZipView: React.FC<ViewerProps> = ({ fileUrl, style }) => {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", height: "100%", ...style }}>
       <div style={{ borderRight: "1px solid #1f2937", overflow: "auto" }}>
-        <div style={{ padding: 12, fontWeight: 600 }}>ZIP Contents</div>
+        <div style={{ padding: 12, fontWeight: 600 }}>ZIP Contents
         {entries.map((e) => (
           <div key={e.name} style={{ padding: "6px 12px", cursor: "pointer" }}
             onClick={() => (e.name.endsWith(".txt") || e.name.endsWith(".md")) && openText(e.name)}>
-            {e.name} <span style={{ opacity: .6 }}>({e.size} bytes)</span>
-          </div>
+            {e.name} <span style={{ opacity: .6 }}>({e.size} bytes)
+          
         ))}
-      </div>
-      <pre style={{ margin: 0, padding: 16, overflow: "auto", whiteSpace: "pre-wrap" }}>{preview}</pre>
-    </div>
+      
+      <pre style={{ margin: 0, padding: 16, overflow: "auto", whiteSpace: "pre-wrap" }}>{preview}
+    
   );
 };
 const zipHandler: Handler = {
@@ -10057,7 +9914,7 @@ const zipHandler: Handler = {
 };
 
 // 13) Cloud viewers (optional) — Microsoft Office Web Viewer / Google Docs Viewer
-const OfficeEmbed: React.FC<ViewerProps> = ({ fileUrl, style }) => {
+const OfficeEmbed: React.FC = ({ fileUrl, style }) => {
   const src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
   return (
     <iframe title="Office Viewer" src={src} style={{ width: "100%", height: "100%", border: 0, ...style }} />
@@ -10071,7 +9928,7 @@ const officeEmbedHandler: Handler = {
   Component: OfficeEmbed,
 };
 
-const GoogleDocEmbed: React.FC<ViewerProps> = ({ fileUrl, style }) => {
+const GoogleDocEmbed: React.FC = ({ fileUrl, style }) => {
   const src = `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(fileUrl)}`;
   return (
     <iframe title="Google Docs Viewer" src={src} style={{ width: "100%", height: "100%", border: 0, ...style }} />
@@ -10104,7 +9961,7 @@ const REGISTRY: Handler[] = [
 ];
 
 // --------------------- Selector & runtime fallback ---------------------
-export const UniversalDocViewer: React.FC<ViewerProps> = (props) => {
+export const UniversalDocViewer: React.FC = (props) => {
   const { style } = props;
   const [failedIds, setFailedIds] = useState<string[]>([]);
 
@@ -10117,7 +9974,7 @@ export const UniversalDocViewer: React.FC<ViewerProps> = (props) => {
     return (
       <div style={{ padding: 16, ...style }}>
         No viewer for this file type. (Enable cloud viewers? Check CORS?)
-      </div>
+      
     );
   }
 
@@ -10133,7 +9990,7 @@ export const UniversalDocViewer: React.FC<ViewerProps> = (props) => {
       // Optional: if this handler declares fallbackIds, we reset so they can be tried in order on next render
     >
       <H {...props} />
-    </ErrorBoundary>
+    
   );
 };
 
@@ -10151,7 +10008,7 @@ class ErrorBoundary extends React.Component<{ onError: () => void }, { hasError:
   }
   render() {
     if (this.state.hasError) {
-      return <div style={{ padding: 16, color: "#fca5a5" }}>Viewer failed to load.</div>;
+      return <div style={{ padding: 16, color: "#fca5a5" }}>Viewer failed to load.;
     }
     return this.props.children as any;
   }
@@ -10165,17 +10022,17 @@ export default function App() {
   return (
     <div style={{ height: "100vh" }}>
       <UniversalDocViewer
-        fileUrl="https://your-cdn.com/files/spec.pdf"
+        fileUrl="[https://your-cdn.com/files/spec.pdf](https://your-cdn.com/files/spec.pdf)"
         fileName="spec.pdf"
         mimeType="application/pdf"
         allowCloudViewers={true} // set false if you want strictly client-only renderers
       />
-    </div>
+    
   );
 }
 🔒 Security & reliability checklist (highly recommended)
 CORS (Cross-Origin Resource Sharing):
-Host files with Access-Control-Allow-Origin: https://your-prd.app (or * for public).
+Host files with Access-Control-Allow-Origin: [https://your-prd.app](https://your-prd.app) (or * for public).
 If using cookies for auth: also set Access-Control-Allow-Credentials: true and don’t use * for origin.
 
 MIME types: serve correct Content-Type (e.g., application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, etc.). Wrong MIME can force downloads or break parsers.
@@ -10187,11 +10044,11 @@ Content-Security-Policy:
   default-src 'self';
   img-src 'self' data: https:; 
   media-src 'self' https:;
-  frame-src 'self' https://view.officeapps.live.com https://docs.google.com https://cdnjs.cloudflare.com;
-  script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+  frame-src 'self' [https://view.officeapps.live.com](https://view.officeapps.live.com) [https://docs.google.com](https://docs.google.com) [https://cdnjs.cloudflare.com](https://cdnjs.cloudflare.com);
+  script-src 'self' 'unsafe-inline' [https://cdnjs.cloudflare.com](https://cdnjs.cloudflare.com);
 (Tighten for your setup; the above is illustrative.)
 
-Sandbox iframes: for untrusted HTML, use <iframe sandbox>; avoid allow-same-origin unless needed.
+Sandbox iframes: for untrusted HTML, use </body>; avoid allow-same-origin unless needed.
 
 Big files: PDF.js and SheetJS stream reasonably well; still prefer HTTP/2 and compression (Brotli/Deflate). Consider range requests for videos.
 
@@ -10214,7 +10071,6 @@ wire signed URL (time-limited) support,
 
 or build a drag-drop file panel that detects the type and launches the viewer instantly.
 
-
 Ok
 
 👍 perfect — so here’s the essence of it:
@@ -10236,7 +10092,6 @@ File hosting (make sure your CDN serves proper MIME types)
 👉 This means your PRD tool can feel more like Google Drive preview or Notion file embed, where you click any file and it opens inline — instead of forcing users to convert everything into a proprietary format first.
 
 Would you like me to sketch a user-flow diagram for how this universal PRD viewer fits into your AeonHive/Nectar ecosystem? (like: User uploads file → viewer picks handler → file shown inline → optional “Save as PRD” button). That might help you explain the idea to non-dev stakeholders.
-
 
 Which is better open a pdf in prd format without conversion is that the right way ….to maintain why prd is the best sir you use universal methods it might lack fluidity right? If on mobile 
 
@@ -10330,7 +10185,6 @@ After conversion → buttery PRD format view.
 
 That way, you can visualize how to both attract new users and maintain PRD’s position as “the best.”
 
-
 Yes so once the prd viewer detect the file it recommends a conversion to prd experience once o
 Opened right and the once you convert it starts it’s prd conversion and save it where user wants and reopen the prd version right so the universal veiwer  is like an adapted or plugin built in prd viewer is it a good ideas or it would be in the pro version or??
 
@@ -10409,15 +10263,10 @@ Pro plan = monetize unlimited conversions + advanced features.
 
 Do you want me to draw a diagram (like a flow chart with “Universal Preview → Convert → PRD Mode”) so you can show it visually in your whitepaper / pitch deck?
 
-
 Yes
 
 Image created
 Generated image: Document Conversion Workflow Diagram
-
-
-
-
 
 Share
 
@@ -10481,14 +10330,13 @@ They also tie directly into your universal viewer strategy — attachments are j
 
 Do you want me to sketch how the UI would look (resume PRD with portfolio attached in sidebar, “open” and “convert” buttons)? That would help you visualize how attachments and PRD-native experience connect.
 
-
 Sure you can also attached prd right haha would be wild attached a prd portfolio website to a prd resume lol
 
 haha yes—you can attach a PRD (Product Requirements Document) inside a PRD. Think of it like Google Docs linking a Google Doc, but with your native PRD experience (fluid scroll, annotations, mobile polish). It’s actually a feature, not a bug—great for resumes that bundle a live, interactive PRD-portfolio.
 
 Here’s how I’d design it cleanly (and safely):
 
-1) Attachment types (including PRD→PRD)
+1. Attachment types (including PRD→PRD)
 File (PDF = Portable Document Format, PNG = Portable Network Graphics, etc.)
 
 URL (Uniform Resource Locator) (external links)
@@ -10497,7 +10345,7 @@ Embed (sandboxed HTML iframe)
 
 PRD Reference (points to another PRD by ID — the “attach PRD to PRD” case)
 
-2) UX patterns that work
+1. UX patterns that work
 Inline card: Small card inside the text (“Portfolio.prd • 12 pages • last updated Aug 20, 2025” → [Open], [Peek], [Convert if needed]).
 
 Right sidebar panel: Lists all attachments with filters (All / Media / Docs / PRDs).
@@ -10508,33 +10356,33 @@ Open as native PRD: If the attachment is a PRD, jump into full PRD mode with bre
 
 “Attach PRD” CTA on Resume template: encourages that wild “resume → portfolio” flow you mentioned.
 
-3) Data model (simple, future-proof)
+1. Data model (simple, future-proof)
 {
   "id": "prd_123",                       // PRD ID (primary key in your datastore)
   "title": "Stanley — Resume",
   "attachments": [
-    {
-      "id": "att_1",
-      "kind": "file",                     // file | url | embed | prd
-      "mime": "application/pdf",          // MIME = Multipurpose Internet Mail Extensions
-      "name": "Awards.pdf",
-      "url": "https://cdn.example.com/awards.pdf",
-      "size": 324891,
-      "createdAt": "2025-08-20T12:00:00Z"
-    },
-    {
-      "id": "att_2",
-      "kind": "prd",                      // <-- PRD-to-PRD reference
-      "refPrdId": "prd_789",
-      "name": "Stanley — Portfolio (PRD)",
-      "openMode": "native"                // native (PRD mode) | peek (preview first)
-    }
+ {
+   "id": "att_1",
+   "kind": "file",                     // file | url | embed | prd
+   "mime": "application/pdf",          // MIME = Multipurpose Internet Mail Extensions
+   "name": "Awards.pdf",
+   "url": "https://cdn.example.com/awards.pdf",
+   "size": 324891,
+   "createdAt": "2025-08-20T12:00:00Z"
+ },
+ {
+   "id": "att_2",
+   "kind": "prd",                      // <-- PRD-to-PRD reference
+   "refPrdId": "prd_789",
+   "name": "Stanley — Portfolio (PRD)",
+   "openMode": "native"                // native (PRD mode) | peek (preview first)
+ }
   ],
   "security": {
-    "visibility": "private",              // private | workspace | public
-    "shareLinks": [
-      { "token": "s_abc123", "perm": "view", "expiresAt": null }
-    ]
+ "visibility": "private",              // private | workspace | public
+ "shareLinks": [
+   { "token": "s_abc123", "perm": "view", "expiresAt": null }
+ ]
   }
 }
 Why this shape?
@@ -10542,31 +10390,31 @@ Keeps attachments generic, with a special kind: "prd" for PRD→PRD.
 
 You can add versioning later per attachment without changing the core PRD schema.
 
-4) Prevent “infinite nesting” (and mobile jank)
+1. Prevent “infinite nesting” (and mobile jank)
 Breadcrumbs with a max depth (e.g., 4 levels). If exceeded → prompt “Open in new tab / app.”
 
 Cycle guard: detect when a PRD attaches a PRD that eventually attaches back (graph cycle). Show a “circular reference” toast and disable deep open.
 
 Preview budget: On mobile, cap peek previews to 1 open preview at a time; others collapse to cards for fluidity.
 
-5) Permissions & sharing
+1. Permissions & sharing
 Attachment inherits parent PRD permissions by default.
 
 If an attached PRD has stricter permissions, show a small lock badge and a “request access” button.
 
 Public share links should scope to both the parent and attached PRDs (or prompt to include them).
 
-6) Versioning behavior that users expect
+1. Versioning behavior that users expect
 Attach a specific version (frozen) or attach latest (floating).
 
 Show a mini chip: “v12 · Last updated 3d ago · [Pin this version]”.
 
-7) “Attach PRD” — line-of-business rules (great for Pro)
+1. “Attach PRD” — line-of-business rules (great for Pro)
 Free: attach files + 1 PRD reference.
 
 Pro: unlimited PRD references, smart cross-links, AI summaries, and bundle export (zip with link map).
 
-8) Tiny React bits (drop-in, well-commented)
+1. Tiny React bits (drop-in, well-commented)
 Attachment Card (with PRD handling)
 // AttachmentCard.tsx
 // Small, reusable card for any attachment. If it's a PRD, we show PRD-specific actions.
@@ -10608,30 +10456,25 @@ export function AttachmentCard(props: {
         background: "#fff"
       }}
     >
-      <div style={{ fontSize: 18 }}>{icon}</div>
+      <div style={{ fontSize: 18 }}>{icon}
 
-      <div style={{ overflow: "hidden" }}>
-        <div style={{ fontWeight: 600, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
-          {att.name}
-        </div>
-        <div style={{ color: "#6b7280", fontSize: 12 }}>
-          {att.kind === "file" && (att as any).mime}
-          {att.kind === "url"  && "External link"}
-          {att.kind === "embed" && "Embedded content"}
-          {att.kind === "prd"  && "PRD document"}
-        </div>
-      </div>
+```
 
-      <div style={{ display: "flex", gap: 8 }}>
-        {/* Peek = open in Universal Viewer (non-blocking preview) */}
-        <button onClick={() => onOpen(att)} style={btn}>Peek</button>
+{att.name}
 
-        {/* If PRD: allow full, native PRD open (buttery UX on mobile) */}
-        {att.kind === "prd" && onOpenNativePrd && (
-          <button onClick={() => onOpenNativePrd(att.refPrdId)} style={btnPrimary}>Open PRD</button>
-        )}
-      </div>
-    </div>
+ {att.kind === "file" && (att as any).mime} {att.kind === "url" && "External link"} {att.kind === "embed" && "Embedded content"} {att.kind === "prd" && "PRD document"}
+
+{/* Peek = open in Universal Viewer (non-blocking preview) */} onOpen(att)} style={btn}>Peek
+
+```
+{/* If PRD: allow full, native PRD open (buttery UX on mobile) */}
+{att.kind === "prd" && onOpenNativePrd && (
+  <button onClick={() => onOpenNativePrd(att.refPrdId)} style={btnPrimary}>Open PRD</button>
+)}
+```
+
+```
+
   );
 }
 
@@ -10656,23 +10499,26 @@ export function usePrdOpen() {
   function openNativePrd(prdId: string) {
     const path = pathRef.current;
 
-    // 1) Cycle detection: if this ID already in path, stop and warn.
-    if (path.includes(prdId)) {
-      alert("Circular PRD reference detected. Open in new tab instead.");
-      return;
-    }
+```
+// 1) Cycle detection: if this ID already in path, stop and warn.
+if (path.includes(prdId)) {
+  alert("Circular PRD reference detected. Open in new tab instead.");
+  return;
+}
 
-    // 2) Depth guard (e.g., max 4 levels)
-    if (path.length >= 4) {
-      alert("Too many nested PRDs. Open in a new tab for clarity.");
-      return;
-    }
+// 2) Depth guard (e.g., max 4 levels)
+if (path.length >= 4) {
+  alert("Too many nested PRDs. Open in a new tab for clarity.");
+  return;
+}
 
-    // 3) Push, navigate, then pop when you leave (pseudo: depends on your router)
-    path.push(prdId);
-    // Example: navigate(`/prd/${prdId}`) // your SPA (Single-Page Application) route
-    // When route unmounts, pop:
-    setTimeout(() => path.pop(), 0);
+// 3) Push, navigate, then pop when you leave (pseudo: depends on your router)
+path.push(prdId);
+// Example: navigate(`/prd/${prdId}`) // your SPA (Single-Page Application) route
+// When route unmounts, pop:
+setTimeout(() => path.pop(), 0);
+```
+
   }
 
   return { openNativePrd };
@@ -10682,7 +10528,8 @@ Show Attach → options: File, URL, PRD.
 
 If PRD: open a picker of the user’s PRDs (searchable), save kind: "prd", refPrdId.
 
-9) Mobile polish (the secret sauce)
+1. Mobile polish (the secret sauce)
+
 Peek drawer (75% height, snap to full with a swipe) → excellent for quick portfolio viewing.
 
 Lazy load heavy previews (PDF.js, videos) only when the card comes into view.
@@ -10691,7 +10538,8 @@ Cache thumbnails/previews so back-and-forth stays smooth.
 
 One live preview at a time on mobile; others pause/unmount to save memory (RAM).
 
-10) AI niceties (Pro-worthy)
+1. AI niceties (Pro-worthy)
+
 “Summarize all attachments” → one-click executive summary inside the resume PRD.
 
 “Pull highlights from attached PRD Portfolio” → auto-generate a featured projects section.
@@ -10707,7 +10555,6 @@ Make basic attachments free, and upsell unlimited PRD references + AI + bundle e
 
 Want me to wrap this into a tiny attach-panel React module (sidebar list, drag-drop, upload, and PRD picker) you can paste into your app?
 
-
 Sure
 
 awesome — here’s a paste-in attach panel for your PRD app. It includes:
@@ -10722,7 +10569,8 @@ cycle/depth guards for PRD→PRD navigation (prevents infinite nesting)
 
 I wrote it in React + TypeScript, with dense inline comments (every block explains itself; abbreviations expanded).
 
-0) Types — types.ts
+1. Types — types.ts
+
 // types.ts
 // Core data types shared by the attach panel.
 // Abbrev. explanations:
@@ -10750,7 +10598,7 @@ export type AttachmentEmbed = {
   id: string;
   kind: "embed";
   name: string;
-  html: string;               // Raw HTML to sandbox in an <iframe>
+  html: string;               // Raw HTML to sandbox in an 
 };
 
 export type AttachmentPrdRef = {
@@ -10770,7 +10618,9 @@ export type PrdSummary = {
   updatedAt?: string;        // ISO date for display/sort
   pages?: number;            // Optional: page count if you track it
 };
-1) Attachment Card — AttachmentCard.tsx
+
+1. Attachment Card — AttachmentCard.tsx
+
 // AttachmentCard.tsx
 // Small card that renders any attachment row with actions.
 // Abbrev. used in comments:
@@ -10809,48 +10659,51 @@ export function AttachmentCard(props: {
         background: "#fff",
       }}
     >
-      <div style={{ fontSize: 18 }}>{icon}</div>
+      <div style={{ fontSize: 18 }}>{icon}
 
-      <div style={{ minWidth: 0 }}>
-        <div
-          style={{
-            fontWeight: 600,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-          title={att.name}
-        >
-          {att.name}
-        </div>
-        <div style={{ color: "#6b7280", fontSize: 12 }}>
-          {att.kind === "file" && "File"}
-          {att.kind === "url"  && "External link"}
-          {att.kind === "embed" && "Embedded HTML (HyperText Markup Language)"}
-          {att.kind === "prd"  && "PRD document"}
-        </div>
-      </div>
-
-      <div style={{ display: "flex", gap: 8 }}>
-        <button style={btn} onClick={() => onPeek(att)} title="Preview (peek)">Peek</button>
-
-        {att.kind === "prd" && onOpenNativePrd && (
-          <button
-            style={btnPrimary}
-            onClick={() => onOpenNativePrd(att.refPrdId)}
-            title="Open in native PRD mode"
-          >
-            Open PRD
-          </button>
-        )}
-
-        {onRemove && (
-          <button style={btnDanger} onClick={() => onRemove(att.id)} title="Remove attachment">
-            Remove
-          </button>
-        )}
-      </div>
+```
+  <div style={{ minWidth: 0 }}>
+    <div
+      style={{
+        fontWeight: 600,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      }}
+      title={att.name}
+    >
+      {att.name}
     </div>
+    <div style={{ color: "#6b7280", fontSize: 12 }}>
+      {att.kind === "file" && "File"}
+      {att.kind === "url"  && "External link"}
+      {att.kind === "embed" && "Embedded HTML (HyperText Markup Language)"}
+      {att.kind === "prd"  && "PRD document"}
+    </div>
+  </div>
+
+  <div style={{ display: "flex", gap: 8 }}>
+    <button style={btn} onClick={() => onPeek(att)} title="Preview (peek)">Peek</button>
+
+    {att.kind === "prd" && onOpenNativePrd && (
+      <button
+        style={btnPrimary}
+        onClick={() => onOpenNativePrd(att.refPrdId)}
+        title="Open in native PRD mode"
+      >
+        Open PRD
+      </button>
+    )}
+
+    {onRemove && (
+      <button style={btnDanger} onClick={() => onRemove(att.id)} title="Remove attachment">
+        Remove
+      </button>
+    )}
+  </div>
+</div>
+```
+
   );
 }
 
@@ -10903,34 +10756,31 @@ export function PrdPickerDialog(props: {
   if (!open) return null;
 
   return (
-    <div style={overlay}>
-      <div style={modal}>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <strong style={{ fontSize: 16 }}>Attach a PRD</strong>
-          <div style={{ flex: 1 }} />
-          <button style={btn} onClick={onClose} aria-label="Close dialog">✕</button>
-        </div>
+    **Attach a PRD**✕
 
-        <input
-          value={q}
-          onChange={(e) => setQ(e.currentTarget.value)}
-          placeholder="Search PRDs…"
-          style={field}
-        />
+```
+    <input
+      value={q}
+      onChange={(e) => setQ(e.currentTarget.value)}
+      placeholder="Search PRDs…"
+      style={field}
+    />
 
-        <div style={{ maxHeight: 280, overflow: "auto", marginTop: 8 }}>
-          {filtered.map(prd => (
-            <div key={prd.id} style={row} onClick={() => onPick(prd.id)}>
-              <div style={{ fontWeight: 600 }}>{prd.title}</div>
-              <div style={{ color: "#6b7280", fontSize: 12 }}>
-                {prd.pages ? `${prd.pages} pages · ` : ""}{prd.updatedAt ? `Updated ${new Date(prd.updatedAt).toLocaleDateString()}` : ""}
-              </div>
-            </div>
-          ))}
-          {!filtered.length && <div style={{ color: "#6b7280", padding: 12 }}>No results</div>}
+    <div style={{ maxHeight: 280, overflow: "auto", marginTop: 8 }}>
+      {filtered.map(prd => (
+        <div key={prd.id} style={row} onClick={() => onPick(prd.id)}>
+          <div style={{ fontWeight: 600 }}>{prd.title}</div>
+          <div style={{ color: "#6b7280", fontSize: 12 }}>
+            {prd.pages ? `${prd.pages} pages · ` : ""}{prd.updatedAt ? `Updated ${new Date(prd.updatedAt).toLocaleDateString()}` : ""}
+          </div>
         </div>
-      </div>
+      ))}
+      {!filtered.length && <div style={{ color: "#6b7280", padding: 12 }}>No results</div>}
     </div>
+  </div>
+</div>
+```
+
   );
 }
 
@@ -10968,28 +10818,31 @@ import { AttachmentFile } from "./types";
 export function useUploader() {
   const [busy, setBusy] = useState(false);
 
-  async function uploadFile(file: File): Promise<AttachmentFile> {
+  async function uploadFile(file: File): Promise {
     setBusy(true);
     try {
       // Example: POST to your API and get back a public URL from your CDN (Content Delivery Network)
       // const res = await fetch("/api/upload", { method: "POST", body: /* formdata with file */ });
       // const data = await res.json();
 
-      // Demo stub: simulate a CDN URL and echo metadata
-      await new Promise(r => setTimeout(r, 600));
-      const id = crypto.randomUUID();
-      return {
-        id,
-        kind: "file",
-        name: file.name,
-        url: URL.createObjectURL(file),        // NOTE: in prod use real CDN URL, not object URL
-        mime: file.type || "application/octet-stream",
-        size: file.size,
-        createdAt: new Date().toISOString(),
-      };
-    } finally {
-      setBusy(false);
-    }
+```
+  // Demo stub: simulate a CDN URL and echo metadata
+  await new Promise(r => setTimeout(r, 600));
+  const id = crypto.randomUUID();
+  return {
+    id,
+    kind: "file",
+    name: file.name,
+    url: URL.createObjectURL(file),        // NOTE: in prod use real CDN URL, not object URL
+    mime: file.type || "application/octet-stream",
+    size: file.size,
+    createdAt: new Date().toISOString(),
+  };
+} finally {
+  setBusy(false);
+}
+```
+
   }
 
   return { busy, uploadFile };
@@ -11090,75 +10943,80 @@ export function AttachPanel(props: {
   }, [embedHtml, embedName, add]);
 
   return (
-    <aside style={panel}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <strong>Attachments</strong>
-        <div style={{ flex: 1 }} />
-        {busy && <span style={{ color: "#6b7280", fontSize: 12 }}>Uploading…</span>}
-      </div>
 
-      {/* Drag-drop area */}
-      <div
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={onDrop}
-        style={dropZone}
-        title="Drag & drop files here"
-      >
-        <div>Drag & drop files</div>
-        <div style={{ color: "#6b7280", fontSize: 12 }}>PDF, images, docs…</div>
-      </div>
+```
+  {/* Header */}
+  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    **Attachments**
+    <div style={{ flex: 1 }} />
+    {busy && <span style={{ color: "#6b7280", fontSize: 12 }}>Uploading…}
+  
+```
 
-      {/* Secondary CTAs: Attach PRD, URL, Embed */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        <button style={btn} onClick={openPicker}>Attach PRD</button>
-        <button style={btn} onClick={() => document.getElementById("urlForm")?.scrollIntoView({ behavior: "smooth" })}>
-          Add URL
-        </button>
-      </div>
-      <button style={{ ...btn, marginTop: 8, width: "100%" }}
-              onClick={() => document.getElementById("embedForm")?.scrollIntoView({ behavior: "smooth" })}>
-        Add Embed
-      </button>
+```
+  {/* Drag-drop area */}
+  <div
+    onDragOver={(e) => e.preventDefault()}
+    onDrop={onDrop}
+    style={dropZone}
+    title="Drag & drop files here"
+  >
+    <div>Drag & drop files</div>
+    <div style={{ color: "#6b7280", fontSize: 12 }}>PDF, images, docs…</div>
+  </div>
 
-      {/* URL form */}
-      <div id="urlForm" style={group}>
-        <div style={{ fontWeight: 600 }}>Link (URL)</div>
-        <input placeholder="Display name" value={urlName} onChange={(e) => setUrlName(e.currentTarget.value)} style={field} />
-        <input placeholder="https://example.com" value={urlHref} onChange={(e) => setUrlHref(e.currentTarget.value)} style={field} />
-        <button style={btn} onClick={addUrl}>Attach URL</button>
-      </div>
+  {/* Secondary CTAs: Attach PRD, URL, Embed */}
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+    <button style={btn} onClick={openPicker}>Attach PRD</button>
+    <button style={btn} onClick={() => document.getElementById("urlForm")?.scrollIntoView({ behavior: "smooth" })}>
+      Add URL
+    </button>
+  </div>
+  <button style={{ ...btn, marginTop: 8, width: "100%" }}
+          onClick={() => document.getElementById("embedForm")?.scrollIntoView({ behavior: "smooth" })}>
+    Add Embed
+  </button>
 
-      {/* Embed form */}
-      <div id="embedForm" style={group}>
-        <div style={{ fontWeight: 600 }}>Embed (HTML, sandboxed)</div>
-        <input placeholder="Display name" value={embedName} onChange={(e) => setEmbedName(e.currentTarget.value)} style={field} />
-        <textarea placeholder="<div>Safe HTML</div>" value={embedHtml} onChange={(e) => setEmbedHtml(e.currentTarget.value)} style={{ ...field, height: 100 }} />
-        <button style={btn} onClick={addEmbed}>Attach Embed</button>
-      </div>
+  {/* URL form */}
+  <div id="urlForm" style={group}>
+    <div style={{ fontWeight: 600 }}>Link (URL)</div>
+    <input placeholder="Display name" value={urlName} onChange={(e) => setUrlName(e.currentTarget.value)} style={field} />
+    <input placeholder="https://example.com" value={urlHref} onChange={(e) => setUrlHref(e.currentTarget.value)} style={field} />
+    <button style={btn} onClick={addUrl}>Attach URL</button>
+  </div>
 
-      {/* List */}
-      <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
-        {attachments.map((att) => (
-          <AttachmentCard
-            key={att.id}
-            att={att}
-            onPeek={onPeek}
-            onOpenNativePrd={onOpenNativePrd}
-            onRemove={remove}
-          />
-        ))}
-        {!attachments.length && <div style={{ color: "#6b7280", textAlign: "center" }}>No attachments yet</div>}
-      </div>
+  {/* Embed form */}
+  <div id="embedForm" style={group}>
+    <div style={{ fontWeight: 600 }}>Embed (HTML, sandboxed)</div>
+    <input placeholder="Display name" value={embedName} onChange={(e) => setEmbedName(e.currentTarget.value)} style={field} />
+    <textarea placeholder="<div>Safe HTML</div>" value={embedHtml} onChange={(e) => setEmbedHtml(e.currentTarget.value)} style={{ ...field, height: 100 }} />
+    <button style={btn} onClick={addEmbed}>Attach Embed</button>
+  </div>
 
-      {/* PRD picker dialog */}
-      <PrdPickerDialog
-        open={showPicker}
-        prds={allPrds}
-        onClose={() => setShowPicker(false)}
-        onPick={onPickPrd}
+  {/* List */}
+  <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+    {attachments.map((att) => (
+      <AttachmentCard
+        key={att.id}
+        att={att}
+        onPeek={onPeek}
+        onOpenNativePrd={onOpenNativePrd}
+        onRemove={remove}
       />
-    </aside>
+    ))}
+    {!attachments.length && <div style={{ color: "#6b7280", textAlign: "center" }}>No attachments yet</div>}
+  </div>
+
+  {/* PRD picker dialog */}
+  <PrdPickerDialog
+    open={showPicker}
+    prds={allPrds}
+    onClose={() => setShowPicker(false)}
+    onPick={onPickPrd}
+  />
+</aside>
+```
+
   );
 }
 
@@ -11258,49 +11116,51 @@ export default function PrdPageExample() {
       {/* Main PRD content area (placeholder) */}
       <div style={{ position: "relative", background: "#0b0c10" }}>
         <div style={{ padding: 16, color: "#e5e7eb" }}>
-          <h2>Stanley — Resume (PRD)</h2>
-          <p>Attach a portfolio, PDFs, images, links — or even another PRD. Tap “Peek” to preview inline.</p>
+          ## Stanley — Resume (PRD)
+          Attach a portfolio, PDFs, images, links — or even another PRD. Tap “Peek” to preview inline.
+
+```
+    {/* Peek drawer */}
+    {peekTarget && (
+      <div style={peekDrawer}>
+        <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2937", background: "#111827", color: "#e5e7eb" }}>
+          <strong style={{ marginRight: 8 }}>Peek:</strong> {peekTarget.name}
+          <div style={{ flex: 1 }} />
+          <button style={{ padding: "6px 10px", border: "1px solid #374151", borderRadius: 8, background: "#1f2937", color: "#e5e7eb" }}
+                  onClick={() => setPeekTarget(null)}>
+            Close
+          </button>
         </div>
 
-        {/* Peek drawer */}
-        {peekTarget && (
-          <div style={peekDrawer}>
-            <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2937", background: "#111827", color: "#e5e7eb" }}>
-              <strong style={{ marginRight: 8 }}>Peek:</strong> {peekTarget.name}
-              <div style={{ flex: 1 }} />
-              <button style={{ padding: "6px 10px", border: "1px solid #374151", borderRadius: 8, background: "#1f2937", color: "#e5e7eb" }}
-                      onClick={() => setPeekTarget(null)}>
-                Close
-              </button>
-            </div>
-
-            {/* If it's EMBED, sandbox-render; else use universal viewer */}
-            {peekTarget.kind === "embed" ? (
-              <iframe
-                title={peekTarget.name}
-                srcDoc={peekTarget.html}
-                style={{ width: "100%", height: "100%", border: 0 }}
-                sandbox="allow-scripts allow-forms"
-              />
-            ) : viewerProps ? (
-              <UniversalDocViewer {...viewerProps} />
-            ) : (
-              <div style={{ padding: 16, color: "#e5e7eb" }}>This type can’t be peeked here.</div>
-            )}
-          </div>
+        {/* If it's EMBED, sandbox-render; else use universal viewer */}
+        {peekTarget.kind === "embed" ? (
+          <iframe
+            title={peekTarget.name}
+            srcDoc={peekTarget.html}
+            style={{ width: "100%", height: "100%", border: 0 }}
+            sandbox="allow-scripts allow-forms"
+          />
+        ) : viewerProps ? (
+          <UniversalDocViewer {...viewerProps} />
+        ) : (
+          <div style={{ padding: 16, color: "#e5e7eb" }}>This type can’t be peeked here.</div>
         )}
       </div>
+    )}
+  </div>
 
-      {/* Attachments sidebar */}
-      <AttachPanel
-        attachments={attachments}
-        setAttachments={setAttachments}
-        currentPrdPath={currentPrdPath}
-        onPeek={onPeek}
-        onOpenNativePrd={onOpenNativePrd}
-        loadPrdList={loadPrdList}
-      />
-    </div>
+  {/* Attachments sidebar */}
+  <AttachPanel
+    attachments={attachments}
+    setAttachments={setAttachments}
+    currentPrdPath={currentPrdPath}
+    onPeek={onPeek}
+    onOpenNativePrd={onOpenNativePrd}
+    loadPrdList={loadPrdList}
+  />
+</div>
+```
+
   );
 }
 
@@ -11322,7 +11182,7 @@ Add URL / Embed → creates url/embed attachments.
 
 The AttachmentCard shows each attachment with:
 
-Peek (opens a preview drawer using UniversalDocViewer or a sandboxed <iframe> for embeds).
+Peek (opens a preview drawer using UniversalDocViewer or a sandboxed  for embeds).
 
 Open PRD (only for kind: "prd", jumps to native PRD mode).
 
@@ -11356,7 +11216,6 @@ Want a real uploader (S3 + signed URL + CORS headers = Cross-Origin Resource Sha
 Want AI “Summarize attachments” action? I’ll add a toolbar button and the callout hook.
 
 If you paste these 5 files (plus your existing UniversalDocViewer) into a React app, you’ll have a working attachments UX that also supports the fun PRD→PRD portfolio-inside-resume flow.
-
 
 Sure
 
@@ -11448,7 +11307,6 @@ Or, if you prefer, I can draw you a diagram (like the flow I did earlier) showin
 
 👉 Do you want me to go visual next (a diagram of the PRD-inside-PRD + attach flow), or code next (AeonHive-styled attach panel with real uploader stub)?
 
-
 Yes 
 
 Love it — I’ll do both: a quick visual flow you can show to stakeholders and the AeonHive-styled code upgrades (theme + uploader + “Convert to PRD” action) so it’s shippable.
@@ -11487,7 +11345,8 @@ Attachments panel ties in anywhere: you can attach files/URLs/embeds/PRDs, peek 
 Code: AeonHive skin + uploader + “Convert to PRD” action
 Below are drop-ins that extend the components I gave you earlier.
 
-1) Theme tokens (AeonHive dark + gold)
+1. Theme tokens (AeonHive dark + gold)
+
 // aeonTheme.ts
 export const aeon = {
   bg: "#0b0c10",          // app background
@@ -11543,7 +11402,8 @@ const field: React.CSSProperties = {
 };
 Feels instantly “AeonHive”: dark UI (User Interface) with gold accents.
 
-2) Real uploader stub (S3 pre-signed PUT)
+1. Real uploader stub (S3 pre-signed PUT)
+
 This replaces the demo useUploader. It shows S3 (Amazon Simple Storage Service) pre-signed PUT flow, with correct headers for CORS (Cross-Origin Resource Sharing) and MIME (Multipurpose Internet Mail Extensions).
 
 // useUploader.s3.ts
@@ -11559,7 +11419,7 @@ type PresignResp = {
 export function useUploaderS3() {
   const [busy, setBusy] = useState(false);
 
-  async function uploadFile(file: File): Promise<AttachmentFile> {
+  async function uploadFile(file: File): Promise {
     setBusy(true);
     try {
       // 1) Ask your backend to generate a pre-signed URL
@@ -11573,31 +11433,34 @@ export function useUploaderS3() {
       if (!presign.ok) throw new Error("Failed to presign");
       const { uploadUrl, publicUrl, key } = (await presign.json()) as PresignResp;
 
-      // 2) Upload the bytes directly to S3 with PUT
-      const put = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": file.type || "application/octet-stream",
-          "Content-Length": String(file.size),
-          // Optional: "x-amz-acl": "public-read" (if your policy requires it)
-        },
-        body: file,
-      });
-      if (!put.ok) throw new Error(`Upload failed with ${put.status}`);
+```
+  // 2) Upload the bytes directly to S3 with PUT
+  const put = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": file.type || "application/octet-stream",
+      "Content-Length": String(file.size),
+      // Optional: "x-amz-acl": "public-read" (if your policy requires it)
+    },
+    body: file,
+  });
+  if (!put.ok) throw new Error(`Upload failed with ${put.status}`);
 
-      // 3) Return the canonical public URL for previews
-      return {
-        id: crypto.randomUUID(),
-        kind: "file",
-        name: file.name,
-        url: publicUrl,   // e.g., https://cdn.example.com/{key}
-        mime: file.type,
-        size: file.size,
-        createdAt: new Date().toISOString(),
-      };
-    } finally {
-      setBusy(false);
-    }
+  // 3) Return the canonical public URL for previews
+  return {
+    id: crypto.randomUUID(),
+    kind: "file",
+    name: file.name,
+    url: publicUrl,   // e.g., https://cdn.example.com/{key}
+    mime: file.type,
+    size: file.size,
+    createdAt: new Date().toISOString(),
+  };
+} finally {
+  setBusy(false);
+}
+```
+
   }
 
   return { busy, uploadFile };
@@ -11608,7 +11471,8 @@ POST /api/uploads/presign validates user/limits, creates S3 pre-signed URL for a
 
 S3 CORS config must allow PUT from your app origin and expose ETag.
 
-3) “Convert to PRD” button inside the Peek drawer
+1. “Convert to PRD” button inside the Peek drawer
+
 Adds the conversion CTA right where users preview. After conversion, we attach the new PRD and open it natively.
 
 // In PrdPageExample.tsx peek drawer, add:
@@ -11660,25 +11524,10 @@ async function convertToPrd(peek: Attachment) {
 Add the CTA button to the peek header:
 
 {/* Peek drawer header actions (inside PrdPageExample) */}
-<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-  {/* ... title ... */}
-  {peekTarget?.kind !== "prd" && (
-    <button
-      style={{ padding: "6px 10px", border: "1px solid #f3c96a", borderRadius: 8, background: "#0f1115", color: "#f3c96a" }}
-      onClick={() => convertToPrd(peekTarget!)}
-      title="Convert to PRD for best mobile experience"
-    >
-      Convert to PRD
-    </button>
-  )}
-  <button /* Close */>Close</button>
-</div>
-4) Pro gating (simple, fair)
-// attachLimits.ts
-export const limits = {
-  free: { maxAttachments: 5, maxPrdRefs: 1 },
-  pro:  { maxAttachments: 1000, maxPrdRefs: 1000 },
-};
+
+{/* ... title ... */} {peekTarget?.kind !== "prd" && ( convertToPrd(peekTarget!)} title="Convert to PRD for best mobile experience" > Convert to PRD )} Close
+
+1. Pro gating (simple, fair) // attachLimits.ts export const limits = { free: { maxAttachments: 5, maxPrdRefs: 1 }, pro: { maxAttachments: 1000, maxPrdRefs: 1000 }, };
 
 // In AttachPanel before add():
 const plan = "free"; // or from user profile
@@ -11731,12 +11580,10 @@ CTA (Call To Action)
 
 If you want, I can package these into a tiny starter repo structure (React + Vite) with all files wired so you can run npm run dev and see: attach → peek → convert → open PRD, with the AeonHive theme on.
 
-
 “Дякую за просмотр!”
 00:03
 
 Absolutely! That sounds like a plan. I'll go ahead and bundle everything up into a nice little starter repository for you. That way, you can
-
 
 summarize the full whole conversion on the thread into a md 
 
@@ -11746,6 +11593,7 @@ PRD — Universal Viewer, Conversion, and Attachment System
 Last updated: March 2026
 
 1. Core Direction (New Insight from This Thread)
+
 PRD should not force conversion upfront.
 
 Instead, PRD evolves into a hybrid system:
@@ -11771,7 +11619,8 @@ consistent UI/UX
 
 advanced features (AI, annotations, versioning)
 
-2. Key Product Insight
+1. Key Product Insight
+
 Universal viewing brings users in.
 PRD conversion keeps them.
 
@@ -11781,7 +11630,8 @@ adoption problem (no friction)
 
 differentiation problem (PRD still superior)
 
-3. Universal Viewer Architecture
+1. Universal Viewer Architecture
+
 Definition
 The Universal Viewer is a built-in adapter system inside the PRD viewer, not a separate product.
 
@@ -11792,9 +11642,9 @@ Route to correct renderer:
 
 PDF → PDF.js
 
-Images → native <img>
+Images → native 
 
-Video → <video>
+Video → 
 
 DOCX/XLSX/PPTX → client parser or cloud viewer
 
@@ -11805,7 +11655,8 @@ Bridge between external formats and PRD-native format
 
 Acts as a conversion funnel
 
-4. Conversion Flow
+1. Conversion Flow
+
 UX Flow
 Open file → Universal Preview → Prompt → Convert → Save → Reopen as PRD
 Steps
@@ -11829,7 +11680,8 @@ saves to workspace
 
 Viewer switches to native PRD mode
 
-5. Why Conversion Matters
+1. Why Conversion Matters
+
 Native PRD advantages
 smooth mobile scrolling (no PDF lag)
 
@@ -11847,7 +11699,8 @@ Key conclusion
 Universal viewer = convenience
 PRD format = quality
 
-6. Mobile Reality (Critical Insight)
+1. Mobile Reality (Critical Insight)
+
 Universal Viewer limitations
 inconsistent gestures across formats
 
@@ -11868,7 +11721,8 @@ predictable behavior
 
 PRD must be the final form, not just a viewer wrapper.
 
-7. Attachment System (Major Feature)
+1. Attachment System (Major Feature)
+
 Why attachments are required
 real-world workflows need supporting files
 
@@ -11885,7 +11739,8 @@ embed (HTML)
 
 PRD reference (PRD → PRD) ← key innovation
 
-8. PRD → PRD Attachments (Unique Feature)
+1. PRD → PRD Attachments (Unique Feature)
+
 Concept
 A PRD can attach another PRD:
 
@@ -11914,7 +11769,8 @@ limit nesting depth
 
 allow open-in-new-tab fallback
 
-9. Attachment UX Design
+1. Attachment UX Design
+
 Components
 Sidebar panel (attachments list)
 
@@ -11937,7 +11793,8 @@ convert
 
 open PRD
 
-10. Monetization Strategy
+1. Monetization Strategy
+
 Free tier
 universal viewer
 
@@ -11960,7 +11817,8 @@ versioning
 
 export bundles
 
-11. Strategic Positioning
+1. Strategic Positioning
+
 PRD is NOT:
 just a PDF replacement
 
@@ -11977,35 +11835,41 @@ a native rendering system
 
 a content container with relationships
 
-12. Key Innovation Summary
-1. Universal → Native pipeline
+1. Key Innovation Summary
+2. Universal → Native pipeline
+
 open anything instantly
 
 convert when needed
 
-2. PRD as final optimized state
+1. PRD as final optimized state
+
 best UX
 
 best performance
 
 best features
 
-3. PRD-to-PRD linking
+1. PRD-to-PRD linking
+
 documents become connected systems
 
 not isolated files
 
-4. Attachments as first-class citizens
+1. Attachments as first-class citizens
+
 everything lives inside PRD context
 
-13. Final Product Vision
+1. Final Product Vision
+
 PRD becomes:
 
 A living, connected, responsive document system
 where any file can be opened instantly,
 but the best experience happens when it becomes PRD.
 
-14. Simple Mental Model
+1. Simple Mental Model
+
 Think of PRD like:
 
 Google Drive → universal preview
@@ -12016,7 +11880,8 @@ Notion → connected documents
 
 Combined into one system.
 
-15. Final Takeaway
+1. Final Takeaway
+
 ✔ Universal viewer is necessary for adoption
 ✔ Conversion is necessary for quality
 ✔ Attachments are necessary for real-world use
@@ -12032,7 +11897,6 @@ or a visual product diagram (like Figma-style layout)
 
 Just tell me 👍
 
-
 i want a good history for reference
 
 Got it — you don’t want just a summary… you want a solid historical record you can reference later when building PRD (decisions, evolution, reasoning).
@@ -12041,7 +11905,6 @@ Below is a clean, reference-grade .md history file that combines:
 
 your uploaded history file 
 
-
 everything we discussed in this thread
 
 organized as a true evolution timeline + decisions log
@@ -12049,7 +11912,8 @@ organized as a true evolution timeline + decisions log
 PRD — Full Conversation History Record (Extended)
 Last updated: March 2026
 
-0. Purpose of This File
+1. Purpose of This File
+
 This document is a structured historical record of how PRD evolved across discussions.
 
 It is designed to:
@@ -12063,6 +11927,7 @@ prevent losing important ideas over time
 This is not just a summary — it is a decision-aware history log.
 
 1. Phase 1 — Core Idea (PRD vs PDF)
+
 Initial Direction
 PRD started as an idea to:
 
@@ -12087,7 +11952,8 @@ It should be:
 
 a modern document system built for today’s web + future needs
 
-2. Phase 2 — Expansion into Ecosystem
+1. Phase 2 — Expansion into Ecosystem
+
 Shift in Thinking
 PRD evolved from:
 
@@ -12117,7 +11983,8 @@ PRD is:
 
 a platform, not just a file
 
-3. Phase 3 — Manifest & Architecture Focus
+1. Phase 3 — Manifest & Architecture Focus
+
 Core Requirement Introduced
 A manifest-driven architecture becomes central.
 
@@ -12141,7 +12008,8 @@ Must remain lightweight in v1
 
 Must support future expansion without breaking compatibility
 
-4. Phase 4 — Future Systems & Crypto Considerations
+1. Phase 4 — Future Systems & Crypto Considerations
+
 Explored Concepts
 crypto-PRD
 
@@ -12164,7 +12032,8 @@ Future capabilities must be:
 
 optional extensions, not core dependencies
 
-5. Phase 5 — Content Expansion (Beyond Documents)
+1. Phase 5 — Content Expansion (Beyond Documents)
+
 Major Requirement
 PRD must support:
 
@@ -12184,7 +12053,8 @@ narrative structures
 
 non-linear content
 
-6. Phase 6 — Universal Viewer Debate (Critical Turning Point)
+1. Phase 6 — Universal Viewer Debate (Critical Turning Point)
+
 Problem Identified
 Users want to:
 
@@ -12226,16 +12096,20 @@ weak branding
 Breakthrough Insight
 Do BOTH.
 
-7. Phase 7 — Hybrid Model (Final Strategy)
+1. Phase 7 — Hybrid Model (Final Strategy)
+
 Final Architecture Decision
+
 1. Universal Viewer (Adapter Layer)
+
 opens any format instantly
 
 acts as entry point
 
 built inside PRD viewer
 
-2. Native PRD Mode
+1. Native PRD Mode
+
 optimized experience
 
 fluid performance
@@ -12246,7 +12120,8 @@ Key Product Insight
 Universal viewer brings users in.
 PRD keeps them.
 
-8. Phase 8 — Conversion Pipeline
+1. Phase 8 — Conversion Pipeline
+
 Final UX Flow
 Open file → Preview → Convert → Save → Reopen as PRD
 Conversion Purpose
@@ -12261,7 +12136,8 @@ PRD is:
 
 the final optimized state of a document
 
-9. Phase 9 — Mobile Experience Realization
+1. Phase 9 — Mobile Experience Realization
+
 Universal Viewer Issues
 inconsistent gestures
 
@@ -12279,7 +12155,8 @@ optimized rendering
 Critical Conclusion
 PRD superiority is most visible on mobile
 
-10. Phase 10 — Attachment System
+1. Phase 10 — Attachment System
+
 Requirement Introduced
 PRD must support attachments
 
@@ -12299,7 +12176,8 @@ embeds
 
 PRDs
 
-11. Phase 11 — PRD → PRD Linking (Major Innovation)
+1. Phase 11 — PRD → PRD Linking (Major Innovation)
+
 Idea
 Attach a PRD inside another PRD
 
@@ -12327,7 +12205,8 @@ fallback navigation
 Key Insight
 Documents become connected systems, not isolated files
 
-12. Phase 12 — Attachment UX System
+1. Phase 12 — Attachment UX System
+
 Components Designed
 sidebar panel
 
@@ -12344,7 +12223,8 @@ preview
 
 convert or open
 
-13. Phase 13 — Monetization Strategy
+1. Phase 13 — Monetization Strategy
+
 Free Tier
 universal viewer
 
@@ -12364,7 +12244,8 @@ advanced tools
 Key Insight
 Conversion = natural monetization funnel
 
-14. Phase 14 — Final Product Position
+1. Phase 14 — Final Product Position
+
 PRD is NOT:
 just a file
 
@@ -12381,7 +12262,8 @@ a connected document network
 
 a future-ready container
 
-15. Core Principles (Finalized from History)
+1. Core Principles (Finalized from History)
+
 No forced conversion upfront
 
 Universal access first, optimization later
@@ -12402,7 +12284,8 @@ System must scale across formats
 
 Architecture must be future-proof
 
-16. Final Mental Model
+1. Final Mental Model
+
 PRD combines:
 
 Google Drive → universal preview
@@ -12411,7 +12294,8 @@ Google Docs → native format
 
 Notion → connected documents
 
-17. Final Evolution Summary
+1. Final Evolution Summary
+
 PRD evolved from:
 
 Better PDF
@@ -12430,7 +12314,8 @@ PRD-to-PRD relationships
 
 future-ready architecture
 
-19. Final Takeaway
+1. Final Takeaway
+
 PRD is becoming:
 
 A living, connected, responsive document ecosystem
@@ -12446,5 +12331,3 @@ PRD_FOUNDATION.md (actual system spec)
 or PRD_ARCHITECTURE.md (engineering breakdown)
 
 Just tell me 👍
-
-

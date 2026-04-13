@@ -1,0 +1,109 @@
+{
+  "type": "localized-document-overrides",
+  "locale": "fr-FR",
+  "document": {
+    "title": "Exemple de document PRD",
+    "summary": "Une variante localisee du document structure de reference PRD.",
+    "lang": "fr-FR"
+  },
+  "public": {
+    "summary": "Une vue lecteur localisee de l'exemple PRD, avec une couverture specifique au francais.",
+    "cover": "document-hero-fr"
+  },
+  "nodes": {
+    "intro-heading": {
+      "type": "heading",
+      "text": "Les Portable Responsive Documents commencent par un contrat centre sur le manifeste."
+    },
+    "intro-paragraph": {
+      "type": "paragraph",
+      "text": "Cette variante montre qu'un package PRD peut fournir un contenu localise sans dupliquer toute la structure du document."
+    },
+    "intro-links": {
+      "type": "links",
+      "items": [
+        {
+          "label": "Site du projet"
+        },
+        {
+          "label": "Envoyer un e-mail au labo"
+        },
+        {
+          "label": "Aller a la rationale"
+        }
+      ]
+    },
+    "hero-image": {
+      "type": "image",
+      "asset": "document-hero-fr",
+      "alt": "Illustration abstraite de couverture PRD",
+      "caption": "Les ressources declarees continuent de passer par le manifeste."
+    },
+    "foundation-table": {
+      "type": "table",
+      "caption": "Couches fondamentales de la pile executable actuelle",
+      "columns": [
+        {
+          "label": "Couche"
+        },
+        {
+          "label": "Focus"
+        }
+      ],
+      "rows": [
+        {
+          "lane": "Manifeste",
+          "focus": "Surface de controle canonique du package"
+        },
+        {
+          "lane": "Validateur",
+          "focus": "Verite structurelle et verification des ressources declarees"
+        },
+        {
+          "lane": "Viewer",
+          "focus": "Rendu responsive avec rapport de support honnete"
+        }
+      ]
+    },
+    "profile-chart": {
+      "type": "chart",
+      "title": "Exemples de profils executables actuels",
+      "caption": "Les graphiques structures conservent des categories et des valeurs explicites dans le modele de contenu.",
+      "categories": [
+        "general-document",
+        "comic",
+        "storyboard"
+      ],
+      "series": [
+        {
+          "name": "Packages d'exemple"
+        }
+      ]
+    },
+    "intro-audio": {
+      "type": "media",
+      "caption": "L'audio package reste optionnel et peut enrichir la lecture sans changer la validite minimale."
+    },
+    "why-this-exists": {
+      "type": "section",
+      "title": "Pourquoi cet exemple existe"
+    },
+    "why-paragraph": {
+      "type": "paragraph",
+      "text": "Le chemin documentaire de base utilise `content/root.json` au lieu d'une entree HTML orientee site web."
+    },
+    "why-list": {
+      "type": "list",
+      "items": [
+        "manifest.json reste la surface de controle canonique du package",
+        "general-document reste un profil, pas le nom de la responsiveness",
+        "le contenu reste un JSON structure plutot qu'un marquage de page groupe"
+      ]
+    },
+    "why-quote": {
+      "type": "quote",
+      "text": "PRD doit rester portable, structure et base sur les profils des le depart.",
+      "attribution": "Direction de fondation PRD"
+    }
+  }
+}

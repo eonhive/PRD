@@ -1,6 +1,6 @@
 {
   "id": "resume",
   "label": "Resume",
-  "notes": "Implementation-supported non-canonical profile used by the first viewer."
+  "presentation": "scan",
+  "notes": "Optional profile-local viewer hint for a resume-flavored `general-document` package. The reference web viewer uses `presentation: \"scan\"` for a scan-oriented resume surface, but this file is still outside manifest canon."
 }
-

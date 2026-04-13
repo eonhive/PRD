@@ -6,11 +6,12 @@
   "title": "PRD Document Example",
   "entry": "content/root.json",
   "public": {
-    "summary": "A minimal structured general-document PRD example for the first executable foundation."
+    "summary": "A minimal structured general-document PRD example for the first executable foundation.",
+    "cover": "document-hero"
   },
   "localization": {
     "defaultLocale": "en-US",
-    "availableLocales": ["en-US"],
+    "availableLocales": ["en-US", "fr-FR"],
     "textDirection": "ltr"
   },
   "compatibility": {
@@ -25,6 +26,23 @@
       "id": "document-hero",
       "href": "assets/images/cover.svg",
       "type": "image/svg+xml"
+    },
+    {
+      "id": "document-hero-fr",
+      "href": "assets/images/cover-fr.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "id": "document-tone",
+      "href": "assets/audio/intro-tone.wav",
+      "type": "audio/wav"
+    }
+  ],
+  "attachments": [
+    {
+      "id": "foundation-checklist",
+      "href": "attachments/foundation-checklist.txt",
+      "type": "text/plain"
     }
   ]
 }

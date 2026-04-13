@@ -1,7 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { zipSync } from "fflate";
-import { validatePackageDirectory } from "@prd/validator/node";
+import { validatePackageDirectory } from "@eonhive/prd-validator/node";
 
 async function collectFiles(rootDir: string, currentDir = rootDir): Promise<Record<string, Uint8Array>> {
   const entries = await readdir(currentDir, { withFileTypes: true });

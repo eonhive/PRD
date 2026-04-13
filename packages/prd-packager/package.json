@@ -1,10 +1,36 @@
 {
-  "name": "@prd/packager",
+  "name": "@eonhive/prd-packager",
   "version": "0.1.0",
-  "private": true,
+  "description": "Build .prd ZIP archives from PRD package directories.",
+  "keywords": [
+    "prd",
+    "portable-responsive-document",
+    "packager",
+    "archive",
+    "zip"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/eonhive/PRD#readme",
+  "bugs": {
+    "url": "https://github.com/eonhive/PRD/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eonhive/PRD.git",
+    "directory": "packages/prd-packager"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -12,12 +38,12 @@
     }
   },
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b && rm -f dist/.tsbuildinfo",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@prd/types": "workspace:*",
-    "@prd/validator": "workspace:*",
+    "@eonhive/prd-types": "workspace:*",
+    "@eonhive/prd-validator": "workspace:*",
     "fflate": "^0.8.2"
   }
 }
-

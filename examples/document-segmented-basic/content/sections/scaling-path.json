@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0",
+  "profile": "general-document",
+  "type": "document-section",
+  "id": "scaling-path",
+  "title": "Scaling path",
+  "children": [
+    {
+      "id": "scaling-path-paragraph",
+      "type": "paragraph",
+      "text": "Root plus section files gives larger works a smaller and cleaner packaging path than duplicating full localized roots or reviving heavy spine machinery too early."
+    },
+    {
+      "id": "scaling-path-quote",
+      "type": "quote",
+      "text": "Segmentation is a packaging rule for larger works, not a new profile.",
+      "attribution": "PRD Phase 3 direction"
+    }
+  ]
+}

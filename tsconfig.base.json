@@ -10,12 +10,12 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@prd/types": ["packages/prd-types/src/index.ts"],
-      "@prd/validator": ["packages/prd-validator/src/index.ts"],
-      "@prd/validator/node": ["packages/prd-validator/src/node.ts"],
-      "@prd/packager": ["packages/prd-packager/src/index.ts"],
-      "@prd/cli": ["packages/prd-cli/src/index.ts"],
-      "@prd/viewer-core": ["packages/prd-viewer-core/src/index.ts"]
+      "@eonhive/prd-types": ["packages/prd-types/src/index.ts"],
+      "@eonhive/prd-validator": ["packages/prd-validator/src/index.ts"],
+      "@eonhive/prd-validator/node": ["packages/prd-validator/src/node.ts"],
+      "@eonhive/prd-packager": ["packages/prd-packager/src/index.ts"],
+      "@eonhive/prd-cli": ["packages/prd-cli/src/index.ts"],
+      "@eonhive/prd-viewer-core": ["packages/prd-viewer-core/src/index.ts"]
     }
   }
 }

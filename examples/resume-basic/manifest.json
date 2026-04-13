@@ -2,11 +2,24 @@
   "prdVersion": "1.0",
   "manifestVersion": "1.0",
   "id": "urn:prd:example:resume-basic",
-  "profile": "resume",
+  "profile": "general-document",
   "title": "PRD Resume Example",
-  "entry": "content/index.html",
+  "entry": "content/root.json",
+  "identity": {
+    "revisionId": "rev-2",
+    "authorRefs": ["author:avery-example"],
+    "publisherRef": "publisher:eonhive-lab"
+  },
   "public": {
-    "summary": "A non-canonical but implementation-supported resume example."
+    "summary": "A resume-flavored `general-document` example using the canonical structured entry path.",
+    "byline": "Avery Example",
+    "contributors": [
+      {
+        "name": "Avery Example",
+        "role": "author"
+      }
+    ],
+    "cover": "assets/images/avatar.svg"
   },
   "localization": {
     "defaultLocale": "en-US",
@@ -16,19 +29,15 @@
   "compatibility": {
     "minViewer": "0.1",
     "capabilities": {
-      "required": ["base-entry-html"],
+      "required": ["general-document-structured-root"],
       "optional": []
     }
   },
   "assets": [
     {
-      "id": "resume-style",
-      "href": "assets/styles/base.css"
-    },
-    {
       "id": "avatar",
-      "href": "assets/images/avatar.svg"
+      "href": "assets/images/avatar.svg",
+      "type": "image/svg+xml"
     }
   ]
 }
-

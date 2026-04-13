@@ -1,10 +1,36 @@
 {
-  "name": "@prd/types",
+  "name": "@eonhive/prd-types",
   "version": "0.1.0",
-  "private": true,
+  "description": "Shared TypeScript types for Portable Responsive Document (PRD) tooling.",
+  "keywords": [
+    "prd",
+    "portable-responsive-document",
+    "document-format",
+    "typescript",
+    "types"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/eonhive/PRD#readme",
+  "bugs": {
+    "url": "https://github.com/eonhive/PRD/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eonhive/PRD.git",
+    "directory": "packages/prd-types"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -12,7 +38,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b && rm -f dist/.tsbuildinfo",
+    "prepublishOnly": "pnpm run build"
   }
 }
-

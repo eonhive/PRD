@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0",
+  "profile": "general-document",
+  "type": "document",
+  "id": "document-segmented-basic",
+  "title": "PRD Segmented Document Example",
+  "summary": "One manifest entry root can still scale by referencing packaged section files.",
+  "lang": "en-US",
+  "children": [
+    {
+      "id": "segmented-intro-heading",
+      "type": "heading",
+      "level": 1,
+      "text": "Large documents can stay manifest-first without bloating one root."
+    },
+    {
+      "id": "segmented-intro-paragraph",
+      "type": "paragraph",
+      "text": "This example keeps `content/root.json` as the canonical entry while larger top-level sections live under `content/sections/`."
+    },
+    {
+      "type": "section",
+      "id": "manifest-discipline",
+      "title": "Manifest discipline",
+      "src": "content/sections/manifest-discipline.json"
+    },
+    {
+      "type": "section",
+      "id": "scaling-path",
+      "title": "Scaling path",
+      "src": "content/sections/scaling-path.json"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "name": "@prd/viewer-core",
+  "name": "@eonhive/prd-viewer-core",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -15,7 +15,7 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@prd/types": "workspace:*"
+    "@eonhive/prd-types": "workspace:*"
   }
 }
 

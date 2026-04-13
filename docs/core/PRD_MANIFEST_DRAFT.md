@@ -1,5 +1,5 @@
 # PRD_MANIFEST_DRAFT.md
-_Last updated: April 1, 2026_  
+_Last updated: April 12, 2026_
 _Status: Manifest draft v0.1_
 
 ## 1. Manifest Philosophy
@@ -36,6 +36,8 @@ The manifest should contain declarative package facts and declarations such as:
 - PRD format/spec version
 - manifest version
 - package/document identity
+- supplemental identity references, when needed
+- lean collection/series relationship references, when needed
 - profile declaration
 - profile version, if needed
 - title and light reader-facing public metadata
@@ -63,6 +65,8 @@ These should stay outside the base manifest:
 
 - full content bodies
 - large binary asset payloads
+- rich author bios or "about" pages
+- release notes, acknowledgements, or long editorial notes
 - rendered page snapshots or print exports
 - viewer UI state such as scroll position, pane layout, or local preferences
 - analytics events, counters, telemetry streams, or dashboards
@@ -111,10 +115,11 @@ Optional fields may extend the manifest without bloating the minimum baseline.
 | Field | Type | Purpose |
 | --- | --- | --- |
 | `profileVersion` | string | version for profile-specific behavior |
+| `identity` | object | supplemental durable references beyond the required top-level `id` |
 | `public` | object | additional visible public metadata beyond the required top-level fields |
 | `localization` | object | lean locale declarations defined by the localization model |
 | `compatibility` | object | viewer/renderer compatibility hints or requirements |
-| `assets` | object or array | declared package assets or asset groups |
+| `assets` | array | declared packaged asset resources |
 | `attachments` | array | declared bundled or linked attachments |
 | `extensions` | array | declared optional extension hooks |
 | `protected` | object | declaration of optional protected/private material |
@@ -125,13 +130,23 @@ Optional field rules:
 - optional fields must not hide or replace the required top-level fields
 - optional fields may be ignored by simpler viewers if the base package remains readable
 - optional fields must not force payments, rights, analytics, or Cloud logic into every manifest
+- `identity` should supplement the required top-level `id`, not duplicate or replace it
 - localization declarations should stay small and follow `PRD_LOCALIZATION_MODEL.md`
+- asset and attachment declaration rules should follow `PRD_ASSETS_AND_ATTACHMENTS.md`
+- lean collection and series relationship rules should follow `PRD_COLLECTION_AND_SERIES_MODEL.md`
+- core asset declarations are packaged-first; linked supplemental references belong under `attachments`, not `assets`
 
 Public/protected declaration guidance:
 
-- `public` may hold extra reader-facing metadata such as language, summary, tags, or author display info
+- `identity` may hold supplemental durable references such as `revisionId`, `parentId`, `originId`, `authorRefs`, `publisherRef`, reserved `ownerRef`, and the lean collection/series relationship refs defined in `PRD_COLLECTION_AND_SERIES_MODEL.md`
+- `public` may hold lean reader-facing metadata such as `subtitle`, `summary`, `byline`, `contributors`, `publisher`, `series`, `collections`, `genres`, `subgenres`, `tags`, `contentWarnings`, `contentRating`, `status`, or `cover`
+- `contributors`, when present, should be a small array of objects with `name` and `role`; `displayName` may be used when needed for presentation
+- `cover`, when present, should be a non-empty lightweight asset reference rather than embedded binary data
+- locale/language declarations belong under `localization`, not as a loose top-level metadata field
+- rich author/about pages, acknowledgements, or series notes belong in content, attachments, or later profile-specific payloads rather than the base manifest
 - `protected` should declare the existence and location of protected/private material, not embed large protected payloads directly in the base manifest
 - friendly profile labels and descriptions belong to registries and product UI, not the manifest
+- bundled attachment `href` values should resolve under `attachments/`; linked attachments may use `http` or `https` URLs for supplemental material
 
 ---
 
@@ -200,14 +215,48 @@ Versioning surfaces across the manifest draft are therefore:
   "profileVersion": "1.0",
   "title": "Field Guide",
   "entry": "content/root.json",
+  "identity": {
+    "revisionId": "rev-3",
+    "authorRefs": ["author:kira-stone"],
+    "publisherRef": "publisher:eonhive-press",
+    "series": {
+      "ref": "urn:prd-series:example:field-guide",
+      "sequence": {
+        "volume": 1,
+        "chapter": 3
+      }
+    }
+  },
   "localization": {
-    "defaultLocale": "en-US",
-    "availableLocales": ["en-US", "fr-FR"],
+    "defaultLocale": "en",
+    "availableLocales": ["en"],
     "textDirection": "ltr"
   },
   "public": {
-    "summary": "A short guide.",
-    "tags": ["guide", "reference"]
+    "subtitle": "Arc One",
+    "summary": "A serialized fantasy web novel.",
+    "byline": "Kira Stone",
+    "series": {
+      "title": "Field Guide"
+    },
+    "contributors": [
+      {
+        "name": "Kira Stone",
+        "role": "author"
+      },
+      {
+        "name": "Min Seo",
+        "role": "illustrator"
+      }
+    ],
+    "publisher": "EonHive Press",
+    "genres": ["fantasy", "romance"],
+    "subgenres": ["progression-fantasy", "academy"],
+    "tags": ["academy", "slow-burn"],
+    "contentWarnings": ["violence"],
+    "contentRating": "teen",
+    "status": "ongoing",
+    "cover": "assets/cover.webp"
   },
   "compatibility": {
     "minViewer": "1.0"
@@ -239,7 +288,28 @@ Versioning surfaces across the manifest draft are therefore:
   "entry": "content/issue-root.json",
   "compatibility": {
     "minViewer": "1.0",
-    "capabilities": ["panel-navigation"]
+    "capabilities": {
+      "required": [],
+      "optional": ["panel-navigation", "audio-playback"]
+    }
+  },
+  "public": {
+    "summary": "Opening issue of a serialized comic.",
+    "byline": "Studio Team",
+    "series": {
+      "title": "Sequential Dawn"
+    },
+    "contentRating": "teen",
+    "cover": "assets/cover.webp"
+  },
+  "identity": {
+    "series": {
+      "ref": "urn:prd-series:example:sequential-dawn",
+      "sequence": {
+        "volume": 1,
+        "issue": 1
+      }
+    }
   },
   "assets": [
     {
@@ -269,3 +339,9 @@ Versioning surfaces across the manifest draft are therefore:
 ```
 
 The advanced example is still declarative. It declares optional extension surfaces, but it does not inline heavy payment, rights, analytics, or protected payload logic into the base manifest.
+
+For the current executable foundation, this comic example also reflects the canonical visual-profile direction:
+
+- structured `comic` and `storyboard` packages should use a JSON `entry` under `content/`
+- optional behaviors like `panel-navigation` remain optional
+- legacy HTML visual-profile entries may still exist for fallback packages, but they are no longer the canonical example path

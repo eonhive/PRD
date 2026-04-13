@@ -8,19 +8,97 @@
   "lang": "en-US",
   "children": [
     {
+      "id": "intro-heading",
       "type": "heading",
       "level": 1,
       "text": "Portable Responsive Documents start with a manifest-first contract."
     },
     {
+      "id": "intro-paragraph",
       "type": "paragraph",
       "text": "This example proves the first executable PRD foundation with a canonical manifest and a structured content root."
     },
     {
+      "id": "intro-links",
+      "type": "links",
+      "style": "inline",
+      "items": [
+        {
+          "label": "Project site",
+          "href": "https://prd.eonhive.dev"
+        },
+        {
+          "label": "Email the lab",
+          "href": "mailto:hello@eonhive.dev"
+        },
+        {
+          "label": "Jump to the rationale",
+          "href": "#why-this-exists"
+        }
+      ]
+    },
+    {
+      "id": "hero-image",
       "type": "image",
       "asset": "document-hero",
       "alt": "Abstract PRD cover illustration",
       "caption": "Declared assets remain referenced through the manifest."
+    },
+    {
+      "id": "foundation-table",
+      "type": "table",
+      "caption": "Foundational lanes in the current executable stack",
+      "columns": [
+        {
+          "id": "lane",
+          "label": "Lane",
+          "align": "left"
+        },
+        {
+          "id": "focus",
+          "label": "Focus",
+          "align": "left"
+        }
+      ],
+      "rows": [
+        {
+          "lane": "Manifest",
+          "focus": "Canonical package control surface"
+        },
+        {
+          "lane": "Validator",
+          "focus": "Structural truth and declared asset checks"
+        },
+        {
+          "lane": "Viewer",
+          "focus": "Responsive rendering with honest support reporting"
+        }
+      ]
+    },
+    {
+      "id": "profile-chart",
+      "type": "chart",
+      "chartType": "bar",
+      "title": "Current executable profile examples",
+      "caption": "Structured charts keep their categories and numeric values explicit in the content model.",
+      "categories": [
+        "general-document",
+        "comic",
+        "storyboard"
+      ],
+      "series": [
+        {
+          "name": "Example packages",
+          "values": [2, 1, 1]
+        }
+      ]
+    },
+    {
+      "id": "intro-audio",
+      "type": "media",
+      "mediaType": "audio",
+      "asset": "document-tone",
+      "caption": "Optional packaged audio can enrich the reading surface without changing minimal validity."
     },
     {
       "type": "section",
@@ -28,10 +106,12 @@
       "title": "Why this example exists",
       "children": [
         {
+          "id": "why-paragraph",
           "type": "paragraph",
           "text": "The base document path uses `content/root.json` instead of an HTML-first website entry."
         },
         {
+          "id": "why-list",
           "type": "list",
           "style": "unordered",
           "items": [
@@ -41,6 +121,7 @@
           ]
         },
         {
+          "id": "why-quote",
           "type": "quote",
           "text": "PRD should remain portable, structured, and profile-based from the start.",
           "attribution": "PRD foundation direction"

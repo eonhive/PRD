@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Storyboard frame 1 placeholder">
+  <rect width="960" height="540" rx="40" fill="#29473c" />
+  <rect x="34" y="34" width="892" height="472" rx="26" fill="#365f50" stroke="#dfeee6" stroke-width="10" />
+  <path d="M90 388C236 286 380 240 540 240C682 240 786 274 874 328" fill="none" stroke="#eff7f2" stroke-width="12" stroke-dasharray="18 16" />
+  <path d="M156 194H314" stroke="#f6c65b" stroke-width="16" stroke-linecap="round" />
+  <path d="M642 174H820" stroke="#f6c65b" stroke-width="16" stroke-linecap="round" />
+  <text x="76" y="92" fill="#f7fbff" font-family="Arial, sans-serif" font-size="28" font-weight="700">WS</text>
+  <text x="80" y="472" fill="#f7fbff" font-family="Arial, sans-serif" font-size="38" font-weight="700">Frame 1</text>
+  <text x="80" y="506" fill="#d7e8df" font-family="Arial, sans-serif" font-size="20">Wide rooftop arrival board</text>
+</svg>

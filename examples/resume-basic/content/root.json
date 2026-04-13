@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "1.0",
+  "profile": "general-document",
+  "type": "document",
+  "id": "resume-basic",
+  "title": "PRD Resume Example",
+  "subtitle": "Avery Example · Product Architect",
+  "summary": "Manifest-first systems, document tooling, and design systems for portable structured publishing.",
+  "lang": "en-US",
+  "children": [
+    {
+      "type": "image",
+      "asset": "avatar",
+      "alt": "Abstract avatar illustration",
+      "caption": "Resume-specific authored data can still live under `profiles/resume.json`."
+    },
+    {
+      "type": "paragraph",
+      "text": "Avery Example builds manifest-first tooling, validation systems, and rendering foundations for portable responsive documents."
+    },
+    {
+      "type": "section",
+      "id": "experience",
+      "title": "Experience",
+      "children": [
+        {
+          "type": "paragraph",
+          "text": "Designed format tooling for structured, portable document systems with an emphasis on validator truth, predictable packaging, and profile-based rendering."
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "skills",
+      "title": "Skills",
+      "children": [
+        {
+          "type": "list",
+          "style": "unordered",
+          "items": [
+            "TypeScript",
+            "Schema design",
+            "Validation",
+            "Packaging",
+            "Rendering systems"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "id": "focus",
+      "title": "Focus",
+      "children": [
+        {
+          "type": "quote",
+          "text": "Keep the manifest canonical, the content structured, and the viewer honest about what it actually supports.",
+          "attribution": "Resume example foundation principle"
+        }
+      ]
+    }
+  ]
+}

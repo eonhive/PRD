@@ -91,18 +91,16 @@ The manifest should eventually carry responsibility for:
 
 # 5. Recommended Top-Level Shape
 
-The exact syntax can evolve, but conceptually the manifest should include areas like:
+The exact syntax can evolve, but current canon should **not** be read as requiring nested top-level sections such as `header`, `metadata`, or `structure`.
 
-- header
-- identity
-- metadata
-- profile
-- structure
-- resources
-- rendering/view hints
-- extensions
-- protection/security hooks
-- validation compatibility data
+The current direction is:
+
+- keep the fixed minimal top-level fields for package identity and opening
+- allow an optional `identity` object for supplemental durable references
+- allow an optional `public` object for lean reader-facing metadata
+- use `localization` for locale/language declarations
+- point to structure through `entry` and later optional structure references rather than reviving a required `structure` block
+- keep resources, compatibility, extensions, and protected/private declarations explicit and optional
 
 This should stay clean and predictable.
 
@@ -115,14 +113,15 @@ The manifest should have a **public header-like section** that contains the mini
 Examples of what belongs here:
 
 - PRD format version
-- package/document ID
-- title
-- primary profile type
-- default locale / available locale declarations when present
 - manifest schema version
-- basic creator/publisher metadata
+- package/document ID
+- profile
+- title
 - content entry point reference
+- default locale / available locale declarations when present
 - declared extensions list
+
+Lean public display metadata may also appear, but it is not part of the required opening baseline.
 
 This is important because future protected/private systems should not hide the minimum package identity needed for handling the file.
 
@@ -132,7 +131,7 @@ This is important because future protected/private systems should not hide the m
 
 The manifest should support identity concepts such as:
 
-- document ID
+- supplemental identity references beyond the required top-level `id`
 - version ID or revision ID
 - optional parent/origin linkage
 - author/publisher/owner references where applicable
@@ -147,24 +146,32 @@ Identity must be stable enough to support:
 - ownership logic later
 - document relationships later
 
+Current canon keeps `id` as the required package identifier.
+An optional `identity` object may supplement it, but should not replace it with a second required nested document ID.
+
 ---
 
-# 8. Metadata Direction
+# 8. Public Metadata Direction
 
-Metadata should support:
+Lean public metadata should support:
 
-- title
 - subtitle
 - description/summary
-- author(s)
+- byline
+- contributors
 - publisher
-- language
-- locale hints
+- genres
+- subgenres
 - keywords/tags
+- content warnings
+- content rating
+- status
 - cover/thumbnail reference
-- category or domain metadata where useful
 
-Metadata should not become a junk drawer.
+Language and locale declarations belong in `localization`, not as a loose top-level metadata field.
+Rich about/author/series material belongs in content or later profile-specific payloads rather than the base manifest.
+
+Public metadata should not become a junk drawer.
 
 Keep it useful and bounded.
 
@@ -208,6 +215,7 @@ Examples:
 - navigation map where applicable
 
 The manifest should not need to inline the entire document content, but it should clearly define where the structure begins.
+The current minimal-valid baseline does this through the required `entry` field. Future structure references may extend that model without reintroducing a required top-level `structure` object.
 
 ---
 

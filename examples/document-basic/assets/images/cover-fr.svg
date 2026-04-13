@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-labelledby="title">
+  <title>Illustration du document PRD</title>
+  <rect width="320" height="200" rx="24" fill="#1f2340"/>
+  <rect x="24" y="24" width="272" height="152" rx="18" fill="#fff8ee"/>
+  <rect x="48" y="52" width="148" height="16" rx="8" fill="#d95d39"/>
+  <rect x="48" y="84" width="196" height="12" rx="6" fill="#5d6f8b"/>
+  <rect x="48" y="110" width="172" height="12" rx="6" fill="#5d6f8b"/>
+  <rect x="48" y="142" width="96" height="18" rx="9" fill="#1f2340"/>
+  <text x="56" y="156" fill="#fff8ee" font-family="Arial, sans-serif" font-size="10" font-weight="700">FR</text>
+  <circle cx="252" cy="104" r="30" fill="#1f2340"/>
+  <path d="M234 104h36M252 86v36" stroke="#f6c65b" stroke-width="10" stroke-linecap="round"/>
+</svg>

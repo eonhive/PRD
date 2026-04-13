@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Storyboard frame 2 placeholder">
+  <rect width="960" height="540" rx="40" fill="#755e29" />
+  <rect x="34" y="34" width="892" height="472" rx="26" fill="#9a7c34" stroke="#f7efdc" stroke-width="10" />
+  <path d="M172 188H420" stroke="#f7fbff" stroke-width="18" stroke-linecap="round" />
+  <path d="M444 206L616 206" stroke="#f6c65b" stroke-width="18" stroke-linecap="round" />
+  <path d="M636 206L744 162L826 162" fill="none" stroke="#f7fbff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+  <text x="76" y="92" fill="#fffaf0" font-family="Arial, sans-serif" font-size="28" font-weight="700">MS</text>
+  <text x="80" y="472" fill="#fffaf0" font-family="Arial, sans-serif" font-size="38" font-weight="700">Frame 2</text>
+  <text x="80" y="506" fill="#f1e3bc" font-family="Arial, sans-serif" font-size="20">Medium pivot toward the doorway</text>
+</svg>
