@@ -149,11 +149,9 @@ This helps PRD feel like a serious document ecosystem.
 
 ## General Document
 
-Focus on clean section flow, readability, and responsive adaptation.
+Focus on clean section flow, readability, responsive adaptation, and good long-form reading support for things like novels and web novels.
 
-## Resume Variant
-
-Focus on structure clarity, fast scanning, and polished portability.
+General-document variants such as resumes should emphasize structure clarity, fast scanning, and polished portability without being treated as separate top-level profile identities.
 
 ## Comic
 
@@ -163,6 +161,7 @@ Focus on:
 * panel/page clarity
 * speech text readability
 * responsive adaptation without sequence confusion
+* support for comic-family variants such as manhua and manhwa presentation patterns
 
 ## Storyboard
 

@@ -1,7 +1,11 @@
 import { basename } from "node:path";
-import { packDirectoryToFile } from "@prd/packager";
-import { type PrdPackageValidationResult } from "@prd/validator";
-import { validatePackage } from "@prd/validator/node";
+import { packDirectoryToFile } from "@eonhive/prd-packager";
+import { type PrdPackageValidationResult } from "@eonhive/prd-validator";
+import {
+  inspectPackage,
+  type PrdPackageInspectionResult,
+  validatePackage
+} from "@eonhive/prd-validator/node";
 
 type CommandHandler = (args: string[]) => Promise<number>;
 
@@ -18,7 +22,7 @@ function hasFlag(args: string[], flag: string): boolean {
   return args.includes(flag);
 }
 
-function formatResult(
+function formatValidationResult(
   result: PrdPackageValidationResult,
   jsonOutput: boolean
 ): string {
@@ -55,6 +59,37 @@ function formatResult(
   return lines.join("\n");
 }
 
+function formatInspectionResult(
+  result: PrdPackageInspectionResult,
+  jsonOutput: boolean
+): string {
+  if (jsonOutput) {
+    return JSON.stringify(result, null, 2);
+  }
+
+  const lines = [formatValidationResult(result, false), "inspection:"];
+
+  lines.push(`- source: ${result.sourceKind}`);
+  lines.push(`- files: ${result.fileCount}`);
+  lines.push(`- bytes: ${result.totalBytes}`);
+  lines.push(`- assets: ${result.assetCount}`);
+  lines.push(`- attachments: ${result.attachmentCount}`);
+  lines.push(`- locales: ${result.localeCount}`);
+  lines.push(`- series: ${result.hasSeriesMembership ? "yes" : "no"}`);
+  lines.push(`- collections: ${result.collectionCount}`);
+  lines.push(`- entry mode: ${result.entryKind}`);
+  lines.push(`- segmentation: ${result.segmentation}`);
+  lines.push(
+    `- localized resources: ${result.localizedResources ? "yes" : "no"}`
+  );
+  lines.push(
+    `- localized alternate entries: ${result.localizedAlternateEntries ? "yes" : "no"}`
+  );
+  lines.push(`- reference load mode: ${result.referenceLoadMode}`);
+
+  return lines.join("\n");
+}
+
 const handlers: Record<string, CommandHandler> = {
   async pack(args) {
     const sourceDir = args[0];
@@ -80,7 +115,7 @@ const handlers: Record<string, CommandHandler> = {
     }
 
     const result = await validatePackage(target);
-    console.log(formatResult(result, jsonOutput));
+    console.log(formatValidationResult(result, jsonOutput));
     return result.valid ? 0 : 1;
   },
 
@@ -93,8 +128,8 @@ const handlers: Record<string, CommandHandler> = {
       return 1;
     }
 
-    const result = await validatePackage(target);
-    console.log(formatResult(result, jsonOutput));
+    const result = await inspectPackage(target);
+    console.log(formatInspectionResult(result, jsonOutput));
     return result.valid ? 0 : 1;
   }
 };

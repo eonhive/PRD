@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0",
+  "profile": "storyboard",
+  "type": "storyboard",
+  "id": "storyboard-basic",
+  "title": "PRD Storyboard Fixture",
+  "frames": [
+    {
+      "id": "frame-1",
+      "asset": "frame-1-art",
+      "alt": "Wide rooftop establishing board with the arrival path blocked in",
+      "notes": "Wide establishing board for the rooftop arrival"
+    },
+    {
+      "id": "frame-2",
+      "asset": "frame-2-art",
+      "alt": "Medium board showing the pivot toward the doorway",
+      "notes": "Medium board marking the turn toward the doorway"
+    },
+    {
+      "id": "frame-3",
+      "asset": "frame-3-art",
+      "alt": "Close board isolating the final reaction beat",
+      "notes": "Close board for the final reaction beat"
+    }
+  ]
+}

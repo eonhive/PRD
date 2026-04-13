@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "profile": "general-document",
+  "type": "document-section",
+  "id": "manifest-discipline",
+  "title": "Manifest discipline",
+  "children": [
+    {
+      "id": "manifest-discipline-paragraph",
+      "type": "paragraph",
+      "text": "Segmented sections remain part of one general-document package. They do not replace the manifest entry or create a hidden collection model."
+    },
+    {
+      "id": "manifest-discipline-list",
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "manifest.json still points at content/root.json",
+        "top-level sections may reference packaged section files",
+        "the public entry path stays readable without loading a separate spine"
+      ]
+    }
+  ]
+}

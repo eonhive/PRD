@@ -1,5 +1,5 @@
 # PRD_DECISIONS.md
-_Last updated: April 1, 2026_  
+_Last updated: April 12, 2026_
 _Status: Working decision log v0.1_
 
 ## Purpose
@@ -499,11 +499,147 @@ Localization is a cross-profile PRD capability. A PRD package may declare locale
 **Why:**  
 PRD should be able to adapt not only to viewport and reading mode, but also to language, region, and text-direction context when a package declares that behavior. At the same time, tiny packages must stay lightweight.
 
-**Implication:**  
+**Implication:**
 Locale-aware behavior belongs in a standardizable model that works across `general-document`, `comic`, and `storyboard`. The base manifest may carry small localization declarations, while localized payloads and per-locale resources remain outside the base manifest.
 
-**Follow-up:**  
+**Follow-up:**
 Add `core/PRD_LOCALIZATION_MODEL.md` and align manifest, capability, and architecture docs with localization as a cross-profile optional capability.
+
+---
+
+## PRD-029 — Manifest metadata split uses top-level required fields, optional `identity`, and optional `public`
+**Status:** Accepted
+
+**Decision:**
+PRD keeps the accepted fixed top-level manifest baseline for package identity and opening. Optional supplemental durable references belong in an `identity` object. Optional lean reader-facing display and discovery metadata belongs in a `public` object. Rich about/creator/series material stays in content, attachments, or later profile-specific payloads.
+
+**Why:**
+The older PRD manifest direction had a useful separation between durable identity and reader-facing metadata, but reviving a heavy nested `header` / `metadata` / `structure` manifest shape would conflict with the current minimal-valid baseline and make the manifest harder to keep lean.
+
+**Implication:**
+The manifest should not revive nested required `header`, `metadata`, or `structure` top-level sections. The required top-level fields remain `prdVersion`, `manifestVersion`, `id`, `profile`, `title`, and `entry`. Optional `identity` may hold things like `revisionId`, `parentId`, `originId`, `authorRefs`, and `publisherRef`. Optional `public` may hold things like `subtitle`, `summary`, `byline`, `contributors`, `publisher`, `genres`, `subgenres`, `tags`, `contentWarnings`, `contentRating`, `status`, and `cover`.
+
+**Follow-up:**
+Add `core/PRD_METADATA_MODEL.md` and align manifest, foundation, glossary, and active `04_PRD` docs with this split.
+
+---
+
+## PRD-030 — Audio and read-aloud features are optional capability lanes
+**Status:** Accepted
+
+**Decision:**
+Packaged audio playback, ambient audio, narration audio, and text-to-speech support are optional capability lanes in PRD. AI-reader behavior remains a viewer/runtime/product feature unless a later higher-priority spec defines a narrower interoperable declaration.
+
+**Why:**
+PRD should be able to support richer web novel, comic, and accessibility experiences without turning audio or AI behavior into a minimal-validity requirement for every package and viewer.
+
+**Implication:**
+Audio assets and read-aloud declarations may improve the user experience, but they must not block base readability or redefine minimal package validity. Unsupported optional audio or read-aloud features should degrade gracefully.
+
+**Follow-up:**
+Align `runtime/PRD_CAPABILITY_MODEL.md` and later profile specs with optional audio and narration capability handling.
+
+---
+
+## PRD-031 — Reference tooling may validate unpacked package directories
+**Status:** Accepted
+
+**Decision:**
+Normative minimal PRD distribution remains a `.prd` ZIP archive. The reference validator and CLI (`validatePackage` in `packages/prd-validator`, `prd validate <path>`) MAY accept a **directory path** whose relative file layout matches the archive root, applying the same structural checks to the resulting file map. The `.prd` extension and ZIP-open checks apply only when the validation target is a `.prd` file.
+
+**Why:**
+Authors and CI almost always work on unpacked trees; requiring zip-on-disk for every validation loop slows the golden path. The distinction must stay explicit so the format contract is not reinterpreted as “directories are interchangeable with `.prd` for interchange.”
+
+**Implication:**
+Minimal spec docs (`core/PRD_MINIMAL_VALID_SPEC.md`, `core/PRD_MINIMAL_VALID_PRD.md`) describe both the normative transport and this reference behavior. Third-party validators may support only `.prd` files if they choose.
+
+**Follow-up:**
+None required for baseline; optional future doc: full validator error-code catalog.
+
+---
+
+## PRD-032 — npm scope for published packages uses eonhive org
+**Status:** Accepted
+
+**Decision:**
+Published package names use the **`@eonhive/prd-*` scope** (for example `@eonhive/prd-cli`, `@eonhive/prd-types`). The short **`@prd`** npm scope is not used because it is unavailable. The **PRD** product name and format acronym stay unchanged in documentation; only npm package identifiers include the org scope.
+
+**Why:**
+Scoped packages must resolve to an org or account the project controls. Using **`eonhive`** matches the GitHub org and avoids fighting for an unavailable **`@prd`** namespace.
+
+**Implication:**
+Install commands use `npx @eonhive/prd-cli` (or `npm i -g @eonhive/prd-cli`); imports use `@eonhive/prd-types`, `@eonhive/prd-validator`, and so on. The CLI binary name remains `prd` where declared.
+
+**Follow-up:**
+None for the rename itself; publish order remains types → validator → packager → cli.
+
+---
+
+## PRD-033 — First public npm release is a CI-driven 0.1.0 tooling preview
+**Status:** Accepted
+
+**Decision:**
+The first public npm release is a **`0.1.0` public preview** published on the npm `latest` tag. The public package set is limited to `@eonhive/prd-types`, `@eonhive/prd-validator`, `@eonhive/prd-packager`, and `@eonhive/prd-cli`. Private viewer packages are not published. Public release publication happens from **`main` through CI automation**, not from ad hoc local machines.
+
+**Why:**
+The publishable tooling surface is coherent enough for early public use, but the project is still pre-1.0 and should be framed honestly as an early preview. CI-driven publication reduces accidental drift between package versions, docs, and release gates.
+
+**Implication:**
+Release gating requires Node 20+ CI checks, example validation, tarball smoke tests, and release docs that match the shipped package names and commands. Changesets is the release-management source of truth for ongoing versioning and publish orchestration.
+
+**Follow-up:**
+Keep the release policy and maintainer runbook aligned with the actual workflow and publish set.
+
+---
+
+## PRD-034 — Large `general-document` works segment through top-level section files, not a heavy spine
+**Status:** Accepted
+
+**Decision:**
+For the current Phase 3 executable baseline, larger `general-document` works may segment content by keeping `manifest.entry` on `content/root.json` and allowing top-level `section` nodes to reference packaged section files under `content/sections/`. This is a packaging rule for one document, not a collection model and not a new profile.
+
+**Why:**
+PRD needs a scale path that stays smaller and cleaner than duplicating full roots or reviving a heavy spine system too early. Root plus section files keeps the manifest-first contract intact while giving larger works a disciplined way to grow.
+
+**Implication:**
+Section file roots use `type: "document-section"` and must match the parent section `id` and `title`. Nested segmented section references are not part of v0.1. Localization overlays should apply after segmented sections are resolved into one effective document tree.
+
+**Follow-up:**
+Add `core/PRD_SEGMENTATION_MODEL.md` and keep `PRD_PROFILE_GENERAL_DOCUMENT.md`, package-layout docs, validator behavior, and example packages aligned with the root-plus-section-files baseline.
+
+---
+
+## PRD-035 — Core PRD assets are packaged-first and array-declared
+**Status:** Accepted
+
+**Decision:**
+The executable core PRD baseline treats `manifest.assets` as an array of packaged asset declarations only. Core asset `href` values must stay package-internal and resolve under `assets/`. External asset URLs are not part of the interoperable baseline and remain future extension-only behavior.
+
+**Why:**
+PRD should stay portable, smaller, and more disciplined than a linked web bundle. Leaving object-form asset groups or external asset URLs in the baseline keeps the package contract ambiguous and weakens the file-size-versus-portability boundary right where large-work strategy depends on it.
+
+**Implication:**
+Types, schema, validator behavior, and docs should all agree that `assets` is array-only in the current executable model. Linked `http` or `https` references remain allowed only for supplemental `attachments`, not for core asset resolution.
+
+**Follow-up:**
+Keep `core/PRD_ASSETS_AND_ATTACHMENTS.md`, the manifest draft, minimal-valid docs, schema, and validator tests aligned with the packaged-first asset baseline.
+
+---
+
+## PRD-036 — Collection and series relationships stay lean, cross-package, and manifest-declared
+**Status:** Accepted
+
+**Decision:**
+PRD handles collection and series behavior for large works through a lean manifest relationship model, not through a spine, package-of-packages container, or multi-entry open contract. The current executable baseline allows one primary `series` membership under `identity` with optional sequence numbers, optional unordered `collections` memberships under `identity`, and matching lean display labels under `public`.
+
+**Why:**
+PRD needs a way to group and order related packages such as comic issues, storyboard sets, or serialized documents without bloating `manifest.entry`, reviving a heavy EPUB-style spine, or pushing service-only catalog state into every package. A small relationship layer preserves portability while giving libraries and viewers stable grouping hints.
+
+**Implication:**
+Segmentation remains the large-single-document rule inside one package. Collection and series relationships operate across packages and do not add new directories, collection manifests, or required library files to the core baseline. Rich "about the series" material still belongs in normal content or attachments rather than the lean base manifest.
+
+**Follow-up:**
+Add `core/PRD_COLLECTION_AND_SERIES_MODEL.md` and align the metadata model, manifest draft, validator behavior, schema, example manifests, and viewer metadata surface with the lean relationship baseline.
 
 ---
 
@@ -524,6 +660,9 @@ Narrowed by PRD-023. Remaining work includes exact field constraints, value synt
 ### PRD-P003 — Asset embedding vs external linking rules
 **Status:** Pending
 
+**Note:**
+Narrowed by PRD-035. Remaining work is whether any later extension should standardize external asset references without weakening the packaged-first core baseline.
+
 ### PRD-P004 — Encryption/protection model
 **Status:** Pending
 
@@ -532,6 +671,9 @@ Narrowed by PRD-023. Remaining work includes exact field constraints, value synt
 
 ### PRD-P006 — Collection/series model for large works
 **Status:** Pending
+
+**Note:**
+Narrowed by PRD-036. Remaining work includes whether later drafts should define richer collection manifests, multiple simultaneous series memberships, or ecosystem/library sync behavior beyond the current lean manifest relationship baseline.
 
 ### PRD-P007 — Viewer capability negotiation model
 **Status:** Pending

@@ -6,13 +6,17 @@ export const PRD_CANONICAL_DIRECTORIES = [
   "protected"
 ] as const;
 
+export const PRD_LOCALIZED_ENTRIES_PATH = "content/locales/index.json" as const;
+export const PRD_GENERAL_DOCUMENT_SECTION_ENTRY_PREFIX =
+  "content/sections/" as const;
+
 export const PRD_CANONICAL_CORE_PROFILE_IDS = [
   "general-document",
   "comic",
   "storyboard"
 ] as const;
 
-export const PRD_IMPLEMENTATION_SUPPORTED_PROFILE_IDS = ["resume"] as const;
+export const PRD_IMPLEMENTATION_SUPPORTED_PROFILE_IDS = [] as const;
 
 export const PRD_LEGACY_PROFILE_ALIASES = {
   "responsive-document": "general-document"
@@ -50,6 +54,126 @@ export interface PrdLocalization {
   defaultLocale: string;
   availableLocales?: string[];
   textDirection?: PrdTextDirection;
+}
+
+export interface PrdLocalizedContentDescriptor {
+  label?: string;
+  entry?: string;
+  resource?: string;
+}
+
+export interface PrdLocalizedContentIndexRoot {
+  $schema?: string;
+  type: "localized-content-index";
+  locales: Record<string, PrdLocalizedContentDescriptor>;
+}
+
+export interface PrdLocalizedDocumentOverridesRoot {
+  $schema?: string;
+  type: "localized-document-overrides";
+  locale: string;
+  document?: {
+    title?: string;
+    subtitle?: string;
+    summary?: string;
+    lang?: string;
+  };
+  public?: PrdLocalizedPublicMetadataOverrides;
+  nodes?: Record<string, PrdLocalizedDocumentNodeOverride>;
+}
+
+export interface PrdLocalizedPublicMetadataOverrides {
+  subtitle?: string;
+  summary?: string;
+  byline?: string;
+  publisher?: string;
+  cover?: string;
+  series?: {
+    title?: string;
+  };
+  collections?: Array<{
+    title: string;
+  }>;
+}
+
+export interface PrdLocalizedSectionOverride {
+  type: "section";
+  title?: string;
+}
+
+export interface PrdLocalizedHeadingOverride {
+  type: "heading";
+  text?: string;
+}
+
+export interface PrdLocalizedParagraphOverride {
+  type: "paragraph";
+  text?: string;
+}
+
+export interface PrdLocalizedListOverride {
+  type: "list";
+  items?: string[];
+}
+
+export interface PrdLocalizedLinksOverride {
+  type: "links";
+  items?: Array<{
+    label: string;
+  }>;
+}
+
+export interface PrdLocalizedTableOverride {
+  type: "table";
+  caption?: string;
+  columns?: Array<{
+    label: string;
+  }>;
+  rows?: Array<Record<string, string>>;
+}
+
+export interface PrdLocalizedChartOverride {
+  type: "chart";
+  title?: string;
+  caption?: string;
+  categories?: string[];
+  series?: Array<{
+    name: string;
+  }>;
+}
+
+export interface PrdLocalizedMediaOverride {
+  type: "media";
+  caption?: string;
+}
+
+export interface PrdLocalizedImageOverride {
+  type: "image";
+  asset?: string;
+  alt?: string;
+  caption?: string;
+}
+
+export interface PrdLocalizedQuoteOverride {
+  type: "quote";
+  text?: string;
+  attribution?: string;
+}
+
+export type PrdLocalizedDocumentNodeOverride =
+  | PrdLocalizedSectionOverride
+  | PrdLocalizedHeadingOverride
+  | PrdLocalizedParagraphOverride
+  | PrdLocalizedListOverride
+  | PrdLocalizedLinksOverride
+  | PrdLocalizedTableOverride
+  | PrdLocalizedChartOverride
+  | PrdLocalizedMediaOverride
+  | PrdLocalizedImageOverride
+  | PrdLocalizedQuoteOverride;
+
+export interface PrdGeneralDocumentIdentifiedNode {
+  id?: string;
 }
 
 export interface PrdCapabilityLists {
@@ -91,6 +215,71 @@ export interface PrdProtectedDeclaration {
   [key: string]: unknown;
 }
 
+export interface PrdSeriesSequence {
+  index?: number;
+  volume?: number;
+  issue?: number;
+  chapter?: number;
+  episode?: number;
+  part?: number;
+}
+
+export interface PrdIdentitySeriesMembership {
+  ref: string;
+  sequence?: PrdSeriesSequence;
+}
+
+export interface PrdIdentityCollectionMembership {
+  ref: string;
+}
+
+export interface PrdIdentity {
+  revisionId?: string;
+  parentId?: string;
+  originId?: string;
+  authorRefs?: string[];
+  publisherRef?: string;
+  ownerRef?: string;
+  series?: PrdIdentitySeriesMembership;
+  collections?: PrdIdentityCollectionMembership[];
+  [key: string]: unknown;
+}
+
+export interface PrdPublicContributor {
+  name: string;
+  role: string;
+  displayName?: string;
+  [key: string]: unknown;
+}
+
+export interface PrdPublicSeriesMetadata {
+  title: string;
+  [key: string]: unknown;
+}
+
+export interface PrdPublicCollectionMetadata {
+  title: string;
+  [key: string]: unknown;
+}
+
+export interface PrdPublicMetadata {
+  subtitle?: string;
+  summary?: string;
+  byline?: string;
+  contributors?: PrdPublicContributor[];
+  publisher?: string;
+  genres?: string[];
+  subgenres?: string[];
+  tags?: string[];
+  contentWarnings?: string[];
+  contentRating?: string;
+  status?: string;
+  cover?: string;
+  series?: PrdPublicSeriesMetadata;
+  collections?: PrdPublicCollectionMetadata[];
+  [key: string]: unknown;
+}
+
 export interface PrdGeneralDocumentRoot {
   $schema?: string;
   schemaVersion: string;
@@ -104,48 +293,167 @@ export interface PrdGeneralDocumentRoot {
   children: PrdGeneralDocumentNode[];
 }
 
-export interface PrdGeneralDocumentSectionNode {
+export interface PrdGeneralDocumentInlineSectionNode {
   type: "section";
   id: string;
   title: string;
   children: PrdGeneralDocumentNode[];
+  src?: never;
 }
 
-export interface PrdGeneralDocumentHeadingNode {
+export interface PrdGeneralDocumentSegmentedSectionNode {
+  type: "section";
+  id: string;
+  title: string;
+  src: string;
+  children?: never;
+}
+
+export type PrdGeneralDocumentSectionNode =
+  | PrdGeneralDocumentInlineSectionNode
+  | PrdGeneralDocumentSegmentedSectionNode;
+
+export interface PrdGeneralDocumentHeadingNode
+  extends PrdGeneralDocumentIdentifiedNode {
   type: "heading";
   level: number;
   text: string;
 }
 
-export interface PrdGeneralDocumentParagraphNode {
+export interface PrdGeneralDocumentParagraphNode
+  extends PrdGeneralDocumentIdentifiedNode {
   type: "paragraph";
   text: string;
 }
 
-export interface PrdGeneralDocumentListNode {
+export interface PrdGeneralDocumentListNode
+  extends PrdGeneralDocumentIdentifiedNode {
   type: "list";
   style: "unordered" | "ordered";
   items: string[];
 }
 
-export interface PrdGeneralDocumentImageNode {
+export interface PrdGeneralDocumentLinksItem {
+  label: string;
+  href: string;
+}
+
+export interface PrdGeneralDocumentLinksNode
+  extends PrdGeneralDocumentIdentifiedNode {
+  type: "links";
+  style: "list" | "inline";
+  items: PrdGeneralDocumentLinksItem[];
+}
+
+export interface PrdGeneralDocumentTableColumn {
+  id: string;
+  label: string;
+  align?: "left" | "center" | "right";
+}
+
+export interface PrdGeneralDocumentTableNode
+  extends PrdGeneralDocumentIdentifiedNode {
+  type: "table";
+  caption?: string;
+  columns: PrdGeneralDocumentTableColumn[];
+  rows: Array<Record<string, string>>;
+}
+
+export interface PrdGeneralDocumentChartSeries {
+  name: string;
+  values: number[];
+}
+
+export interface PrdGeneralDocumentChartNode
+  extends PrdGeneralDocumentIdentifiedNode {
+  type: "chart";
+  chartType: "bar";
+  title?: string;
+  caption?: string;
+  categories: string[];
+  series: PrdGeneralDocumentChartSeries[];
+}
+
+export interface PrdGeneralDocumentMediaNode
+  extends PrdGeneralDocumentIdentifiedNode {
+  type: "media";
+  mediaType: "audio" | "video";
+  asset: string;
+  poster?: string;
+  caption?: string;
+}
+
+export interface PrdGeneralDocumentImageNode
+  extends PrdGeneralDocumentIdentifiedNode {
   type: "image";
   asset: string;
   alt: string;
   caption?: string;
 }
 
-export interface PrdGeneralDocumentQuoteNode {
+export interface PrdGeneralDocumentQuoteNode
+  extends PrdGeneralDocumentIdentifiedNode {
   type: "quote";
   text: string;
   attribution?: string;
 }
+
+export interface PrdGeneralDocumentSectionRoot {
+  $schema?: string;
+  schemaVersion: string;
+  profile: "general-document";
+  type: "document-section";
+  id: string;
+  title: string;
+  children: PrdGeneralDocumentNode[];
+}
+
+export interface PrdComicPanel {
+  id: string;
+  asset: string;
+  alt: string;
+  caption?: string;
+}
+
+export interface PrdComicRoot {
+  $schema?: string;
+  schemaVersion: string;
+  profile: "comic";
+  type: "comic";
+  id: string;
+  title: string;
+  panels: PrdComicPanel[];
+}
+
+export interface PrdStoryboardFrame {
+  id: string;
+  asset: string;
+  alt: string;
+  notes?: string;
+}
+
+export interface PrdStoryboardRoot {
+  $schema?: string;
+  schemaVersion: string;
+  profile: "storyboard";
+  type: "storyboard";
+  id: string;
+  title: string;
+  frames: PrdStoryboardFrame[];
+}
+
+export type PrdComicPanelsRoot = PrdComicRoot;
+export type PrdStoryboardFramesRoot = PrdStoryboardRoot;
 
 export type PrdGeneralDocumentNode =
   | PrdGeneralDocumentSectionNode
   | PrdGeneralDocumentHeadingNode
   | PrdGeneralDocumentParagraphNode
   | PrdGeneralDocumentListNode
+  | PrdGeneralDocumentLinksNode
+  | PrdGeneralDocumentTableNode
+  | PrdGeneralDocumentChartNode
+  | PrdGeneralDocumentMediaNode
   | PrdGeneralDocumentImageNode
   | PrdGeneralDocumentQuoteNode;
 
@@ -157,9 +465,10 @@ export interface PrdManifest {
   title: string;
   entry: string;
   profileVersion?: string;
-  public?: Record<string, unknown>;
+  identity?: PrdIdentity;
+  public?: PrdPublicMetadata;
   compatibility?: PrdCompatibility;
-  assets?: PrdAssetDeclaration[] | Record<string, unknown>;
+  assets?: PrdAssetDeclaration[];
   attachments?: PrdAttachmentDeclaration[];
   localization?: PrdLocalization;
   extensions?: PrdExtensionDeclaration[] | Record<string, unknown>;
@@ -202,6 +511,8 @@ export interface PrdOpenedDocument {
   entryPath: string;
   entryHtml?: string;
   entryDocument?: PrdGeneralDocumentRoot;
+  comicDocument?: PrdComicRoot;
+  storyboardDocument?: PrdStoryboardRoot;
   localization?: PrdLocalization;
   message?: string;
 }
@@ -298,8 +609,6 @@ export function getProfileDisplayLabel(profile: string): string {
   switch (normalized) {
     case "general-document":
       return "Document";
-    case "resume":
-      return "Resume";
     case "comic":
       return "Comic";
     case "storyboard":

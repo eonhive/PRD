@@ -1,5 +1,5 @@
 # PRD_CAPABILITY_MODEL.md
-_Last updated: April 1, 2026_  
+_Last updated: April 7, 2026_
 _Status: Capability model draft v0.1_
 
 ## 1. Capability Philosophy
@@ -32,9 +32,9 @@ Current taxonomy:
 | --- | --- |
 | Base package capabilities | public-header read, manifest parse, entry resolution, packaged asset access |
 | Profile capabilities | general document, comic, storyboard, or later profile-specific behaviors |
-| Media capabilities | images, audio, video, fonts, and other declared packaged resources |
+| Media capabilities | images, audio, ambient audio, narration audio, video, fonts, and other declared packaged resources |
 | Localization capabilities | locale selection, text direction handling, localized metadata or asset selection, and regional formatting behavior |
-| Interaction capabilities | scripting, dynamic layout behavior, or other optional runtime features |
+| Interaction capabilities | scripting, dynamic layout behavior, text-to-speech, or other optional runtime features |
 | Protected/private capabilities | protected payload access, signature checks, or optional entitlement checks |
 | Fallback capabilities | safe mode, snapshot rendering, static fallback opening |
 | Extension capabilities | named optional extensions declared in the manifest |
@@ -75,7 +75,11 @@ Rules:
 - document capability declarations must stay declarative and small
 - a document must not list every implementation detail as a capability
 - `general-document-structured-root` is the base structured-entry capability for the first executable `general-document` foundation
-- `base-entry-html` remains relevant for current HTML-backed example paths such as `resume-basic` and the reserved comic/storyboard fixtures
+- structured `comic` and `storyboard` entry support is currently tracked through profile/runtime conformance rather than new required capability identifiers
+- `base-entry-html` remains relevant only for legacy HTML fallback paths; it is not the canonical base document capability for any core profile
+- when the current reference viewer opens an HTML fallback path, it should report that path as restricted `safe-mode` behavior rather than the canonical fully-supported structured path
+- `audio-playback`, `ambient-audio`, `narration-audio`, and `text-to-speech` are examples of optional capabilities that may improve the experience without changing minimal validity
+- AI reader personalities, summarizers, or other assistant behaviors remain viewer/runtime product logic unless a later higher-priority PRD spec defines a narrower interoperable declaration
 
 ### 3.2 Viewer/renderer-side declaration
 
@@ -204,7 +208,7 @@ Document:
 {
   "compatibility": {
     "capabilities": {
-      "required": ["base-entry-html"],
+      "required": [],
       "optional": ["panel-navigation"]
     }
   }
@@ -215,12 +219,17 @@ Viewer:
 
 ```json
 {
-  "supported": ["base-entry-html"],
+  "supported": [],
   "safeMode": true
 }
 ```
 
 Result: `partially-supported`
+
+Assumption:
+
+- the viewer already supports the base structured `comic` opening path through profile/runtime conformance
+- `panel-navigation` is optional enhancement behavior rather than a base opening requirement
 
 ### 6.3 Protected document on a viewer without protected-content support
 
@@ -276,3 +285,31 @@ Result:
 
 - `static-fallback`, if a truthful static fallback exists
 - otherwise `unsupported-required-capability`
+
+### 6.5 Web novel package with optional narration and TTS
+
+Document:
+
+```json
+{
+  "compatibility": {
+    "capabilities": {
+      "required": ["general-document-structured-root"],
+      "optional": ["narration-audio", "text-to-speech"]
+    }
+  }
+}
+```
+
+Viewer:
+
+```json
+{
+  "supported": ["general-document-structured-root", "text-to-speech"],
+  "safeMode": true
+}
+```
+
+Result: `partially-supported`
+
+The document still opens normally. Recorded narration is unavailable, but the base reading path survives and read-aloud may still work through viewer-side TTS.

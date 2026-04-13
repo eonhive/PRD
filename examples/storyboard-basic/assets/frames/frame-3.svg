@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Storyboard frame 3 placeholder">
+  <rect width="960" height="540" rx="40" fill="#3f4d68" />
+  <rect x="34" y="34" width="892" height="472" rx="26" fill="#54657f" stroke="#e6edf5" stroke-width="10" />
+  <circle cx="474" cy="232" r="112" fill="#e8eef6" opacity="0.16" />
+  <circle cx="434" cy="226" r="14" fill="#f7fbff" />
+  <circle cx="518" cy="226" r="14" fill="#f7fbff" />
+  <path d="M404 316C452 284 506 282 556 308" fill="none" stroke="#f6c65b" stroke-width="16" stroke-linecap="round" />
+  <text x="76" y="92" fill="#f7fbff" font-family="Arial, sans-serif" font-size="28" font-weight="700">CU</text>
+  <text x="80" y="472" fill="#f7fbff" font-family="Arial, sans-serif" font-size="38" font-weight="700">Frame 3</text>
+  <text x="80" y="506" fill="#d6dfeb" font-family="Arial, sans-serif" font-size="20">Close reaction beat</text>
+</svg>

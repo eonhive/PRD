@@ -1,5 +1,5 @@
 # PRD_PACKAGE_LAYOUT_DRAFT.md
-_Last updated: March 22, 2026_  
+_Last updated: April 11, 2026_
 _Status: Package layout draft v0.1_
 
 ## 1. Package Philosophy
@@ -90,6 +90,7 @@ The canonical optional folders are:
 Optional file/folder rules:
 
 - `content/` SHOULD be the default location for the manifest `entry` target in canonical packages
+- larger `general-document` works MAY segment public section files under `content/sections/`
 - `assets/`, `attachments/`, `metadata/`, `snapshots/`, and `protected/` MAY be absent
 - `protected/` MUST never be required for the base open path
 - `snapshots/` SHOULD be optional and used only when a profile, workflow, or fallback need exists
@@ -128,9 +129,10 @@ Portability rules for the canonical layout:
 - no folder should depend on platform-specific filesystem features
 - the base open path should work without `attachments/`, `snapshots/`, or `protected/`
 - external assets or linked attachments should not replace the packaged base content path
+- bundled attachments belong under `attachments/`; linked attachments are declared in the manifest but do not live in the package tree
 - `snapshots/` should provide optional fallback value, not a second hidden primary content model
 - `protected/` should remain layered so the public/header path still identifies and opens the package safely
-- large works may segment content under `content/` and assets under `assets/`, but tiny packages should not be forced to mirror that depth
+- large `general-document` works may segment content under `content/sections/` and assets under `assets/`, but tiny packages should not be forced to mirror that depth
 
 Implementation-neutral rule:
 
@@ -156,7 +158,7 @@ field-manual/
 ├── manifest.json
 ├── content/
 │   ├── root.json
-│   ├── chapters/
+│   ├── sections/
 │   │   ├── chapter-01.json
 │   │   └── chapter-02.json
 │   └── appendices/

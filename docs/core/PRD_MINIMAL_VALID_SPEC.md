@@ -1,5 +1,5 @@
 # PRD_MINIMAL_VALID_SPEC.md
-_Last updated: April 1, 2026_  
+_Last updated: April 12, 2026_
 _Status: Normative working draft v0.1_
 
 ## 1. Purpose
@@ -45,6 +45,7 @@ This draft does not define:
 - The spec is published in `docs/core/` within the current organized docs tree.
 - `.prd` is the transport/archive form for the minimal valid package.
 - An unpacked directory tree is informative for authoring and debugging, but not the normative transport contract.
+- **Reference tooling** in the PRD repository MAY validate an unpacked directory whose relative paths form the same logical package as a `.prd` archive; normative distribution and interchange remain a `.prd` ZIP (see §10 and §13).
 - The first executable `general-document` foundation uses a public structured content entry at `content/root.json`.
 - This draft does not yet freeze the full set of allowed entry media types for every future profile.
 - Required public metadata must stay public. Protected/private material cannot become the only way to identify or open a minimal PRD.
@@ -80,12 +81,15 @@ Rules for optional files in this draft:
 
 - Optional files MUST NOT be required to identify or open the base document.
 - Optional files MAY enrich the document, but the package must remain minimally readable without them.
-- Attachment presence does not change minimal validity. Full attachment rules are deferred to a later spec.
+- Attachment presence does not change minimal validity. The current attachment baseline is defined separately in `PRD_ASSETS_AND_ATTACHMENTS.md`.
 - Protected/private content is reserved. If present, it MUST layer on top of a still-openable public base.
+- Optional segmented section files MAY exist under `content/sections/` for larger `general-document` works, but they are not required for minimal validity.
 
 ---
 
 ## 7. Entry-resolution Rules
+
+For **normative interchange**, a minimal PRD viewer or validator resolves the primary entry from a `.prd` ZIP. The steps below use that transport form.
 
 A minimal PRD viewer or validator MUST resolve the primary entry in this order:
 
@@ -96,6 +100,8 @@ A minimal PRD viewer or validator MUST resolve the primary entry in this order:
 5. Resolve `entry` as a package-internal relative path.
 6. Confirm that the resolved target exists as exactly one file inside the archive.
 7. Open that target as the package's primary readable content.
+
+The same logical resolution applies when a **reference validator** builds a package-internal file map from an unpacked directory (no ZIP step): `manifest.json` and all paths are interpreted relative to that tree root.
 
 The following are invalid for `entry` in this draft:
 
@@ -108,6 +114,7 @@ The following are invalid for `entry` in this draft:
 - multiple primary entry values
 
 This draft intentionally does not define a required spine model. Ordered multi-part reading flows belong in later manifest, package-layout, and profile specs.
+The current segmented `general-document` section baseline is optional and does not change the single-entry manifest contract.
 
 ---
 
@@ -129,8 +136,10 @@ This draft freezes the required field names for that baseline in Section 9.
 Notes:
 
 - `id` MUST be stable enough to identify the package. This draft does not yet mandate one identifier scheme.
+- optional `identity` may later supplement the required top-level `id`, but it does not replace it
 - `profile` MUST identify the intended PRD profile using a canonical machine-readable ID. Friendly UI labels do not satisfy this requirement. Profile identifier governance is defined in `governance/PRD_PROFILE_REGISTRY.md`. Exact machine-readable registry publication remains future work.
 - `title` is minimal human-readable metadata, not a full descriptive schema.
+- optional `public` may later carry lean reader-facing metadata, but it is not required for minimal validity
 - Required metadata MUST NOT live only inside `protected` or any future encrypted/private structure.
 
 ---
@@ -157,9 +166,11 @@ These fields are allowed in the minimal draft, but their full schema is not defi
 | Field | Type | Required | Current role |
 | --- | --- | --- | --- |
 | `profileVersion` | string | No | Reserved version for profile-specific behavior |
+| `identity` | object | No | Reserved supplemental durable references beyond the required top-level `id` |
+| `public` | object | No | Reserved lean reader-facing metadata |
 | `extensions` | array or object | No | Reserved declaration of optional extensions |
 | `compatibility` | object | No | Reserved compatibility hints or requirements |
-| `assets` | object or array | No | Reserved asset declarations |
+| `assets` | array | No | Reserved packaged asset declarations |
 | `attachments` | array | No | Reserved attachment declarations |
 | `localization` | object | No | Reserved declaration for optional locale-aware behavior |
 | `protected` | object | No | Reserved marker for future protected/private layering |
@@ -197,13 +208,15 @@ The minimal valid PRD MUST obey these packaging constraints:
 
 An unpacked directory tree MAY be used for authoring, validation, or debugging, but the normative distribution form in this draft is the `.prd` archive.
 
+**Reference validator behavior (tooling, not a change to the format contract):** The reference PRD validator and CLI MAY accept a **directory path** that contains the same files as would appear at the root of a `.prd` archive. In that mode, rules about the `.prd` extension and ZIP structure do not apply; rules about `manifest.json`, `entry`, and the internal file set still apply to the collected map of relative paths to file contents.
+
 ---
 
 ## 11. Failure Cases
 
-A package is invalid as a minimal PRD if any of the following are true:
+When the validation or open target is a **`.prd` file**, a package is invalid as a minimal PRD if any of the following are true:
 
-- the package is not a ZIP-based `.prd` archive
+- the file is not a ZIP-based `.prd` archive (wrong extension or not a readable ZIP)
 - `manifest.json` is missing from the archive root
 - `manifest.json` cannot be parsed as a JSON object
 - any required manifest field is missing
@@ -213,6 +226,8 @@ A package is invalid as a minimal PRD if any of the following are true:
 - `entry` resolves to more than one target or to a directory
 - the package requires a protected/private, payment, crypto, or live-update layer to open base content
 - the package requires external network fetches just to open its minimal base content
+
+When the validation target is an **unpacked directory**, the first bullet above does not apply; instead, the package is invalid if `manifest.json` is missing from the directory root (conceptual archive root) or if the internal file set otherwise fails the same structural rules.
 
 A structurally valid package may still be unsupported by a given viewer. Viewer support and capability negotiation are later work.
 
@@ -266,10 +281,10 @@ When distributed, the package above is zipped as `hello-prd.prd`. The unpacked t
 
 ## 13. Validator Rules
 
-A validator implementing this draft SHOULD check at least the following:
+A validator implementing this draft SHOULD check at least the following against the **logical package** (ZIP contents or equivalent directory file map):
 
-1. The file uses `.prd` transport and can be opened as a ZIP archive.
-2. `manifest.json` exists at the archive root.
+1. **If the validation target is a `.prd` file:** it uses the `.prd` extension and can be opened as a ZIP archive. **If the target is a directory:** skip ZIP/extension checks and collect package files from the tree (excluding dotfiles as appropriate for the implementation).
+2. `manifest.json` exists at the package root.
 3. `manifest.json` parses as a single JSON object.
 4. `prdVersion`, `manifestVersion`, `id`, `profile`, `title`, and `entry` all exist and are strings.
 5. `entry` is a single relative internal path with no path-traversal segments and no URL form.
@@ -278,6 +293,8 @@ A validator implementing this draft SHOULD check at least the following:
 8. If optional `attachments` are present, the package still validates when attachments are ignored.
 9. If optional `protected` data is present, all required public metadata still exists outside it.
 10. Unknown optional fields do not break minimal validity unless they contradict one of the rules above.
+
+Executable issue codes and additional profile rules for the reference implementation live in [packages/prd-validator/src/index.ts](../../packages/prd-validator/src/index.ts) (and the Node entry helper in [packages/prd-validator/src/node.ts](../../packages/prd-validator/src/node.ts)).
 
 Every later PRD spec should extend or refine these checks, not remove the baseline rules without an explicit decision-log change.
 
@@ -292,7 +309,7 @@ The following remain intentionally open after this draft:
 - What machine-readable publication format, if any, should PRD use for a public profile registry beyond the canonical doc set?
 - What entry media types must every conforming minimal viewer support?
 - What full directory conventions should be recommended beyond the root manifest and the declared entry target?
-- How should assets be declared when present: object, array, or profile-specific model?
+- Should future PRD extensions ever standardize external asset references without weakening the packaged-first baseline?
 - What full attachment model should distinguish bundled files, linked files, and PRD-to-PRD references?
 - How should protected/private material be placed and referenced without weakening portability or graceful degradation?
 - How should multi-entry reading flows, spine behavior, and large-work segmentation layer on top of this minimal baseline?

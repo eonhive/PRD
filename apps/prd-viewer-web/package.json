@@ -1,5 +1,5 @@
 {
-  "name": "@prd/web-viewer",
+  "name": "@eonhive/prd-web-viewer",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,9 +8,9 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@prd/types": "workspace:*",
-    "@prd/validator": "workspace:*",
-    "@prd/viewer-core": "workspace:*",
+    "@eonhive/prd-types": "workspace:*",
+    "@eonhive/prd-validator": "workspace:*",
+    "@eonhive/prd-viewer-core": "workspace:*",
     "fflate": "^0.8.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

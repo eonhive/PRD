@@ -1,16 +1,26 @@
 import {
+  type PrdComicRoot,
   type PrdGeneralDocumentRoot,
   type PrdOpenedDocument,
   type PrdPackageReader,
   type PrdManifest,
+  type PrdStoryboardRoot,
   getProfileDisplayLabel,
   isHtmlEntryPath,
   isJsonEntryPath,
   normalizeProfileId
-} from "@prd/types";
+} from "@eonhive/prd-types";
 
 function parseGeneralDocumentEntry(entryText: string): PrdGeneralDocumentRoot {
   return JSON.parse(entryText) as PrdGeneralDocumentRoot;
+}
+
+function parseComicEntry(entryText: string): PrdComicRoot {
+  return JSON.parse(entryText) as PrdComicRoot;
+}
+
+function parseStoryboardEntry(entryText: string): PrdStoryboardRoot {
+  return JSON.parse(entryText) as PrdStoryboardRoot;
 }
 
 export async function openPrdDocument(
@@ -23,19 +33,6 @@ export async function openPrdDocument(
     ...manifest,
     profile: profileInfo.normalized
   };
-
-  if (profileInfo.normalized === "comic" || profileInfo.normalized === "storyboard") {
-    return {
-      manifest: normalizedManifest,
-      profileInfo,
-      supportState: "reserved-profile",
-      entryPath: normalizedManifest.entry,
-      localization: normalizedManifest.localization,
-      message: `${getProfileDisplayLabel(
-        profileInfo.normalized
-      )} is recognized by the architecture, but specialized rendering is not implemented in the reference viewer yet.`
-    };
-  }
 
   if (
     profileInfo.normalized === "general-document" &&
@@ -55,6 +52,90 @@ export async function openPrdDocument(
     };
   }
 
+  if (profileInfo.normalized === "comic") {
+    if (isJsonEntryPath(normalizedManifest.entry)) {
+      const comicDocument = parseComicEntry(
+        await packageReader.readText(normalizedManifest.entry)
+      );
+
+      return {
+        manifest: normalizedManifest,
+        profileInfo,
+        supportState: "fully-supported",
+        entryPath: normalizedManifest.entry,
+        comicDocument,
+        localization: normalizedManifest.localization
+      };
+    }
+
+    if (!isHtmlEntryPath(normalizedManifest.entry)) {
+      return {
+        manifest: normalizedManifest,
+        profileInfo,
+        supportState: "unsupported-required-capability",
+        entryPath: normalizedManifest.entry,
+        localization: normalizedManifest.localization,
+        message:
+          "The current reference viewer supports structured `comic` JSON roots and limited HTML fallback paths."
+      };
+    }
+
+    const entryHtml = await packageReader.readText(normalizedManifest.entry);
+
+    return {
+      manifest: normalizedManifest,
+      profileInfo,
+      supportState: "safe-mode",
+      entryPath: normalizedManifest.entry,
+      entryHtml,
+      localization: normalizedManifest.localization,
+      message:
+        "Opened through a legacy HTML fallback path. Structured `comic` JSON roots are now the canonical fully-supported path in the reference viewer."
+    };
+  }
+
+  if (profileInfo.normalized === "storyboard") {
+    if (isJsonEntryPath(normalizedManifest.entry)) {
+      const storyboardDocument = parseStoryboardEntry(
+        await packageReader.readText(normalizedManifest.entry)
+      );
+
+      return {
+        manifest: normalizedManifest,
+        profileInfo,
+        supportState: "fully-supported",
+        entryPath: normalizedManifest.entry,
+        storyboardDocument,
+        localization: normalizedManifest.localization
+      };
+    }
+
+    if (!isHtmlEntryPath(normalizedManifest.entry)) {
+      return {
+        manifest: normalizedManifest,
+        profileInfo,
+        supportState: "unsupported-required-capability",
+        entryPath: normalizedManifest.entry,
+        localization: normalizedManifest.localization,
+        message:
+          "The current reference viewer supports structured `storyboard` JSON roots and limited HTML fallback paths."
+      };
+    }
+
+    const entryHtml = await packageReader.readText(normalizedManifest.entry);
+
+    return {
+      manifest: normalizedManifest,
+      profileInfo,
+      supportState: "safe-mode",
+      entryPath: normalizedManifest.entry,
+      entryHtml,
+      localization: normalizedManifest.localization,
+      message:
+        "Opened through a legacy HTML fallback path. Structured `storyboard` JSON roots are now the canonical fully-supported path in the reference viewer."
+    };
+  }
+
   if (!isHtmlEntryPath(normalizedManifest.entry)) {
     return {
       manifest: normalizedManifest,
@@ -62,7 +143,8 @@ export async function openPrdDocument(
       supportState: "unsupported-required-capability",
       entryPath: normalizedManifest.entry,
       localization: normalizedManifest.localization,
-      message: "The current reference viewer only renders HTML entry paths."
+      message:
+        "The current reference viewer supports structured `general-document` JSON roots and limited HTML fallback paths."
     };
   }
 
@@ -71,13 +153,11 @@ export async function openPrdDocument(
   return {
     manifest: normalizedManifest,
     profileInfo,
-    supportState:
-      profileInfo.normalized === "general-document" ||
-      profileInfo.normalized === "resume"
-        ? "fully-supported"
-        : "safe-mode",
+    supportState: "safe-mode",
     entryPath: normalizedManifest.entry,
     entryHtml,
-    localization: normalizedManifest.localization
+    localization: normalizedManifest.localization,
+    message:
+      "Opened through a limited HTML fallback path. Structured `general-document` JSON roots remain the canonical fully-supported path in the reference viewer."
   };
 }

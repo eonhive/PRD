@@ -1,0 +1,7 @@
+PRD Foundation Checklist
+
+- manifest.json is the canonical package control surface
+- content/root.json is the structured primary entry
+- declared assets stay under assets/
+- declared bundled attachments stay under attachments/
+- the public base path stays readable without private layers

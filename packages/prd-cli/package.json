@@ -1,10 +1,36 @@
 {
-  "name": "@prd/cli",
+  "name": "@eonhive/prd-cli",
   "version": "0.1.0",
-  "private": true,
+  "description": "Command-line tools for PRD: validate and pack Portable Responsive Documents.",
+  "keywords": [
+    "prd",
+    "portable-responsive-document",
+    "cli",
+    "validator",
+    "packager"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/eonhive/PRD#readme",
+  "bugs": {
+    "url": "https://github.com/eonhive/PRD/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eonhive/PRD.git",
+    "directory": "packages/prd-cli"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "prd": "./dist/cli.js"
   },
@@ -15,12 +41,12 @@
     }
   },
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b && rm -f dist/.tsbuildinfo",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@prd/packager": "workspace:*",
-    "@prd/types": "workspace:*",
-    "@prd/validator": "workspace:*"
+    "@eonhive/prd-packager": "workspace:*",
+    "@eonhive/prd-types": "workspace:*",
+    "@eonhive/prd-validator": "workspace:*"
   }
 }
-

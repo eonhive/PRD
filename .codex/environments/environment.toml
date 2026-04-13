@@ -1,0 +1,50 @@
+# Company: Not specified
+# Title: Codex Local Environment
+# Purpose: Define Codex desktop setup and Run actions for the PRD workspace.
+# Author: Stan Nesi
+# Created: 2026-04-10
+# Updated: 2026-04-12
+# Notes: Vibe coded with Codex.
+
+version = 1
+name = "prd"
+
+[setup]
+script = '''
+pnpm install
+'''
+
+[[actions]]
+name = "Web Viewer"
+icon = "run"
+command = "pnpm codex:run:web"
+
+[[actions]]
+name = "Check"
+icon = "test"
+command = "pnpm codex:check"
+
+[[actions]]
+name = "Release Check"
+icon = "test"
+command = "pnpm release:check"
+
+[[actions]]
+name = "Build"
+icon = "tool"
+command = "pnpm build"
+
+[[actions]]
+name = "Tests"
+icon = "test"
+command = "pnpm test"
+
+[[actions]]
+name = "Pack Examples"
+icon = "tool"
+command = "pnpm codex:pack"
+
+[[actions]]
+name = "Validate Examples"
+icon = "test"
+command = "pnpm examples:validate"

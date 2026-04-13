@@ -71,8 +71,8 @@ The following profile identifiers are currently reserved as canonical first-clas
 
 | Profile identifier | Status | Role |
 | --- | --- | --- |
-| `general-document` | Canonical core profile | General structured responsive reading documents |
-| `comic` | Canonical core profile | Panel-based visual storytelling |
+| `general-document` | Canonical core profile | General structured responsive reading documents, including novels and web novels |
+| `comic` | Canonical core profile | Panel-based visual storytelling, including manhua and manhwa family works |
 | `storyboard` | Canonical core profile | Shot-based planning and production communication |
 
 These identifiers are part of PRD canon. They must not be repurposed, aliased, or redefined by community packages.
@@ -100,9 +100,17 @@ A document kind should remain a variant when it mainly changes:
 - guided-reading preference
 - visual treatment within an already fitting profile
 
+Examples that should normally remain inside `general-document` unless a later accepted spec proves otherwise:
+
+- novel
+- web novel
+- serialized prose publication
+
 Examples that should normally remain inside `comic` unless a later accepted spec proves otherwise:
 
 - manga-style right-to-left reading
+- manhua-style chapter packaging
+- manhwa-style serial presentation
 - vertical-scroll comic presentation
 - collector-edition comic packaging
 - guided-panel comic reading

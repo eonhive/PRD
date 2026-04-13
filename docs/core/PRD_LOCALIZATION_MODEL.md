@@ -1,5 +1,5 @@
 # PRD_LOCALIZATION_MODEL.md
-_Last updated: April 1, 2026_  
+_Last updated: April 12, 2026_
 _Status: Localization model draft v0.1_
 
 ## 1. Purpose
@@ -105,6 +105,73 @@ The following should stay outside the base manifest:
 
 If a package includes localized resources, the manifest may declare the localization surface, but the actual payloads should live in normal package content or asset locations.
 
+Current reference convention for localized structured content:
+
+- keep the default locale on the manifest `entry`
+- map alternate locales through `content/locales/index.json`
+- prefer localized document resources that overlay one shared structured root
+- reserve full alternate localized `entry` paths for cases where locale changes structure materially
+
+Current preferred draft shape:
+
+```json
+{
+  "type": "localized-content-index",
+  "locales": {
+    "fr-FR": {
+      "resource": "content/locales/fr-FR.json",
+      "label": "Francais"
+    }
+  }
+}
+```
+
+Current localized resource shape for `general-document`:
+
+```json
+{
+  "type": "localized-document-overrides",
+  "locale": "fr-FR",
+  "document": {
+    "title": "Guide de terrain",
+    "lang": "fr-FR"
+  },
+  "public": {
+    "summary": "Resume localise pour la surface lecteur.",
+    "cover": "field-guide-cover-fr",
+    "series": {
+      "title": "Guide de terrain"
+    }
+  },
+  "nodes": {
+    "intro-heading": {
+      "type": "heading",
+      "text": "Bienvenue"
+    },
+    "hero-image": {
+      "type": "image",
+      "asset": "field-guide-cover-fr",
+      "alt": "Illustration de couverture localisee"
+    }
+  }
+}
+```
+
+Rules for the current reference implementation:
+
+- the index is optional
+- the index lists alternate locales only, not `defaultLocale`
+- `resource` is the preferred path for `general-document`
+- `entry` remains the escape hatch when a locale needs a full alternate structured root
+- a locale descriptor may use both `entry` and `resource` when it needs a full alternate structured root plus a small overlay for reader-facing metadata or targeted text adjustments
+- when `general-document` segmentation is used, viewers should resolve packaged section files before applying localized overrides
+- localized resources do not replace the base manifest or base structured root
+- localized `public` overrides may layer small reader-facing metadata fields such as `subtitle`, `summary`, `byline`, `publisher`, `series`, `collections`, and `cover`
+- localized `cover` overrides should resolve to declared packaged image assets
+- localized `image` node overrides may also switch to another declared packaged image asset when the reader-facing document body needs locale-specific artwork
+- the manifest remains the source of truth for `defaultLocale` and `availableLocales`
+- this mapping format is still draft-level and intentionally small
+
 ---
 
 ## 7. Viewer Negotiation And Fallback
@@ -122,6 +189,8 @@ Rules:
 - a viewer must not invent locale semantics the package does not declare
 - missing localization support must not invalidate an otherwise valid package
 - if localized behavior is unsupported, the viewer should still open the truthful base path when possible
+- a viewer may expose a locale switcher when the package provides localized content mappings
+- when localized `public` metadata is provided, a viewer may switch summary, cover, and lean collection/series labels alongside the active localized content path
 - if the package declares `textDirection`, the viewer should honor it when supported or report restricted support clearly
 - safe mode may ignore advanced locale-specific behavior, but it should preserve the declared public metadata and truthful base open path
 
@@ -138,6 +207,7 @@ A validator implementing this draft should check at least the following:
 5. `textDirection`, when present, is one of `ltr`, `rtl`, or `auto`
 6. localization declarations remain in the public manifest rather than only in protected/private material
 7. localization declarations do not replace required core fields such as `profile` or `entry`
+8. localized content mappings, when present, should stay outside the manifest and resolve to real packaged content paths
 
 Validators may warn when:
 

@@ -1,5 +1,7 @@
 # AGENTS.md
 
+This file adds PRD-specific rules on top of the global defaults in `/Users/nappy.cat/.codex/AGENTS.md`.
+
 ## Project identity
 
 PRD stands for **Portable Responsive Document**.
@@ -93,6 +95,8 @@ General document kinds such as:
 * `magazine`
 
 currently belong inside the `general-document` family unless later canon promotes them separately.
+`web novel` currently belongs inside the `general-document` family.
+`manhua` and `manhwa` currently belong inside the `comic` family.
 
 **Important:**
 `comic` and `storyboard` are not secondary hacks or future bolt-ons.
@@ -165,7 +169,20 @@ When making format decisions:
 PRD should not become either:
 
 * a rigid static-print-only format
-* an undisciplined “anything goes” zipped web bundle
+* an undisciplined "anything goes" zipped web bundle
+
+---
+
+## Current implementation truth
+
+Until higher-priority canon changes:
+
+* the canonical executable `general-document` path is a structured JSON entry under `content/`, typically `content/root.json`
+* HTML-backed document opens are fallback behavior, not the canonical fully-supported `general-document` path
+* bare `resume` is legacy/deprecated as a top-level profile identifier
+* resume-shaped packages should use `profile: "general-document"` and keep authored resume-specific data under `profiles/resume.json` or normal structured content
+
+Keep docs, validator behavior, viewer behavior, and examples aligned with those truths.
 
 ---
 
@@ -196,23 +213,17 @@ The manifest should remain:
 * canonical
 * versioned
 * profile-aware
-* structured
 * validateable
 * extensible
 * disciplined
 
-The conceptual manifest model should remain centered on areas like:
+Current manifest canon:
 
-* `header`
-* `identity`
-* `metadata`
-* `profile`
-* `structure`
-* `resources`
-* `view`
-* `extensions`
-* `protection`
-* `compatibility`
+* required opening fields stay at the top level: `prdVersion`, `manifestVersion`, `id`, `profile`, `title`, and `entry`
+* optional durable references belong under `identity`
+* optional lean reader-facing metadata belongs under `public`
+* locale declarations belong under `localization`
+* do not revive required nested `header`, `metadata`, or `structure` sections
 
 Do not collapse the manifest into a random blob.
 

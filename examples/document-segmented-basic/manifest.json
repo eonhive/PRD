@@ -1,0 +1,30 @@
+{
+  "prdVersion": "1.0",
+  "manifestVersion": "1.0",
+  "id": "urn:prd:example:document-segmented-basic",
+  "profile": "general-document",
+  "title": "PRD Segmented Document Example",
+  "entry": "content/root.json",
+  "identity": {
+    "collections": [
+      {
+        "ref": "urn:prd-collection:example:phase-3-fixtures"
+      }
+    ]
+  },
+  "public": {
+    "summary": "A segmented general-document example that keeps one canonical root while moving larger sections into packaged section files.",
+    "collections": [
+      {
+        "title": "Phase 3 Fixtures"
+      }
+    ]
+  },
+  "compatibility": {
+    "minViewer": "0.1",
+    "capabilities": {
+      "required": ["general-document-structured-root"],
+      "optional": []
+    }
+  }
+}

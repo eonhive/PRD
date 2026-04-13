@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0",
+  "profile": "comic",
+  "type": "comic",
+  "id": "comic-basic",
+  "title": "PRD Comic Fixture",
+  "panels": [
+    {
+      "id": "panel-1",
+      "asset": "panel-1-art",
+      "alt": "Courier balanced above the glowing city canopy at dusk",
+      "caption": "Establishing shot of the city canopy"
+    },
+    {
+      "id": "panel-2",
+      "asset": "panel-2-art",
+      "alt": "Courier leaping between two suspended walkways",
+      "caption": "Courier leaps between suspended walkways"
+    },
+    {
+      "id": "panel-3",
+      "asset": "panel-3-art",
+      "alt": "Close-up of the courier bracing before the handoff",
+      "caption": "Close-up beat before the handoff"
+    }
+  ]
+}

@@ -84,6 +84,8 @@ Document kinds such as:
 * `magazine`
 
 currently belong inside the `general-document` family unless later canon promotes them separately.
+`web novel` currently belongs inside the `general-document` family.
+`manhua` and `manhwa` currently belong inside the `comic` family.
 
 Comics and storyboards are intentional parts of the system design, not afterthoughts.
 
@@ -136,7 +138,9 @@ Current implementation-facing assumptions in this repo:
 * canonical core profile IDs are `general-document`, `comic`, and `storyboard`
 * `responsive-document` is treated only as a legacy alias that normalizes to `general-document`
 * localization is optional and lean at the manifest boundary
-* `resume-basic` is currently a general-document-family example, not a promoted top-level canonical profile
+* resume remains a document kind inside the `general-document` family, not a promoted top-level canonical profile
+* web novels are treated as `general-document` family works
+* manhua and manhwa are treated as `comic` family works
 
 This repo is trying to prove a serious base format and toolchain, not every future PRD feature at once.
 
@@ -190,6 +194,7 @@ apps/
 
 examples/
   document-basic/
+  document-segmented-basic/
   resume-basic/
   comic-basic/
   storyboard-basic/
@@ -214,6 +219,7 @@ my-document.prd/
 Key ideas:
 
 * `manifest.json` is the canonical structural source of truth
+* core `assets` are packaged reusable resources; linked supplemental references belong under `attachments/`
 * `content/` holds structured document content
 * `assets/` holds declared reusable assets
 * `profiles/` supports profile-specific specialization
@@ -229,30 +235,118 @@ The current top-level scripts are:
 * `pnpm build`
 * `pnpm typecheck`
 * `pnpm test`
+* `pnpm codex:check`
+* `pnpm codex:pack`
+* `pnpm codex:run:web`
 * `pnpm dev:web`
 * `pnpm examples:pack`
 * `pnpm examples:validate`
+* `pnpm release:check`
 
 Example CLI usage:
 
 ```bash
 prd validate <path>
+prd inspect <path>
 ```
+
+## Current loading baseline
+
+The current PRD reference stack is:
+
+* packaged-first
+* offline-first for the base readable path
+* eager whole-package in-memory in the reference viewer and current inspection tooling
+
+This repo does **not** currently claim streaming, range requests, worker unzip, or lazy section fetch as part of core PRD validity or conformance.
+
+### Install from npm
+
+The public npm surface is a **`0.1.0` public preview** of the PRD tooling packages under the **eonhive** org:
+
+* `@eonhive/prd-types`
+* `@eonhive/prd-validator`
+* `@eonhive/prd-packager`
+* `@eonhive/prd-cli`
+
+They require **Node.js 20+**. The viewer packages stay private and are not part of the npm publish set.
+
+The repo root also now includes [`.nvmrc`](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/.nvmrc) pinned to Node 20 so local release and Codex sessions can match the CI floor directly.
+
+```bash
+npm install -g @eonhive/prd-cli
+prd validate path/to/package.prd
+```
+
+Without a global install:
+
+```bash
+npx @eonhive/prd-cli validate path/to/examples/document-basic
+npx @eonhive/prd-cli pack path/to/examples/document-basic --out ./out.prd
+```
+
+`prd validate` accepts a `.prd` archive or an unpacked package directory. For programmatic use, depend on `@eonhive/prd-validator` and import `@eonhive/prd-validator/node` for filesystem validation (`validatePackage`).
+
+Source and issues: [github.com/eonhive/PRD](https://github.com/eonhive/PRD).
+
+Release management uses **Changesets** plus the GitHub Actions Release workflow on `main`. Do not publish from an ad hoc local machine. Use:
+
+* `pnpm changeset` to record package changes
+* `pnpm release:check` for the release gate
+* `pnpm release:status` to inspect pending release state
+
+The release workflow publishes only after the Node 20+ CI gate is green. Maintainer docs live in [PRD_RELEASE_POLICY.md](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/docs/governance/PRD_RELEASE_POLICY.md) and [PRD_NPM_RELEASE_RUNBOOK.md](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/docs/governance/PRD_NPM_RELEASE_RUNBOOK.md).
+
+### Codex Run Environment
+
+For Codex-driven work, use the repo-local run actions instead of manually piecing together commands:
+
+* `pnpm codex:check`
+  Runs `typecheck`, `test`, `build`, and `examples:validate` in one predictable sequence.
+* `pnpm codex:pack`
+  Builds the workspace and produces the example `.prd` archives under `examples/dist/`.
+* `pnpm codex:run:web`
+  Builds the workspace, packs the example archives, and starts the web viewer.
+
+Codex desktop also reads [`.codex/environments/environment.toml`](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/.codex/environments/environment.toml) for this workspace. That file now defines:
+
+* `Web Viewer`
+* `Check`
+* `Release Check`
+* `Build`
+* `Tests`
+* `Pack Examples`
+* `Validate Examples`
+
+The environment setup step runs `pnpm install` in the project root when Codex creates a fresh worktree for this repo.
+
+The repo also now includes [`.github/workflows/codex-ci.yml`](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/.github/workflows/codex-ci.yml), which runs the same Codex check flow automatically on pushes, pull requests, and manual workflow dispatch.
+
+For release automation, the repo also includes [`.github/workflows/release.yml`](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/.github/workflows/release.yml), which gates npm publication through Changesets and CI on `main`.
 
 ---
 
 ## Example flow
 
-1. Run `pnpm examples:pack`
-2. Run `pnpm examples:validate`
-3. Run `pnpm dev:web`
-4. Open the web viewer and load files from `examples/dist/`
+1. Run `pnpm codex:check`
+2. Run `pnpm codex:run:web`
+3. Open the web viewer and load files from `examples/dist/`
 
 Current example behavior:
 
-* `document-basic` is the canonical structured `general-document` example using `content/root.json`
-* `resume-basic` remains a useful HTML-backed implementation example while the structured document family expands
-* `comic-basic` and `storyboard-basic` are important structural fixtures even where runtime support is still narrower
+* `document-basic` is the canonical small structured `general-document` example using `content/root.json` and now demonstrates structured links, tables, charts, packaged audio media, one bundled attachment, and a French localized resource overlay for both content and small reader-facing metadata, including localized cover and inline image selection
+* `document-segmented-basic` proves the Phase 3 segmentation path for larger `general-document` works by keeping one canonical root and moving top-level sections into packaged files under `content/sections/`; it also carries one lean collection membership through manifest `identity` and `public`
+* `resume-basic` is a resume-flavored structured `general-document` example that keeps authored resume metadata under `profiles/resume.json`, uses `presentation: "scan"` for a scan-oriented resume viewer surface, and includes supplemental manifest `identity` and `public` references
+* `comic-basic` is now the canonical structured `comic` example using `content/root.json` with image-backed panel cards, optional panel navigation, and one lean manifest-declared series membership
+* `storyboard-basic` is now the canonical structured `storyboard` example using `content/root.json` with image-backed frames and optional review-grid behavior
+
+The web viewer also now exposes a locale switcher when a package declares localization and includes localized content mappings under `content/locales/index.json`. For `general-document`, the preferred path is one shared structured root plus localized resource overlays; those overlays can localize both the document body and small reader-facing metadata such as summary, cover, lean collection/series labels, and declared image-node asset selection. Full alternate locale roots remain an escape hatch, but they are not the canonical example path.
+
+The reference viewer also now surfaces declared attachments as supplemental links. Bundled attachments resolve from `attachments/`, while linked attachments remain optional external references and do not replace the packaged base open path.
+
+Larger `general-document` packages may now also segment top-level sections into packaged files under `content/sections/` while keeping `manifest.entry` pointed at `content/root.json`. This keeps the small-path example small while still giving bigger works a disciplined scaling path.
+
+Across packages, PRD now also uses a lean collection/series relationship model in the manifest rather than a spine or package-of-packages container. Stable grouping refs live under `identity`, small display labels live under `public`, and richer about-the-series material still belongs in content or attachments.
 
 ---
 
