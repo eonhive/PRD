@@ -39,6 +39,12 @@ jobs:
       - name: Run release gate
         run: pnpm release:check
 
+      - name: Bootstrap first public preview publish
+        run: pnpm release:bootstrap --publish
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
+
       - name: Version or publish packages
         uses: changesets/action@v1
         with:

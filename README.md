@@ -292,10 +292,11 @@ Source and issues: [github.com/eonhive/PRD](https://github.com/eonhive/PRD).
 Release management uses **Changesets** plus the GitHub Actions Release workflow on `main`. Do not publish from an ad hoc local machine. Use:
 
 * `pnpm changeset` to record package changes
+* `pnpm release:bootstrap` to inspect first-preview bootstrap state
 * `pnpm release:check` for the release gate
 * `pnpm release:status` to inspect pending release state
 
-The release workflow publishes only after the Node 20+ CI gate is green. Maintainer docs live in [PRD_RELEASE_POLICY.md](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/docs/governance/PRD_RELEASE_POLICY.md) and [PRD_NPM_RELEASE_RUNBOOK.md](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/docs/governance/PRD_NPM_RELEASE_RUNBOOK.md).
+The release workflow publishes only after the Node 20+ CI gate is green. For the one-time `0.1.0` preview, it first bootstraps any still-unpublished current preview packages and then falls back to normal Changesets behavior. Maintainer docs live in [PRD_RELEASE_POLICY.md](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/docs/governance/PRD_RELEASE_POLICY.md) and [PRD_NPM_RELEASE_RUNBOOK.md](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/docs/governance/PRD_NPM_RELEASE_RUNBOOK.md).
 
 ### Codex Run Environment
 

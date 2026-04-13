@@ -53,7 +53,9 @@ The first public preview uses the current unpublished `0.1.0` package versions.
 
 That means:
 
-- the release workflow may publish the current versions directly
+- the release workflow first runs `pnpm release:bootstrap --publish`
+- that bootstrap step checks npm for the current `0.1.0` package versions
+- any still-unpublished preview packages are published directly in dependency order
 - future releases should use normal Changesets version PR flow
 
 The publish set for the first preview is:
