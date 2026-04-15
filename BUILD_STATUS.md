@@ -2,6 +2,7 @@
 
 ## 2026-04-15
 
+- Updated control docs and docs index references from legacy `foundation/PRD_*.md` paths to canonical `docs/foundation/04_PRD/PRD_*.md` paths (`docs/README.md`, `docs/architecture/PRD_SYSTEM_BLUEPRINT.md`, `docs/decisions/PRD_DECISIONS.md`) and verified with repo-wide search.
 - Updated canonical reference lists in `README.md`, `AGENTS.md`, `docs/governance/PRD_PROMPT_DOCTRINE.md`, and `docs/prompts/PRD_MASTER_PROMPTS.md` to use real `docs/foundation/04_PRD/*` file paths; verified no stale legacy foundation-path references remain.
 - Consolidated `NEXT_STEPS.md` into a single canonical numbered backlog format, added a top-line canonical note, and recorded that `NEXT_STEPS copy.md` was not present for merge/archival during this update.
 - Added a contributor-facing README section documenting the MVP local gate flow (workspace linking, required local checks, changeset guidance, and deferred npm publication policy).

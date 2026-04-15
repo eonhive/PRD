@@ -13,5 +13,5 @@
 7. Add dedicated web app tests for rendering-mode UI messages in `apps/prd-viewer-web` (structured JSON, HTML fallback, unsupported mode).
 8. Add a cross-package integration test (validator + viewer-core + web state mapping) to ensure support-state messaging remains aligned.
 9. Consider exposing a typed `renderMode` helper from `@eonhive/prd-viewer-core` so viewer clients can consume a canonical capability classification.
-10. Add a lightweight docs consistency check that fails CI when stale legacy foundation paths appear instead of the `docs/foundation/04_PRD/*` locations.
+10. Add a lightweight docs consistency check that fails CI when stale `foundation/PRD_*.md` references appear in control docs/README instead of `docs/foundation/04_PRD/*` paths.
 11. Add a CI workflow step that runs `pnpm examples:smoke -- --json-summary` and uploads summaries as artifacts for annotation/reporting.

@@ -34,10 +34,10 @@ Without a source-of-truth file, the project risks drift, contradictions, and los
 
 **Implication:**  
 PRD should maintain a small set of core markdown control files such as:
-- foundation/PRD_FOUNDATION.md
+- docs/foundation/04_PRD/PRD_FOUNDATION.md
 - decisions/PRD_DECISIONS.md
-- foundation/PRD_GLOSSARY.md
-- foundation/PRD_ROADMAP.md
+- docs/foundation/04_PRD/PRD_GLOSSARY.md
+- docs/foundation/04_PRD/PRD_ROADMAP.md
 
 **Follow-up:**  
 Expand these files and keep them versioned.

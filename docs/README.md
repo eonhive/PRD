@@ -10,10 +10,10 @@ It is organized by role so the live canon, active supporting docs, and archived 
 
 Use this order when producing or updating PRD work:
 
-1. `foundation/PRD_FOUNDATION.md`
+1. `docs/foundation/04_PRD/PRD_FOUNDATION.md`
 2. `decisions/PRD_DECISIONS.md`
-3. `foundation/PRD_GLOSSARY.md`
-4. `foundation/PRD_ROADMAP.md`
+3. `docs/foundation/04_PRD/PRD_GLOSSARY.md`
+4. `docs/foundation/04_PRD/PRD_ROADMAP.md`
 5. `history/PRD_Project_History_Record.md` and other history/archive docs when relevant
 6. the specific target doc being updated
 

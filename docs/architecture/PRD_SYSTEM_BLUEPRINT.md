@@ -56,10 +56,10 @@ No major milestone should be considered complete unless all four tracks have at 
 
 These govern project truth:
 
-- `foundation/PRD_FOUNDATION.md`
+- `docs/foundation/04_PRD/PRD_FOUNDATION.md`
 - `decisions/PRD_DECISIONS.md`
-- `foundation/PRD_GLOSSARY.md`
-- `foundation/PRD_ROADMAP.md`
+- `docs/foundation/04_PRD/PRD_GLOSSARY.md`
+- `docs/foundation/04_PRD/PRD_ROADMAP.md`
 - `history/PRD_Project_History_Record.md`
 - `architecture/PRD_SYSTEM_BLUEPRINT.md`
 - `governance/PRD_PROFILE_REGISTRY.md`
