@@ -35,3 +35,4 @@
 - Completed: Added optional machine-readable smoke summary emission via `--json-summary` in smoke scripts.
 
 - Completed housekeeping request to keep NEXT_STEPS as canonical backlog with a single numbered checklist style; confirmed NEXT_STEPS copy file is absent and consolidated note retained.
+- Updated stale canonical-doc references in `README.md`, `AGENTS.md`, `docs/governance/PRD_PROMPT_DOCTRINE.md`, and `docs/prompts/PRD_MASTER_PROMPTS.md` to point at `docs/foundation/04_PRD/PRD_DECISIONS.md`.
