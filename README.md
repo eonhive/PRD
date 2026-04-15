@@ -38,10 +38,10 @@ PRD is **not**:
 
 Implementation and doc work should follow the canonical docs in this order:
 
-1. `docs/foundation/PRD_FOUNDATION.md`
+1. `docs/foundation/04_PRD/PRD_FOUNDATION.md`
 2. `docs/decisions/PRD_DECISIONS.md`
-3. `docs/foundation/PRD_GLOSSARY.md`
-4. `docs/foundation/PRD_ROADMAP.md`
+3. `docs/foundation/04_PRD/PRD_GLOSSARY.md`
+4. `docs/foundation/04_PRD/PRD_ROADMAP.md`
 5. `docs/history/PRD_Project_History_Record.md`
 6. the specific target doc being updated
 
