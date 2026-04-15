@@ -14,3 +14,10 @@
 - Added an MVP smoke-gate script for `examples/document-basic` that runs pack, source validate, packed validate, and packed inspect in a strict sequence.
 - Added root script target `examples:smoke:document-basic` with a prebuild hook for `@eonhive/prd-cli`.
 - Verified the new smoke-gate command succeeds end-to-end.
+- Added explicit viewer UI rendering-mode messages in `apps/prd-viewer-web` to distinguish:
+  - structured JSON entry rendering,
+  - HTML fallback rendering,
+  - unsupported entry mode detection.
+- Clarified messaging that validator package validity and viewer rendering capability are separate concerns.
+- Expanded `packages/prd-viewer-core` tests to verify viewer unsupported/fallback states can still coexist with validator-valid packages.
+
