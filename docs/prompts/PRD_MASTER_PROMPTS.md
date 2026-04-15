@@ -15,7 +15,7 @@ These prompts are meant to generate disciplined PRD artifacts, not vague brainst
 Every PRD prompt should assume the model must read and align with:
 
 - `docs/foundation/04_PRD/PRD_FOUNDATION.md`
-- `docs/foundation/04_PRD/PRD_DECISIONS.md`
+- `docs/decisions/PRD_DECISIONS.md`
 - `docs/foundation/04_PRD/PRD_GLOSSARY.md`
 - `docs/foundation/04_PRD/PRD_ROADMAP.md`
 - `docs/history/PRD_Project_History_Record.md`
@@ -57,7 +57,7 @@ You are working on PRD, a Portable Responsive Document system.
 
 Before producing anything, read and align with:
 - docs/foundation/04_PRD/PRD_FOUNDATION.md
-- docs/foundation/04_PRD/PRD_DECISIONS.md
+- docs/decisions/PRD_DECISIONS.md
 - docs/foundation/04_PRD/PRD_GLOSSARY.md
 - docs/foundation/04_PRD/PRD_ROADMAP.md
 - docs/history/PRD_Project_History_Record.md

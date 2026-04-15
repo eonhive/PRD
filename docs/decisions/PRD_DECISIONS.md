@@ -1,6 +1,9 @@
 # PRD_DECISIONS.md
-_Last updated: April 12, 2026_
-_Status: Working decision log v0.1_
+> Canonical decision log location: `docs/decisions/PRD_DECISIONS.md`.
+> Duplicate ledgers must be merged here; non-canonical copies must be archived to prevent drift.
+
+_Last updated: April 15, 2026_
+_Status: Working decision log v0.2 (canonical)_
 
 ## Purpose
 This file records major PRD decisions, current leanings, and explicit design directions so future work stays consistent.
@@ -8,7 +11,12 @@ This file records major PRD decisions, current leanings, and explicit design dir
 Use this as a decision ledger.  
 When a decision changes, do not silently overwrite history. Add a new entry or mark the prior one as superseded.
 
+
 ---
+
+## Consolidation Note (2026-04-15)
+
+Legacy decisions from `docs/foundation/04_PRD/PRD_DECISIONS.md` were reviewed during consolidation to this canonical file. Their unique directional content is represented by existing accepted decisions (notably PRD-018, PRD-026, PRD-027, and PRD-028), and the foundation-path file now serves as an archived pointer only.
 
 ## Decision Format
 Each decision uses:
@@ -34,10 +42,10 @@ Without a source-of-truth file, the project risks drift, contradictions, and los
 
 **Implication:**  
 PRD should maintain a small set of core markdown control files such as:
-- docs/foundation/04_PRD/PRD_FOUNDATION.md
-- decisions/PRD_DECISIONS.md
-- docs/foundation/04_PRD/PRD_GLOSSARY.md
-- docs/foundation/04_PRD/PRD_ROADMAP.md
+- `docs/foundation/04_PRD/PRD_FOUNDATION.md`
+- `docs/decisions/PRD_DECISIONS.md`
+- `docs/foundation/04_PRD/PRD_GLOSSARY.md`
+- `docs/foundation/04_PRD/PRD_ROADMAP.md`
 
 **Follow-up:**  
 Expand these files and keep them versioned.

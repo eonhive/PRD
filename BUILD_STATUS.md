@@ -2,6 +2,8 @@
 
 ## 2026-04-15
 
+- Consolidated the canonical PRD decisions ledger into `docs/decisions/PRD_DECISIONS.md`, merged unique historical decisions from `docs/foundation/04_PRD/PRD_DECISIONS.md`, and converted the foundation-path file into an archived pointer to prevent future drift.
+- Updated source-of-truth decision-log references in `README.md`, `AGENTS.md`, `docs/governance/PRD_PROMPT_DOCTRINE.md`, and `docs/prompts/PRD_MASTER_PROMPTS.md` to point to `docs/decisions/PRD_DECISIONS.md`.
 - Completed a CLI test-hardening task by adding built-CLI snapshot coverage for `validate` and `inspect` text/`--json` output using the existing E2E fixture flow, including byte-field normalization to keep snapshots deterministic while still catching contract drift.
 - Completed NEXT_STEPS item 1 by aligning the README contributor MVP gate to current root script names (`typecheck`, `test`, `build`, `examples:smoke`) and clarifying script-name sync expectations.
 - Completed NEXT_STEPS item 2 by updating README changeset guidance to match current CI-driven `main` release workflow policy and non-publishing change expectations.
@@ -38,4 +40,4 @@
 - Refined built-CLI E2E test naming to explicitly assert dist-binary command execution for `pack`, `validate`, and `inspect` as the command-surface gate.
 - Added aggregate smoke orchestrator script `scripts/examples-smoke-all.mjs` and wired root `examples:smoke` to that single command entrypoint.
 - Completed housekeeping request to keep NEXT_STEPS as canonical backlog with a single numbered checklist style; confirmed NEXT_STEPS copy file is absent and consolidated note retained.
-- Updated stale canonical-doc references in `README.md`, `AGENTS.md`, `docs/governance/PRD_PROMPT_DOCTRINE.md`, and `docs/prompts/PRD_MASTER_PROMPTS.md` to point at `docs/foundation/04_PRD/PRD_DECISIONS.md`.
+- Updated stale canonical-doc references in `README.md`, `AGENTS.md`, `docs/governance/PRD_PROMPT_DOCTRINE.md`, and `docs/prompts/PRD_MASTER_PROMPTS.md` to point at `docs/decisions/PRD_DECISIONS.md`.
