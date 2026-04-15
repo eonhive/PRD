@@ -27,7 +27,7 @@ Do **not** confuse them.
 When making implementation or documentation decisions, follow the canonical PRD docs in this order:
 
 1. `docs/foundation/04_PRD/PRD_FOUNDATION.md`
-2. `docs/decisions/PRD_DECISIONS.md`
+2. `docs/foundation/04_PRD/PRD_DECISIONS.md`
 3. `docs/foundation/04_PRD/PRD_GLOSSARY.md`
 4. `docs/foundation/04_PRD/PRD_ROADMAP.md`
 5. `docs/history/PRD_Project_History_Record.md`
@@ -270,7 +270,7 @@ When changing the format, schemas, or package rules:
 
 * update relevant docs
 * keep naming consistent across schema, validator, viewer, and examples
-* record important directional changes in `docs/decisions/PRD_DECISIONS.md`
+* record important directional changes in `docs/foundation/04_PRD/PRD_DECISIONS.md`
 * do not introduce new canon terminology casually
 
 When a naming or model change is provisional, label it clearly as provisional.
