@@ -15,7 +15,7 @@ It governs prompt discipline, source-of-truth handling, and output reliability. 
 All PRD prompts must use this source-of-truth order when producing or updating PRD work:
 
 1. `docs/foundation/04_PRD/PRD_FOUNDATION.md`
-2. `docs/foundation/04_PRD/PRD_DECISIONS.md`
+2. `docs/decisions/PRD_DECISIONS.md`
 3. `docs/foundation/04_PRD/PRD_GLOSSARY.md`
 4. `docs/foundation/04_PRD/PRD_ROADMAP.md`
 5. PRD history/archive docs, including `docs/history/PRD_Project_History_Record.md` and `docs/archive/history/*`
