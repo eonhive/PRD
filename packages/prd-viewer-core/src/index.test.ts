@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PrdPackageReader } from "@eonhive/prd-types";
+import { validatePackageFiles } from "@eonhive/prd-validator";
 import { openPrdDocument } from "./index.js";
 
 function createReader(files: Record<string, string>): PrdPackageReader {
@@ -22,6 +23,13 @@ function createReader(files: Record<string, string>): PrdPackageReader {
       return new TextEncoder().encode(value);
     }
   };
+}
+
+function toValidationFiles(files: Record<string, string>): Record<string, Uint8Array> {
+  const encoder = new TextEncoder();
+  return Object.fromEntries(
+    Object.entries(files).map(([path, content]) => [path, encoder.encode(content)])
+  );
 }
 
 describe("openPrdDocument", () => {
@@ -270,5 +278,47 @@ describe("openPrdDocument", () => {
     expect(document.entryHtml).toContain("Storyboard");
     expect(document.storyboardDocument).toBeUndefined();
     expect(document.message).toContain("legacy HTML fallback");
+  });
+
+  it("reports unsupported viewer capability without implying format-invalid for valid custom packages", async () => {
+    const files = {
+      "manifest.json": JSON.stringify({
+        prdVersion: "1.0",
+        manifestVersion: "1.0",
+        id: "urn:test:viewer-custom-unsupported-entry",
+        profile: "custom-zine",
+        title: "Custom Unsupported",
+        entry: "content/root.xml"
+      }),
+      "content/root.xml": "<doc>Custom entry payload</doc>"
+    };
+
+    const validation = validatePackageFiles(toValidationFiles(files));
+    const opened = await openPrdDocument(createReader(files));
+
+    expect(validation.valid).toBe(true);
+    expect(opened.supportState).toBe("unsupported-required-capability");
+    expect(opened.message).toContain("limited HTML fallback");
+  });
+
+  it("keeps legacy HTML fallback viewer-limited while remaining validator-valid for custom packages", async () => {
+    const files = {
+      "manifest.json": JSON.stringify({
+        prdVersion: "1.0",
+        manifestVersion: "1.0",
+        id: "urn:test:viewer-custom-html-fallback",
+        profile: "custom-zine",
+        title: "Custom HTML",
+        entry: "content/index.html"
+      }),
+      "content/index.html": "<!doctype html><html><body>Custom HTML</body></html>"
+    };
+
+    const validation = validatePackageFiles(toValidationFiles(files));
+    const opened = await openPrdDocument(createReader(files));
+
+    expect(validation.valid).toBe(true);
+    expect(opened.supportState).toBe("safe-mode");
+    expect(opened.entryHtml).toContain("Custom HTML");
   });
 });

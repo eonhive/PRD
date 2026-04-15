@@ -59,6 +59,10 @@ type ViewerInspectionEntryKind =
   | "html-fallback"
   | "unsupported";
 type ViewerInspectionSegmentation = "none" | "general-document-sections";
+type ViewerRenderMode =
+  | "structured-json-rendered"
+  | "html-fallback-rendered"
+  | "unsupported-entry-mode";
 
 interface PackageFacts {
   fileCount: number;
@@ -478,6 +482,28 @@ function createPackageFacts(
     ...summarizeLocalizedContentIndex(files),
     referenceLoadMode: "eager-whole-package"
   };
+}
+
+function inferViewerRenderMode(
+  opened: PrdOpenedDocument | undefined,
+  entryDocument: PrdGeneralDocumentRoot | undefined,
+  comicDocument: PrdComicRoot | undefined,
+  storyboardDocument: PrdStoryboardRoot | undefined,
+  renderedHtml: string | undefined
+): ViewerRenderMode {
+  if (!opened || opened.supportState === "unsupported-required-capability") {
+    return "unsupported-entry-mode";
+  }
+
+  if (entryDocument || comicDocument || storyboardDocument) {
+    return "structured-json-rendered";
+  }
+
+  if (renderedHtml) {
+    return "html-fallback-rendered";
+  }
+
+  return "unsupported-entry-mode";
 }
 
 function formatBytes(byteCount: number): string {
@@ -2167,6 +2193,21 @@ export function App() {
     viewerState?.opened?.storyboardDocument;
   const activePublicMetadata =
     activeLocalizedVariant?.publicMetadata ?? viewerState?.opened?.manifest.public;
+  const viewerRenderMode = useMemo(() => {
+    return inferViewerRenderMode(
+      viewerState?.opened,
+      activeEntryDocument,
+      activeComicDocument,
+      activeStoryboardDocument,
+      activeRenderedHtml
+    );
+  }, [
+    activeComicDocument,
+    activeEntryDocument,
+    activeRenderedHtml,
+    activeStoryboardDocument,
+    viewerState?.opened
+  ]);
 
   async function handleFile(file: File) {
     setLoading(true);
@@ -2358,6 +2399,29 @@ export function App() {
 
           <section className="panel viewer-panel">
             <h2>Viewer</h2>
+            <div className="viewer-message">
+              {viewerRenderMode === "structured-json-rendered" && (
+                <p>
+                  Structured JSON entry rendered. This package can be valid and
+                  the current viewer can render its canonical structured path.
+                </p>
+              )}
+              {viewerRenderMode === "html-fallback-rendered" && (
+                <p>
+                  HTML fallback entry rendered. Package validity comes from the
+                  validator above; this rendering mode reflects legacy fallback
+                  behavior in the viewer.
+                </p>
+              )}
+              {viewerRenderMode === "unsupported-entry-mode" && (
+                <p>
+                  Unsupported entry mode detected for this viewer. The package
+                  may still be validator-valid, but this viewer cannot render
+                  the declared entry path/capability.
+                </p>
+              )}
+            </div>
+
             {viewerState.opened && (
               <PublicMetadataView
                 title={activeEntryDocument?.title ?? viewerState.opened.manifest.title}
