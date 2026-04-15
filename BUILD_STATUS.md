@@ -7,3 +7,6 @@
 - Expanded validator unit tests to cover required manifest field issue codes, entry path compatibility, and profile/entry mismatch failures.
 - Added a fixture-style helper for validator tests to quickly build `PrdFileMap` test inputs.
 - Stabilized manifest required-field and profile-entry-format issue code selection in `packages/prd-validator/src/index.ts` via shared constants.
+- Added an MVP smoke-gate script for `examples/document-basic` that runs pack, source validate, packed validate, and packed inspect in a strict sequence.
+- Added root script target `examples:smoke:document-basic` with a prebuild hook for `@eonhive/prd-cli`.
+- Verified the new smoke-gate command succeeds end-to-end.
