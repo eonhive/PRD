@@ -1,5 +1,12 @@
 # BUILD STATUS
 
+## 2026-04-16
+
+- Completed roadmap/glossary canonical path cleanup by normalizing stale references to `docs/...` paths and explicitly labeling still-missing planned docs in `docs/foundation/04_PRD/PRD_ROADMAP.md`.
+- Completed docs consistency guard expansion in `scripts/check-docs-consistency.mjs` by scanning markdown across canonical `docs/` paths, excluding archive/history trees by default, and preserving forbidden-pattern checks with an explicit intentional legacy-reference allowance in the canonical decisions ledger.
+- Completed package-level CLI contract documentation by adding `packages/prd-cli/README.md` (commands, exit codes, stable text/JSON contracts for `pack`, `validate`, and `inspect`) and linking it from repository top-level docs.
+- Completed canonical render-mode helper alignment by introducing typed render-mode utilities in `packages/prd-viewer-core`, refactoring `apps/prd-viewer-web/src/viewerRenderMode.ts` to consume the core helper, and extending viewer-core/web tests to guard against contract drift.
+
 ## 2026-04-15
 
 - Completed NEXT_STEPS item 18 by updating `README.md` plus release governance docs to explicitly define `pnpm examples:smoke` as the canonical aggregate smoke command, document `--json-summary` as CI annotation/reporting support, and align smoke-gate wording across release/check flow guidance.

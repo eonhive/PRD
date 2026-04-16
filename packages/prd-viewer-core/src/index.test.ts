@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { PrdPackageReader } from "@eonhive/prd-types";
 import { validatePackageFiles } from "@eonhive/prd-validator";
-import { openPrdDocument } from "./index.js";
+import {
+  getViewerRenderModeMessage,
+  inferViewerRenderMode,
+  openPrdDocument
+} from "./index.js";
 
 function createReader(files: Record<string, string>): PrdPackageReader {
   return {
@@ -320,5 +324,94 @@ describe("openPrdDocument", () => {
     expect(validation.valid).toBe(true);
     expect(opened.supportState).toBe("safe-mode");
     expect(opened.entryHtml).toContain("Custom HTML");
+  });
+});
+
+
+describe("inferViewerRenderMode", () => {
+  it("returns structured-json-rendered when structured entry content is present", async () => {
+    const opened = await openPrdDocument(
+      createReader({
+        "manifest.json": JSON.stringify({
+          prdVersion: "1.0",
+          manifestVersion: "1.0",
+          id: "urn:test:render-mode-structured",
+          profile: "general-document",
+          title: "Structured",
+          entry: "content/root.json"
+        }),
+        "content/root.json": JSON.stringify({
+          schemaVersion: "1.0",
+          profile: "general-document",
+          type: "document",
+          id: "doc",
+          title: "Structured",
+          children: []
+        })
+      })
+    );
+
+    expect(
+      inferViewerRenderMode({
+        opened,
+        entryDocument: opened.entryDocument,
+        comicDocument: opened.comicDocument,
+        storyboardDocument: opened.storyboardDocument,
+        renderedHtml: opened.entryHtml
+      })
+    ).toBe("structured-json-rendered");
+  });
+
+  it("returns html-fallback-rendered for safe-mode HTML fallback documents", async () => {
+    const opened = await openPrdDocument(
+      createReader({
+        "manifest.json": JSON.stringify({
+          prdVersion: "1.0",
+          manifestVersion: "1.0",
+          id: "urn:test:render-mode-html",
+          profile: "custom-zine",
+          title: "HTML Fallback",
+          entry: "content/index.html"
+        }),
+        "content/index.html": "<!doctype html><html><body>Fallback</body></html>"
+      })
+    );
+
+    expect(
+      inferViewerRenderMode({
+        opened,
+        entryDocument: opened.entryDocument,
+        comicDocument: opened.comicDocument,
+        storyboardDocument: opened.storyboardDocument,
+        renderedHtml: opened.entryHtml
+      })
+    ).toBe("html-fallback-rendered");
+  });
+
+  it("returns unsupported-entry-mode for unsupported required capability", async () => {
+    const opened = await openPrdDocument(
+      createReader({
+        "manifest.json": JSON.stringify({
+          prdVersion: "1.0",
+          manifestVersion: "1.0",
+          id: "urn:test:render-mode-unsupported",
+          profile: "custom-zine",
+          title: "Unsupported",
+          entry: "content/root.xml"
+        }),
+        "content/root.xml": "<doc>Unsupported</doc>"
+      })
+    );
+
+    const mode = inferViewerRenderMode({
+      opened,
+      entryDocument: opened.entryDocument,
+      comicDocument: opened.comicDocument,
+      storyboardDocument: opened.storyboardDocument,
+      renderedHtml: opened.entryHtml
+    });
+
+    expect(mode).toBe("unsupported-entry-mode");
+    expect(getViewerRenderModeMessage(mode)).toContain("Unsupported entry mode detected");
   });
 });

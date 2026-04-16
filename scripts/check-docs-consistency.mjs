@@ -1,15 +1,23 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { readdir, readFile } from "node:fs/promises";
+import { extname, resolve } from "node:path";
 
 const repoRoot = process.cwd();
 
-const controlledDocs = [
-  "README.md",
-  "AGENTS.md",
-  "docs/README.md",
-  "docs/architecture/PRD_SYSTEM_BLUEPRINT.md",
-  "docs/governance/PRD_PROMPT_DOCTRINE.md",
-  "docs/prompts/PRD_MASTER_PROMPTS.md"
+const alwaysIncludedDocs = ["README.md", "AGENTS.md"];
+const docsRoots = ["docs"];
+const excludedDocPathPrefixes = [
+  "docs/archive/",
+  "docs/history/",
+  "docs/foundation/04_PRD/ARCHIVE/"
+];
+
+
+const explicitlyAllowedMatches = [
+  {
+    path: "docs/decisions/PRD_DECISIONS.md",
+    label: "non-canonical decisions ledger path",
+    includes: "Legacy decisions from `docs/foundation/04_PRD/PRD_DECISIONS.md`"
+  }
 ];
 
 const forbiddenPatterns = [
@@ -23,8 +31,43 @@ const forbiddenPatterns = [
   }
 ];
 
+async function collectMarkdownFiles(relativeDir) {
+  const absoluteDir = resolve(repoRoot, relativeDir);
+  const entries = await readdir(absoluteDir, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const childPath = `${relativeDir}/${entry.name}`;
+
+    if (excludedDocPathPrefixes.some((prefix) => childPath.startsWith(prefix))) {
+      continue;
+    }
+
+    if (entry.isDirectory()) {
+      files.push(...(await collectMarkdownFiles(childPath)));
+      continue;
+    }
+
+    if (entry.isFile() && extname(entry.name) === ".md") {
+      files.push(childPath);
+    }
+  }
+
+  return files;
+}
+
+async function getControlledDocs() {
+  const discoveredDocs = [];
+  for (const root of docsRoots) {
+    discoveredDocs.push(...(await collectMarkdownFiles(root)));
+  }
+
+  return [...alwaysIncludedDocs, ...discoveredDocs].sort();
+}
+
 async function main() {
   const failures = [];
+  const controlledDocs = await getControlledDocs();
 
   for (const relativePath of controlledDocs) {
     const absolutePath = resolve(repoRoot, relativePath);
@@ -32,11 +75,21 @@ async function main() {
 
     for (const { label, pattern } of forbiddenPatterns) {
       for (const match of contents.matchAll(pattern)) {
+        const matchedText = match[0]?.trim() ?? "<unknown>";
+        const isExplicitlyAllowed = explicitlyAllowedMatches.some(
+          (allowed) =>
+            allowed.path === relativePath &&
+            allowed.label === label &&
+            contents.includes(allowed.includes)
+        );
+
+        if (isExplicitlyAllowed) {
+          continue;
+        }
+
         const index = match.index ?? 0;
         const line = contents.slice(0, index).split("\n").length;
-        failures.push(
-          `${relativePath}:${line} contains ${label}: "${match[0]?.trim() ?? "<unknown>"}"`
-        );
+        failures.push(`${relativePath}:${line} contains ${label}: "${matchedText}"`);
       }
     }
   }

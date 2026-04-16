@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PrdOpenedDocument } from "@eonhive/prd-types";
+import { inferViewerRenderMode as inferViewerRenderModeCore } from "@eonhive/prd-viewer-core";
 import { getViewerRenderModeMessage, inferViewerRenderMode } from "./viewerRenderMode.js";
 
 function createOpenedDocument(
@@ -46,6 +47,24 @@ describe("viewer render mode messaging", () => {
 
     expect(mode).toBe("structured-json-rendered");
     expect(getViewerRenderModeMessage(mode)).toContain("Structured JSON entry rendered");
+  });
+
+
+
+  it("delegates to the canonical viewer-core helper", () => {
+    const opened = createOpenedDocument("safe-mode");
+
+    expect(
+      inferViewerRenderMode(opened, undefined, undefined, undefined, "<html></html>")
+    ).toBe(
+      inferViewerRenderModeCore({
+        opened,
+        entryDocument: undefined,
+        comicDocument: undefined,
+        storyboardDocument: undefined,
+        renderedHtml: "<html></html>"
+      })
+    );
   });
 
   it("maps HTML fallback states to fallback messaging", () => {

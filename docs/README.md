@@ -29,6 +29,12 @@ Supporting control docs:
 
 ---
 
+Supporting implementation contracts:
+
+* `../packages/prd-cli/README.md` (CLI command/output/exit-code contract)
+
+---
+
 ## Folder Map
 
 ### `foundation/`
