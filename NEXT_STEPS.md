@@ -29,4 +29,9 @@
 21. [x] Hardened docs-consistency allowlist matching to validate the specific allowed snippet span in `docs/decisions/PRD_DECISIONS.md` rather than allowing file-wide sentinel-based bypasses.
 
 22. [x] Fixed `docs/runtime/PRD_CLI_JSON_CONTRACT.md` inspect schema snippet to remove the unsatisfiable `allOf` + `additionalProperties: false` combination and publish a valid combined output contract.
-
+23. [ ] Draft and ratify `docs/core/PRD_MINIMAL_VALID_SPEC.md` using the canonical prompt flow, then map every normative requirement to validator checks or explicitly deferred TODOs.
+24. [ ] Finalize and document manifest field-level conformance coverage (`required`, `optional`, `identity`, `public`, `localization`, `extensions`) across schema, validator issue codes, and example fixtures.
+25. [ ] Publish profile conformance fixtures for `general-document`, `comic`, and `storyboard` with one canonical valid package + one intentional invalid package each, wired into CLI and validator test gates.
+26. [ ] Add an end-to-end “foundation gate” script that runs build, tests, docs consistency, and aggregate example smoke checks and emits a single machine-readable summary artifact for CI policy decisions.
+27. [ ] Add a canonical runtime capability/conformance draft (`docs/runtime/PRD_CAPABILITY_MODEL.md` and `docs/runtime/PRD_CONFORMANCE.md`) and align viewer-core capability typing with documented conformance levels.
+28. [ ] Expand docs index/navigation so canonical control docs, runtime contracts, and prompt packs are discoverable in one path from root `README.md` and `docs/README.md`.
