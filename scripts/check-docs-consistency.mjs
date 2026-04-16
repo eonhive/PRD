@@ -11,6 +11,8 @@ const excludedDocPathPrefixes = [
   "docs/foundation/04_PRD/ARCHIVE/"
 ];
 
+const optionalRootDocs = ["BUILD_STATUS.md", "NEXT_STEPS.md"];
+const includeOptionalRootDocs = process.argv.includes("--include-root-docs");
 
 const explicitlyAllowedMatches = [
   {
@@ -62,7 +64,8 @@ async function getControlledDocs() {
     discoveredDocs.push(...(await collectMarkdownFiles(root)));
   }
 
-  return [...alwaysIncludedDocs, ...discoveredDocs].sort();
+  const selectedRootDocs = includeOptionalRootDocs ? optionalRootDocs : [];
+  return [...alwaysIncludedDocs, ...selectedRootDocs, ...discoveredDocs].sort();
 }
 
 async function main() {
@@ -100,6 +103,11 @@ async function main() {
       console.error(`- ${failure}`);
     }
     process.exitCode = 1;
+    return;
+  }
+
+  if (includeOptionalRootDocs) {
+    console.log("Docs consistency check passed (including optional root docs).");
     return;
   }
 
