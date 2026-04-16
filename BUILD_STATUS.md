@@ -2,6 +2,8 @@
 
 ## 2026-04-16
 
+- Added a new active next-phase backlog slice in `NEXT_STEPS.md` (items 23-28) covering minimal valid spec ratification, manifest conformance mapping, profile fixture hardening, foundation-gate automation, capability/conformance docs, and docs discoverability alignment.
+- Added a unified orchestration artifact to `docs/prompts/PRD_MASTER_PROMPTS.md` (`Prompt 00. Unified Next-Steps Execution Prompt`) so all active next-step tasks can be planned and executed together under canonical PRD constraints.
 - Completed contributor-guidance extraction by adding `docs/contributing.md` and linking it from the README contributor MVP gate section so onboarding details can evolve without overloading top-level docs.
 - Completed a versioned machine-readable CLI contract doc by adding `docs/runtime/PRD_CLI_JSON_CONTRACT.md` (validate/inspect JSON schema snippets plus `prd-cli-json-v0.1` compatibility rules) and linking it from README + `packages/prd-cli/README.md`.
 - Completed optional root-doc canonical path enforcement by extending `scripts/check-docs-consistency.mjs` with `--include-root-docs` support for selected non-archive root docs (`BUILD_STATUS.md`, `NEXT_STEPS.md`), and documented the scope/rationale in README.

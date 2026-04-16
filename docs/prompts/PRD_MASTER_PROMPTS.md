@@ -77,6 +77,60 @@ Output only the requested artifact, in clean Markdown, with clear section headin
 
 ---
 
+## Prompt 00. Unified Next-Steps Execution Prompt (All Tasks Together)
+
+Use this when you want one orchestrated pass that converts the active backlog into actionable, ordered implementation work.
+
+```text
+Using the PRD canonical docs and current repository state, generate a single execution plan that covers all active NEXT_STEPS items together.
+
+Before planning, read and align with:
+- docs/foundation/04_PRD/PRD_FOUNDATION.md
+- docs/decisions/PRD_DECISIONS.md
+- docs/foundation/04_PRD/PRD_GLOSSARY.md
+- docs/foundation/04_PRD/PRD_ROADMAP.md
+- docs/history/PRD_Project_History_Record.md
+- docs/architecture/PRD_SYSTEM_BLUEPRINT.md
+- docs/governance/PRD_PROMPT_DOCTRINE.md
+- NEXT_STEPS.md
+- BUILD_STATUS.md
+
+Objective:
+Produce one practical, dependency-aware implementation program that can be executed by a small team without scope creep.
+
+Output format (required):
+1) Backlog normalization
+   - Rewrite each open NEXT_STEPS item as a concrete deliverable with:
+     - owner role (docs / validator / CLI / viewer / integration)
+     - exact target files
+     - acceptance criteria
+     - validator/test impact
+2) Dependency graph
+   - Show strict sequencing (what must happen first, what can run in parallel).
+3) Milestone slices
+   - Group work into small reviewable milestones (M1, M2, ...), each with:
+     - scope
+     - non-goals
+     - expected PR size guidance
+4) Command checklist
+   - Provide exact local verification commands per milestone.
+5) Risk and fallback register
+   - Identify top risks, blocked-by items, and explicit fallback paths.
+6) Definition of done
+   - Give checklist criteria aligned with PRD MVP discipline (manifest-first, profile-based, validator-backed, example-backed).
+7) Suggested NEXT_STEPS.md update patch
+   - Return an updated numbered checklist that is execution-ready (clear [ ] items and sequencing labels).
+
+Constraints:
+- Keep PRD scope disciplined; do not introduce crypto/payment/live-network requirements into core MVP tasks.
+- Preserve manifest-first and profile-first architecture.
+- Keep viewer capability claims distinct from package validity.
+- Prefer small, reviewable increments with explicit tests.
+- Use normative language (MUST/SHOULD/MAY) where behavior is being specified.
+```
+
+---
+
 ## Prompt 01. Foundation Audit
 
 Use this when the control docs need to be reviewed for contradictions, missing areas, or sequencing gaps.
