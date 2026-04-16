@@ -427,18 +427,18 @@ This is different from the foundation/spec docs.
 ## Foundation Document
 The source-of-truth architecture and principles file that defines the core direction of PRD.
 
-Right now, that role is being filled by `foundation/PRD_FOUNDATION.md`.
+Right now, that role is being filled by `docs/foundation/04_PRD/PRD_FOUNDATION.md`.
 
 ---
 
 ## Decision Log
 A living record of explicit PRD design decisions and pending decisions.
 
-Right now, that role is being filled by `decisions/PRD_DECISIONS.md`.
+Right now, that role is being filled by `docs/decisions/PRD_DECISIONS.md`.
 
 ---
 
 ## Roadmap
 A staged plan showing what should be built first, next, and later.
 
-Right now, that role is being filled by `foundation/PRD_ROADMAP.md`.
+Right now, that role is being filled by `docs/foundation/04_PRD/PRD_ROADMAP.md`.

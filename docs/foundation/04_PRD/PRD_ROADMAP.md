@@ -234,23 +234,23 @@ This phase is optional ecosystem growth, not the base definition of PRD.
 # Immediate Next Documents to Create
 
 ## Highest priority
-1. `architecture/PRD_SYSTEM_BLUEPRINT.md`
-2. `prompts/PRD_MASTER_PROMPTS.md`
-3. `core/PRD_MINIMAL_VALID_SPEC.md`
-4. `core/PRD_MANIFEST_DRAFT.md`
-5. `core/PRD_PACKAGE_LAYOUT_DRAFT.md`
-6. `runtime/PRD_CAPABILITY_MODEL.md`
-7. `runtime/PRD_CONFORMANCE.md`
-8. `profiles/PRD_PROFILE_GENERAL_DOCUMENT.md`
-9. `profiles/PRD_PROFILE_COMIC.md`
-10. `profiles/PRD_PROFILE_STORYBOARD.md`
+1. `docs/architecture/PRD_SYSTEM_BLUEPRINT.md`
+2. `docs/prompts/PRD_MASTER_PROMPTS.md`
+3. `docs/core/PRD_MINIMAL_VALID_SPEC.md`
+4. `docs/core/PRD_MANIFEST_DRAFT.md`
+5. `docs/core/PRD_PACKAGE_LAYOUT_DRAFT.md`
+6. `docs/runtime/PRD_CAPABILITY_MODEL.md`
+7. `docs/runtime/PRD_CONFORMANCE.md`
+8. `docs/profiles/PRD_PROFILE_GENERAL_DOCUMENT.md`
+9. `docs/profiles/PRD_PROFILE_COMIC.md`
+10. `docs/profiles/PRD_PROFILE_STORYBOARD.md`
 
 ## After that
-11. `product/PRD_PRODUCT_BOUNDARIES.md`
-12. `core/PRD_VERSIONING_POLICY.md`
-13. `core/PRD_ASSETS_AND_ATTACHMENTS.md`
-14. `extensions/PRD_PROTECTION_MODEL.md`
-15. `core/PRD_LOCALIZATION_MODEL.md`
+11. `docs/product/PRD_PRODUCT_BOUNDARIES.md` *(planned; not yet created)*
+12. `docs/core/PRD_VERSIONING_POLICY.md` *(planned; not yet created)*
+13. `docs/core/PRD_ASSETS_AND_ATTACHMENTS.md`
+14. `docs/extensions/PRD_PROTECTION_MODEL.md` *(planned; not yet created)*
+15. `docs/core/PRD_LOCALIZATION_MODEL.md`
 
 ---
 

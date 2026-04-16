@@ -250,6 +250,8 @@ prd validate <path>
 prd inspect <path>
 ```
 
+CLI output/exit-code contract: `packages/prd-cli/README.md`.
+
 
 ## Contributor MVP gate (no npm credentials required)
 
