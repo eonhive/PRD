@@ -93,52 +93,88 @@ Canonical command docs remain in `packages/prd-cli/README.md`.
 {
   "$id": "https://eonhive.dev/prd/contracts/cli/inspect/v0.1",
   "type": "object",
-  "allOf": [
-    {
-      "$ref": "https://eonhive.dev/prd/contracts/cli/validate/v0.1"
-    },
-    {
-      "type": "object",
+  "additionalProperties": false,
+  "required": ["valid", "manifest", "profileInfo", "entry", "errors", "warnings", "inspection"],
+  "properties": {
+    "valid": { "type": "boolean" },
+    "manifest": {
+      "type": ["object", "null"],
       "additionalProperties": false,
-      "required": ["inspection"],
+      "required": ["profile", "entry", "localizationDefaultLocale"],
       "properties": {
-        "inspection": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "sourceKind",
-            "fileCount",
-            "totalBytes",
-            "assetCount",
-            "attachmentCount",
-            "localeCount",
-            "hasSeriesMembership",
-            "collectionCount",
-            "entryKind",
-            "segmentation",
-            "localizedResources",
-            "localizedAlternateEntries",
-            "referenceLoadMode"
-          ],
-          "properties": {
-            "sourceKind": { "type": "string" },
-            "fileCount": { "type": "number" },
-            "totalBytes": { "type": "number" },
-            "assetCount": { "type": "number" },
-            "attachmentCount": { "type": "number" },
-            "localeCount": { "type": "number" },
-            "hasSeriesMembership": { "type": "boolean" },
-            "collectionCount": { "type": "number" },
-            "entryKind": { "type": "string" },
-            "segmentation": { "type": "string" },
-            "localizedResources": { "type": "boolean" },
-            "localizedAlternateEntries": { "type": "boolean" },
-            "referenceLoadMode": { "type": "string" }
-          }
+        "profile": { "type": "string" },
+        "entry": { "type": "string" },
+        "localizationDefaultLocale": { "type": ["string", "null"] }
+      }
+    },
+    "profileInfo": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["supportClass"],
+      "properties": {
+        "supportClass": { "type": "string" }
+      }
+    },
+    "entry": { "type": ["string", "null"] },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string", "minLength": 1 },
+          "message": { "type": "string", "minLength": 1 }
         }
       }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string", "minLength": 1 },
+          "message": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "inspection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceKind",
+        "fileCount",
+        "totalBytes",
+        "assetCount",
+        "attachmentCount",
+        "localeCount",
+        "hasSeriesMembership",
+        "collectionCount",
+        "entryKind",
+        "segmentation",
+        "localizedResources",
+        "localizedAlternateEntries",
+        "referenceLoadMode"
+      ],
+      "properties": {
+        "sourceKind": { "type": "string" },
+        "fileCount": { "type": "number" },
+        "totalBytes": { "type": "number" },
+        "assetCount": { "type": "number" },
+        "attachmentCount": { "type": "number" },
+        "localeCount": { "type": "number" },
+        "hasSeriesMembership": { "type": "boolean" },
+        "collectionCount": { "type": "number" },
+        "entryKind": { "type": "string" },
+        "segmentation": { "type": "string" },
+        "localizedResources": { "type": "boolean" },
+        "localizedAlternateEntries": { "type": "boolean" },
+        "referenceLoadMode": { "type": "string" }
+      }
     }
-  ]
+  }
 }
 ```
 

@@ -28,3 +28,5 @@
 
 21. [x] Hardened docs-consistency allowlist matching to validate the specific allowed snippet span in `docs/decisions/PRD_DECISIONS.md` rather than allowing file-wide sentinel-based bypasses.
 
+22. [x] Fixed `docs/runtime/PRD_CLI_JSON_CONTRACT.md` inspect schema snippet to remove the unsatisfiable `allOf` + `additionalProperties: false` combination and publish a valid combined output contract.
+
