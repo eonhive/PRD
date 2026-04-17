@@ -1,0 +1,8 @@
+{
+  "prdVersion": "1.0",
+  "manifestVersion": "1.0",
+  "id": "urn:eonhive:runtime:custom-unsupported-entry",
+  "profile": "custom-zine",
+  "title": "Custom Unsupported Entry",
+  "entry": "content/root.xml"
+}

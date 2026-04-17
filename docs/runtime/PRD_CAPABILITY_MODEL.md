@@ -1,6 +1,6 @@
 # PRD_CAPABILITY_MODEL.md
-_Last updated: April 7, 2026_
-_Status: Capability model draft v0.1_
+_Last updated: April 16, 2026_
+_Status: Canonical runtime capability draft v0.2_
 
 ## 1. Capability Philosophy
 
@@ -14,10 +14,30 @@ PRD capability handling should stay:
 
 Documents may declare capability requirements. Viewers and renderers may declare capability support. Neither side should turn optional advanced behavior into hidden core requirements.
 
+## 1.1 Executable Alignment
+
+The current executable runtime surfaces are:
+
+- `packages/prd-types/src/index.ts`
+  - `PrdViewerSupportState`
+  - `PrdReferenceLoadMode`
+  - `PrdRuntimeCapabilityDescriptor`
+- `packages/prd-viewer-core/src/index.ts`
+  - `PRD_REFERENCE_VIEWER_SUPPORTED_CAPABILITIES`
+  - `PRD_REFERENCE_VIEWER_SUPPORT_STATES`
+  - `PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR`
+
+Rules:
+
+- the support-state vocabulary is shared runtime canon, not a claim that every viewer emits every label today
+- the current reference viewer emits only the states listed in `PRD_REFERENCE_VIEWER_SUPPORT_STATES`
+- profile support and capability support are separate surfaces
+- `comic` and `storyboard` support remain profile/runtime conformance truths rather than new required manifest capability identifiers
+
 **Assumptions**
 
 - this draft places document-side capability requirements under the manifest `compatibility` surface instead of creating a second heavy top-level manifest control plane
-- the support-state labels in this draft are the current baseline until `runtime/PRD_CONFORMANCE.md` formalizes them
+- the support-state labels in this draft align with `runtime/PRD_CONFORMANCE.md`, while the current reference viewer still emits only a documented subset
 - localization capability names and manifest field names may be refined later by `core/PRD_LOCALIZATION_MODEL.md`
 
 ---
@@ -85,14 +105,21 @@ Rules:
 
 Viewers and renderers may declare support using their own capability descriptor or conformance metadata.
 
-Current draft shape:
+Current executable shape:
 
 ```json
 {
   "viewerId": "reference-viewer",
-  "viewerVersion": "1.0",
-  "supported": ["general-document-structured-root", "base-entry-html", "static-snapshot"],
-  "safeMode": true
+  "viewerVersion": "0.1.0",
+  "supportedProfiles": ["general-document", "comic", "storyboard"],
+  "supported": ["general-document-structured-root", "base-entry-html"],
+  "supportStates": [
+    "fully-supported",
+    "safe-mode",
+    "unsupported-required-capability"
+  ],
+  "safeMode": true,
+  "referenceLoadMode": "eager-whole-package"
 }
 ```
 
@@ -101,6 +128,8 @@ Rules:
 - support claims must be testable
 - unsupported capabilities should be explicit rather than guessed
 - renderer declarations may be narrower than full viewer declarations
+- `supportedProfiles` expresses profile/runtime support without inventing new manifest capability identifiers
+- `supportStates` should list the concrete runtime labels the implementation currently emits
 
 ---
 
@@ -170,6 +199,14 @@ The current support-state labels are:
 
 These labels describe runtime state. They do not change whether the package is structurally valid.
 
+Current reference viewer subset:
+
+- `fully-supported`
+- `safe-mode`
+- `unsupported-required-capability`
+
+The other labels remain part of the shared runtime vocabulary for future viewers or later reference-viewer milestones, but they are not claimed by `PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR` today.
+
 ---
 
 ## 6. Sample Scenarios
@@ -193,8 +230,11 @@ Viewer:
 
 ```json
 {
+  "supportedProfiles": ["general-document", "comic", "storyboard"],
   "supported": ["general-document-structured-root"],
-  "safeMode": true
+  "supportStates": ["fully-supported", "safe-mode", "unsupported-required-capability"],
+  "safeMode": true,
+  "referenceLoadMode": "eager-whole-package"
 }
 ```
 
@@ -219,8 +259,11 @@ Viewer:
 
 ```json
 {
+  "supportedProfiles": ["general-document", "comic", "storyboard"],
   "supported": [],
-  "safeMode": true
+  "supportStates": ["fully-supported", "safe-mode", "unsupported-required-capability"],
+  "safeMode": true,
+  "referenceLoadMode": "eager-whole-package"
 }
 ```
 
@@ -250,8 +293,11 @@ Viewer:
 
 ```json
 {
+  "supportedProfiles": ["general-document", "comic", "storyboard"],
   "supported": ["general-document-structured-root", "static-snapshot"],
-  "safeMode": true
+  "supportStates": ["fully-supported", "safe-mode", "unsupported-required-capability"],
+  "safeMode": true,
+  "referenceLoadMode": "eager-whole-package"
 }
 ```
 
@@ -276,8 +322,11 @@ Viewer:
 
 ```json
 {
+  "supportedProfiles": ["general-document", "comic", "storyboard"],
   "supported": ["general-document-structured-root", "static-snapshot"],
-  "safeMode": true
+  "supportStates": ["fully-supported", "safe-mode", "unsupported-required-capability"],
+  "safeMode": true,
+  "referenceLoadMode": "eager-whole-package"
 }
 ```
 
@@ -305,8 +354,11 @@ Viewer:
 
 ```json
 {
+  "supportedProfiles": ["general-document", "comic", "storyboard"],
   "supported": ["general-document-structured-root", "text-to-speech"],
-  "safeMode": true
+  "supportStates": ["fully-supported", "safe-mode", "unsupported-required-capability"],
+  "safeMode": true,
+  "referenceLoadMode": "eager-whole-package"
 }
 ```
 

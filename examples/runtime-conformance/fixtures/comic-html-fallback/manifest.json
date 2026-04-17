@@ -1,0 +1,27 @@
+{
+  "prdVersion": "1.0",
+  "manifestVersion": "1.0",
+  "id": "urn:eonhive:runtime:comic-html-fallback",
+  "profile": "comic",
+  "title": "Comic HTML Fallback",
+  "entry": "content/index.html",
+  "compatibility": {
+    "minViewer": "0.1",
+    "capabilities": {
+      "required": ["base-entry-html"],
+      "optional": ["panel-navigation"]
+    }
+  },
+  "assets": [
+    {
+      "id": "panel-1-art",
+      "href": "assets/panels/panel-1.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "id": "panel-2-art",
+      "href": "assets/panels/panel-2.svg",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -121,7 +121,7 @@ Optional fields may extend the manifest without bloating the minimum baseline.
 | `compatibility` | object | viewer/renderer compatibility hints or requirements |
 | `assets` | array | declared packaged asset resources |
 | `attachments` | array | declared bundled or linked attachments |
-| `extensions` | array | declared optional extension hooks |
+| `extensions` | array or object | declared optional extension hooks |
 | `protected` | object | declaration of optional protected/private material |
 
 Optional field rules:
@@ -147,6 +147,25 @@ Public/protected declaration guidance:
 - `protected` should declare the existence and location of protected/private material, not embed large protected payloads directly in the base manifest
 - friendly profile labels and descriptions belong to registries and product UI, not the manifest
 - bundled attachment `href` values should resolve under `attachments/`; linked attachments may use `http` or `https` URLs for supplemental material
+- current schema/validator truth still allows `extensions` as either an array of declarations or an object placeholder surface; this slice documents that reality rather than changing the executable model
+
+---
+
+## 5.1 Field-Level Conformance Coverage
+
+| Field group | Schema surface | Validator issue-code family / current truth | Positive example / fixture | Negative fixture / test |
+| --- | --- | --- | --- | --- |
+| Required opening fields | top-level `prdVersion`, `manifestVersion`, `id`, `profile`, `title`, `entry` | `*-required` families for each required field | `examples/document-basic` and `validManifest` fixture coverage | required-field tests in `packages/prd-validator/src/index.test.ts` |
+| `identity` | `#/$defs/identity` | `identity-shape`, `identity-*`, `identity-series-*`, `identity-collection-*` | valid identity/series metadata tests | malformed identity tests in `packages/prd-validator/src/index.test.ts` |
+| `public` | `#/$defs/publicMetadata` | `public-shape`, `public-cover`, `public-contributor-*`, `public-series-*`, `public-collections-*` | valid public metadata tests and `examples/document-basic` cover metadata | malformed public metadata tests in `packages/prd-validator/src/index.test.ts` |
+| `localization` | `#/$defs/localization` | `localization-shape`, `localization-default-locale`, `localization-available-locales`, `localization-default-missing`, `localization-text-direction` | `examples/document-basic` localized overlay path and localized package tests | malformed localization-block tests in `packages/prd-validator/src/index.test.ts` |
+| `compatibility` | `#/$defs/compatibility` | `compatibility-shape`, `compatibility-min-viewer`, `compatibility-capabilities-*` | canonical example manifests using optional capability declarations | malformed compatibility-block tests in `packages/prd-validator/src/index.test.ts` |
+| `assets` | `assets[]` with `assetDeclaration` | `assets-shape`, `asset-id-*`, `asset-href-*`, `asset-file-missing`; profile/media-specific image checks when referenced | canonical examples and valid asset manifest fixtures | malformed asset tests in `packages/prd-validator/src/index.test.ts` |
+| `attachments` | `attachments[]` with `attachmentDeclaration` | `attachments-shape`, `attachment-id-*`, `attachment-href-*`, `attachment-file-missing` | valid bundled/linked attachment tests and `examples/document-basic` | malformed attachment tests in `packages/prd-validator/src/index.test.ts` |
+| `extensions` | `extensions` oneOf array or object | current schema/validator truth accepts array or object; declaration arrays additionally use `extension-id-required` and item-shape checks | positive object-shaped `extensions` coverage in `packages/prd-validator/src/index.test.ts` | malformed `extensions` block tests in `packages/prd-validator/src/index.test.ts` |
+| `protected` | `#/$defs/protectedDeclaration` | `protected-shape` plus current shape-only truth for `present` and `ref` | positive protected declaration coverage in `packages/prd-validator/src/index.test.ts` | malformed `protected` block tests in `packages/prd-validator/src/index.test.ts` |
+
+This table is descriptive, not a second schema. If implementation and this table diverge, schema and validator truth win until the docs are updated in the same slice.
 
 ---
 

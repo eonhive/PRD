@@ -1,0 +1,17 @@
+{
+  "profile": "comic",
+  "panels": [
+    {
+      "id": "panel-1",
+      "asset": "panel-1-art",
+      "alt": "Courier crouched above the city canopy",
+      "caption": "Opening panel"
+    },
+    {
+      "id": "panel-2",
+      "asset": "panel-2-art",
+      "alt": "Courier landing on the suspended walkway",
+      "caption": "Closing panel"
+    }
+  ]
+}

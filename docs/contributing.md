@@ -59,10 +59,17 @@ Expected outcome:
 Run from repo root:
 
 ```bash
-pnpm typecheck
-pnpm test
+pnpm foundation:gate
+```
+
+`pnpm foundation:gate` is the canonical one-command conformance gate. It runs:
+
+```bash
 pnpm build
-pnpm examples:smoke
+pnpm test
+pnpm docs:check -- --include-root-docs
+pnpm examples:validate
+pnpm examples:smoke -- --json-summary
 ```
 
 Canonical smoke command:
@@ -79,11 +86,13 @@ pnpm examples:smoke -- --json-summary
 
 Expected outcomes:
 
-- `pnpm typecheck` exits 0
-- `pnpm test` exits 0
 - `pnpm build` exits 0
+- `pnpm test` exits 0
+- `pnpm docs:check -- --include-root-docs` exits 0
+- `pnpm examples:validate` exits 0
 - `pnpm examples:smoke` exits 0 after running all current example smoke scripts
 - `pnpm examples:smoke -- --json-summary` emits JSON summaries under `examples/dist/smoke-summaries/`
+- `pnpm foundation:gate` exits 0 and writes `examples/dist/foundation-gate-summary.json`
 
 ## Changesets and release intent
 
@@ -104,10 +113,7 @@ Before opening a PR, confirm:
 
 - [ ] Canonical docs reviewed and terminology aligned
 - [ ] MVP scope boundaries preserved
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm test` passes
-- [ ] `pnpm build` passes
-- [ ] `pnpm examples:smoke` passes
+- [ ] `pnpm foundation:gate` passes
 - [ ] Docs updated when behavior/contracts changed
 - [ ] `BUILD_STATUS.md` updated with completed work
 - [ ] `NEXT_STEPS.md` updated to reflect backlog state

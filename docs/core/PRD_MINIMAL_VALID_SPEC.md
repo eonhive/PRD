@@ -1,6 +1,6 @@
 # PRD_MINIMAL_VALID_SPEC.md
 _Last updated: April 16, 2026_  
-_Status: Draft v0.2 (provisional)_
+_Status: Ratified minimal-valid baseline v0.3_
 
 ## Purpose
 
@@ -28,6 +28,19 @@ This spec defines:
 4. baseline profile-entry compatibility requirements
 5. portability constraints for base readability
 6. baseline validator conformance expectations
+
+---
+
+## Companion docs
+
+This document is the minimal-valid conformance anchor and works together with:
+
+- `docs/core/PRD_MANIFEST_DRAFT.md` for manifest field meaning and optional-field truth
+- `docs/core/PRD_PACKAGE_LAYOUT_DRAFT.md` for canonical package layout guidance
+- `docs/profiles/PRD_PROFILE_GENERAL_DOCUMENT.md` for the canonical structured `general-document` root contract
+- `docs/profiles/PRD_PROFILE_COMIC.md` for structured `comic` root rules and legacy fallback posture
+- `docs/profiles/PRD_PROFILE_STORYBOARD.md` for structured `storyboard` root rules and legacy fallback posture
+- `docs/runtime/PRD_CAPABILITY_MODEL.md` and `docs/runtime/PRD_CONFORMANCE.md` for runtime truth separate from structural validity
 
 ---
 
@@ -236,19 +249,23 @@ Invalid for minimal-valid `general-document` canonical conformance.
 
 ---
 
-## Conformance mapping matrix (starter)
+## Conformance mapping matrix
 
-| Req ID | Normative requirement | Schema/validator path | Validator issue code(s) | Fixture ID(s) | CLI output expectation | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| MVS-001 | interchange artifact is `.prd` ZIP | CLI/open target mode | TBD | `transport-not-prd-zip` | `.prd` validation rejects non-zip/non-prd | Draft |
-| MVS-004 | required opening fields present | top-level manifest fields | `prdVersion-required`, `manifestVersion-required`, `id-required`, `profile-required`, `title-required`, `entry-required` | `missing-*` set | deterministic missing-field issues | Draft |
-| MVS-008..010 | entry is relative, safe, existing file | `manifest.entry` checks | `entry-empty`, `entry-absolute`, `entry-backslash`, `entry-url`, `entry-traversal`, `entry-directory`, `entry-missing` | `entry-*` fixtures | deterministic entry issue family | Draft |
-| MVS-011..014 | profile + entry compatibility | profile/entry compatibility checks | `general-document-entry-format`, `comic-entry-format`, `storyboard-entry-format` | `profile-entry-*` fixtures | mismatch appears in invalid list | Draft |
-| MVS-015/016 | portability constraints hold | manifest/opening portability checks | TBD | `requires-cloud`, `requires-wallet`, `protected-only-base-open` | portability failures are hard-invalid | Draft |
-| MVS-017..020 | optional blocks shape-valid when present | optional object checks | TBD | block-specific invalid fixtures | shape-specific issue list | Draft |
-| MVS-021/022 | validity vs capability separated | validator/viewer boundary | TBD | integration fixtures | valid package can still show limited viewer capability state | Draft |
-
-Replace all `TBD` codes with canonical issue codes from implementation and lock via tests.
+| Req ID(s) | Normative requirement | Current enforcement truth | Issue code family / status | Positive fixture(s) | Negative fixture(s) / tests |
+| --- | --- | --- | --- | --- | --- |
+| `MVS-001` | `.prd` ZIP transport is required for interchange | Enforced in node/archive entrypoints rather than core in-memory validation | `archive-extension-invalid`, `archive-read-invalid` | archive validation and inspection tests in `packages/prd-validator/src/index.test.ts`; built CLI archive E2E in `packages/prd-cli/src/cli.e2e.test.ts` | dedicated bad-archive fixture is still deferred; current negative coverage is API-level |
+| `MVS-002`, `MVS-003` | root `manifest.json` exists and parses as one JSON object | Enforced by package-file validation before profile/content checks | `manifest-missing`, `manifest-json-invalid`, `manifest-shape` | `examples/document-basic`, `examples/comic-basic`, `examples/storyboard-basic` | existing validator fixture coverage for missing/invalid manifest packages |
+| `MVS-004`, `MVS-005` | required opening fields stay top-level and public | Enforced in manifest validation | `prdVersion-required`, `manifestVersion-required`, `id-required`, `profile-required`, `title-required`, `entry-required` | canonical examples and `validManifest` fixture coverage | required-field tests in `packages/prd-validator/src/index.test.ts` |
+| `MVS-006`, `MVS-007` | reference tooling may accept directories while interchange remains `.prd`; canonical layout stays predictable | Directory acceptance is implemented in `@eonhive/prd-validator/node`; canonical layout remains guidance rather than a hard-validity requirement beyond referenced paths | no dedicated layout issue code; directory mode is explicit runtime/tooling behavior | directory/archive dual-mode tests in `packages/prd-validator/src/index.test.ts` | non-canonical but structurally valid layouts remain allowed if manifest references resolve |
+| `MVS-008`, `MVS-009`, `MVS-010` | `entry` is relative, safe, and resolves to one existing file | Enforced in manifest/package validation | `entry-empty`, `entry-absolute`, `entry-backslash`, `entry-url`, `entry-traversal`, `entry-directory`, `entry-missing` | canonical examples and `validManifest` fixture coverage | entry-path matrix tests in `packages/prd-validator/src/index.test.ts` |
+| `MVS-011`, `MVS-012` | profile is one of the MVP core profiles and profile-entry compatibility is enforced | Enforced in manifest normalization and package validation | `profile-unknown`, `general-document-entry-format`, `comic-entry-format`, `storyboard-entry-format` | canonical examples for each core profile | `examples/conformance/general-document-invalid-entry`, `examples/conformance/comic-invalid-entry`, `examples/conformance/storyboard-invalid-entry` |
+| `MVS-013`, `MVS-014` | canonical `general-document` path is structured JSON under `content/`; HTML stays fallback-only | Enforced in package validation and viewer/runtime separation | `general-document-entry-format`; runtime fallback is separate and documented in `docs/runtime/PRD_CONFORMANCE.md` | `examples/document-basic` | `examples/conformance/general-document-invalid-entry` plus built CLI/validator fixture coverage |
+| `MVS-015`, `MVS-016` | base readability comes from the public manifest and public `entry`; required opening metadata cannot live only in protected/private material | Current manifest model keeps required fields top-level and public, and `entry` must resolve to a public package file; there is no separate legal protected-only base-open path in the current schema/validator model | no dedicated portability-only issue code in v0.3; enforced through required top-level field checks, `entry-*` checks, and public-manifest-only modeling | canonical examples | dedicated cloud/wallet/protected-only negative fixtures remain deferred because those surfaces are not modeled as valid minimal-open paths today |
+| `MVS-017` | `identity`, when present, must match current schema/validator truth | Enforced in schema + manifest validation | `identity-shape`, `identity-*`, `identity-series-*`, `identity-collection-*` | valid identity/series tests in `packages/prd-validator/src/index.test.ts` | malformed identity tests in `packages/prd-validator/src/index.test.ts` |
+| `MVS-018` | `public`, when present, must match current schema/validator truth | Enforced in schema + manifest validation | `public-shape`, `public-cover`, `public-contributor-*`, `public-series-*`, `public-collections-*` | valid public metadata tests in `packages/prd-validator/src/index.test.ts` | malformed public metadata tests in `packages/prd-validator/src/index.test.ts` |
+| `MVS-019` | `localization`, when present, must match current schema/validator truth | Enforced in schema + manifest validation | `localization-shape`, `localization-default-locale`, `localization-available-locales`, `localization-default-missing`, `localization-text-direction` | localized document package tests and `examples/document-basic` | malformed localization-block test coverage in `packages/prd-validator/src/index.test.ts` |
+| `MVS-020` | `extensions`, when present, must match current schema/validator truth | Current schema/validator truth allows either an array of declarations or an object placeholder surface; this remains a documented MVP reality rather than a redesign target in this slice | `extensions-shape`, `extension-id-required` | positive `extensions` declaration tests in `packages/prd-validator/src/index.test.ts` | malformed `extensions` block tests in `packages/prd-validator/src/index.test.ts` |
+| `MVS-021`, `MVS-022` | validity and runtime capability remain separate | Enforced through separate validator and viewer-core/runtime contracts | runtime support-state labels such as `fully-supported`, `safe-mode`, `unsupported-required-capability` remain outside validator issue codes | viewer-core integration tests and `apps/prd-viewer-web` render-mode integration tests | cross-package validator/viewer render-mode integration tests |
 
 ---
 
@@ -277,17 +294,6 @@ The following are intentionally deferred to later specs/docs:
 
 ## Open questions
 
-1. Which exact issue code(s) should represent portability violations in validator output?
-2. Should `.prd` transport enforcement live in validator core, CLI layer, or both (with shared contract docs)?
-3. What is the exact minimum content schema for `content/root.json` per profile?
-4. Which optional manifest blocks are MVP-required for any profile-specific conformance tier?
-
----
-
-## Change control notes
-
-This document remains provisional until:
-
-1. all `TBD` issue-code mappings are resolved
-2. fixture IDs exist and pass in CI
-3. active NEXT_STEPS conformance tasks are closed
+1. Should a later transport/conformance slice add dedicated bad-archive fixtures rather than relying only on archive entrypoint tests?
+2. When the protection model is drafted, should minimal-valid spec add explicit portability issue codes for public-path blockage?
+3. What is the smallest profile-specific content-schema contract that deserves its own normative extraction beyond the existing profile docs?

@@ -10,6 +10,11 @@ const execFileAsync = promisify(execFile);
 const thisDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(thisDir, "../../..");
 const cliDistPath = resolve(repoRoot, "packages/prd-cli/dist/cli.js");
+const conformanceFixturePaths = {
+  generalDocument: resolve(repoRoot, "examples/conformance/general-document-invalid-entry"),
+  comic: resolve(repoRoot, "examples/conformance/comic-invalid-entry"),
+  storyboard: resolve(repoRoot, "examples/conformance/storyboard-invalid-entry")
+} as const;
 
 type CliExecutionResult = {
   code: number;
@@ -405,5 +410,394 @@ describe("built CLI binary end-to-end", () => {
     } finally {
       await rm(sourceDir, { recursive: true, force: true });
     }
+  });
+
+  it("captures stable snapshots for profile-entry conformance fixtures", async () => {
+    const outputs: Record<
+      string,
+      {
+        validateText: string;
+        validateJson: Record<string, unknown>;
+        inspectText: string;
+        inspectJson: Record<string, unknown>;
+      }
+    > = {};
+
+    for (const [label, fixturePath] of Object.entries(conformanceFixturePaths)) {
+      const validateText = await runBuiltCli(["validate", fixturePath]);
+      expect(validateText.code).toBe(1);
+
+      const validateJson = await runBuiltCli(["validate", fixturePath, "--json"]);
+      expect(validateJson.code).toBe(1);
+
+      const inspectText = await runBuiltCli(["inspect", fixturePath]);
+      expect(inspectText.code).toBe(1);
+
+      const inspectJson = await runBuiltCli(["inspect", fixturePath, "--json"]);
+      expect(inspectJson.code).toBe(1);
+
+      outputs[label] = {
+        validateText: validateText.stdout.trimEnd(),
+        validateJson: JSON.parse(validateJson.stdout) as Record<string, unknown>,
+        inspectText: normalizeInspectTextSnapshot(inspectText.stdout.trimEnd()),
+        inspectJson: normalizeInspectJsonSnapshot(inspectJson.stdout)
+      };
+    }
+
+    expect(outputs).toMatchInlineSnapshot(`
+      {
+        "comic": {
+          "inspectJson": {
+            "entry": "profiles/comic/panels.json",
+            "errors": [
+              {
+                "code": "comic-entry-format",
+                "message": "\`comic\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`. HTML entries remain legacy fallback behavior.",
+              },
+              {
+                "code": "comic-content-schema-version",
+                "message": "Structured comic roots must include a non-empty \`schemaVersion\` string.",
+              },
+              {
+                "code": "comic-content-type-invalid",
+                "message": "Structured comic roots must declare \`type: \"comic\"\`.",
+              },
+              {
+                "code": "comic-content-id-required",
+                "message": "Structured comic roots must include a non-empty \`id\` string.",
+              },
+              {
+                "code": "comic-content-title-required",
+                "message": "Structured comic roots must include a non-empty \`title\` string.",
+              },
+            ],
+            "inspection": {
+              "assetCount": 2,
+              "attachmentCount": 0,
+              "collectionCount": 0,
+              "entryKind": "structured-json",
+              "fileCount": 4,
+              "hasSeriesMembership": false,
+              "localeCount": 0,
+              "localizedAlternateEntries": false,
+              "localizedResources": false,
+              "referenceLoadMode": "eager-whole-package",
+              "segmentation": "none",
+              "sourceKind": "directory",
+              "totalBytes": -1,
+            },
+            "manifest": {
+              "entry": "profiles/comic/panels.json",
+              "localizationDefaultLocale": null,
+              "profile": "comic",
+            },
+            "profileInfo": {
+              "supportClass": "canonical-core",
+            },
+            "valid": false,
+            "warnings": [],
+          },
+          "inspectText": "valid: no
+      profile: comic
+      profileStatus: canonical-core
+      entry: profiles/comic/panels.json
+      localization: none
+      errors:
+      - [comic-entry-format] \`comic\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`. HTML entries remain legacy fallback behavior.
+      - [comic-content-schema-version] Structured comic roots must include a non-empty \`schemaVersion\` string.
+      - [comic-content-type-invalid] Structured comic roots must declare \`type: "comic"\`.
+      - [comic-content-id-required] Structured comic roots must include a non-empty \`id\` string.
+      - [comic-content-title-required] Structured comic roots must include a non-empty \`title\` string.
+      warnings:
+      - none
+      inspection:
+      - source: directory
+      - files: 4
+      - bytes: <number>
+      - assets: 2
+      - attachments: 0
+      - locales: 0
+      - series: no
+      - collections: 0
+      - entry mode: structured-json
+      - segmentation: none
+      - localized resources: no
+      - localized alternate entries: no
+      - reference load mode: eager-whole-package",
+          "validateJson": {
+            "entry": "profiles/comic/panels.json",
+            "errors": [
+              {
+                "code": "comic-entry-format",
+                "message": "\`comic\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`. HTML entries remain legacy fallback behavior.",
+              },
+              {
+                "code": "comic-content-schema-version",
+                "message": "Structured comic roots must include a non-empty \`schemaVersion\` string.",
+              },
+              {
+                "code": "comic-content-type-invalid",
+                "message": "Structured comic roots must declare \`type: \"comic\"\`.",
+              },
+              {
+                "code": "comic-content-id-required",
+                "message": "Structured comic roots must include a non-empty \`id\` string.",
+              },
+              {
+                "code": "comic-content-title-required",
+                "message": "Structured comic roots must include a non-empty \`title\` string.",
+              },
+            ],
+            "manifest": {
+              "entry": "profiles/comic/panels.json",
+              "localizationDefaultLocale": null,
+              "profile": "comic",
+            },
+            "profileInfo": {
+              "supportClass": "canonical-core",
+            },
+            "valid": false,
+            "warnings": [],
+          },
+          "validateText": "valid: no
+      profile: comic
+      profileStatus: canonical-core
+      entry: profiles/comic/panels.json
+      localization: none
+      errors:
+      - [comic-entry-format] \`comic\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`. HTML entries remain legacy fallback behavior.
+      - [comic-content-schema-version] Structured comic roots must include a non-empty \`schemaVersion\` string.
+      - [comic-content-type-invalid] Structured comic roots must declare \`type: "comic"\`.
+      - [comic-content-id-required] Structured comic roots must include a non-empty \`id\` string.
+      - [comic-content-title-required] Structured comic roots must include a non-empty \`title\` string.
+      warnings:
+      - none",
+        },
+        "generalDocument": {
+          "inspectJson": {
+            "entry": "content/index.html",
+            "errors": [
+              {
+                "code": "general-document-entry-format",
+                "message": "\`general-document\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`.",
+              },
+              {
+                "code": "content-json-invalid",
+                "message": "The \`general-document\` entry must parse as valid JSON structured content.",
+              },
+            ],
+            "inspection": {
+              "assetCount": 0,
+              "attachmentCount": 0,
+              "collectionCount": 0,
+              "entryKind": "html-fallback",
+              "fileCount": 2,
+              "hasSeriesMembership": false,
+              "localeCount": 0,
+              "localizedAlternateEntries": false,
+              "localizedResources": false,
+              "referenceLoadMode": "eager-whole-package",
+              "segmentation": "none",
+              "sourceKind": "directory",
+              "totalBytes": -1,
+            },
+            "manifest": {
+              "entry": "content/index.html",
+              "localizationDefaultLocale": null,
+              "profile": "general-document",
+            },
+            "profileInfo": {
+              "supportClass": "canonical-core",
+            },
+            "valid": false,
+            "warnings": [],
+          },
+          "inspectText": "valid: no
+      profile: general-document
+      profileStatus: canonical-core
+      entry: content/index.html
+      localization: none
+      errors:
+      - [general-document-entry-format] \`general-document\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`.
+      - [content-json-invalid] The \`general-document\` entry must parse as valid JSON structured content.
+      warnings:
+      - none
+      inspection:
+      - source: directory
+      - files: 2
+      - bytes: <number>
+      - assets: 0
+      - attachments: 0
+      - locales: 0
+      - series: no
+      - collections: 0
+      - entry mode: html-fallback
+      - segmentation: none
+      - localized resources: no
+      - localized alternate entries: no
+      - reference load mode: eager-whole-package",
+          "validateJson": {
+            "entry": "content/index.html",
+            "errors": [
+              {
+                "code": "general-document-entry-format",
+                "message": "\`general-document\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`.",
+              },
+              {
+                "code": "content-json-invalid",
+                "message": "The \`general-document\` entry must parse as valid JSON structured content.",
+              },
+            ],
+            "manifest": {
+              "entry": "content/index.html",
+              "localizationDefaultLocale": null,
+              "profile": "general-document",
+            },
+            "profileInfo": {
+              "supportClass": "canonical-core",
+            },
+            "valid": false,
+            "warnings": [],
+          },
+          "validateText": "valid: no
+      profile: general-document
+      profileStatus: canonical-core
+      entry: content/index.html
+      localization: none
+      errors:
+      - [general-document-entry-format] \`general-document\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`.
+      - [content-json-invalid] The \`general-document\` entry must parse as valid JSON structured content.
+      warnings:
+      - none",
+        },
+        "storyboard": {
+          "inspectJson": {
+            "entry": "profiles/storyboard/frames.json",
+            "errors": [
+              {
+                "code": "storyboard-entry-format",
+                "message": "\`storyboard\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`. HTML entries remain legacy fallback behavior.",
+              },
+              {
+                "code": "storyboard-content-schema-version",
+                "message": "Structured storyboard roots must include a non-empty \`schemaVersion\` string.",
+              },
+              {
+                "code": "storyboard-content-type-invalid",
+                "message": "Structured storyboard roots must declare \`type: \"storyboard\"\`.",
+              },
+              {
+                "code": "storyboard-content-id-required",
+                "message": "Structured storyboard roots must include a non-empty \`id\` string.",
+              },
+              {
+                "code": "storyboard-content-title-required",
+                "message": "Structured storyboard roots must include a non-empty \`title\` string.",
+              },
+            ],
+            "inspection": {
+              "assetCount": 2,
+              "attachmentCount": 0,
+              "collectionCount": 0,
+              "entryKind": "structured-json",
+              "fileCount": 4,
+              "hasSeriesMembership": false,
+              "localeCount": 0,
+              "localizedAlternateEntries": false,
+              "localizedResources": false,
+              "referenceLoadMode": "eager-whole-package",
+              "segmentation": "none",
+              "sourceKind": "directory",
+              "totalBytes": -1,
+            },
+            "manifest": {
+              "entry": "profiles/storyboard/frames.json",
+              "localizationDefaultLocale": null,
+              "profile": "storyboard",
+            },
+            "profileInfo": {
+              "supportClass": "canonical-core",
+            },
+            "valid": false,
+            "warnings": [],
+          },
+          "inspectText": "valid: no
+      profile: storyboard
+      profileStatus: canonical-core
+      entry: profiles/storyboard/frames.json
+      localization: none
+      errors:
+      - [storyboard-entry-format] \`storyboard\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`. HTML entries remain legacy fallback behavior.
+      - [storyboard-content-schema-version] Structured storyboard roots must include a non-empty \`schemaVersion\` string.
+      - [storyboard-content-type-invalid] Structured storyboard roots must declare \`type: "storyboard"\`.
+      - [storyboard-content-id-required] Structured storyboard roots must include a non-empty \`id\` string.
+      - [storyboard-content-title-required] Structured storyboard roots must include a non-empty \`title\` string.
+      warnings:
+      - none
+      inspection:
+      - source: directory
+      - files: 4
+      - bytes: <number>
+      - assets: 2
+      - attachments: 0
+      - locales: 0
+      - series: no
+      - collections: 0
+      - entry mode: structured-json
+      - segmentation: none
+      - localized resources: no
+      - localized alternate entries: no
+      - reference load mode: eager-whole-package",
+          "validateJson": {
+            "entry": "profiles/storyboard/frames.json",
+            "errors": [
+              {
+                "code": "storyboard-entry-format",
+                "message": "\`storyboard\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`. HTML entries remain legacy fallback behavior.",
+              },
+              {
+                "code": "storyboard-content-schema-version",
+                "message": "Structured storyboard roots must include a non-empty \`schemaVersion\` string.",
+              },
+              {
+                "code": "storyboard-content-type-invalid",
+                "message": "Structured storyboard roots must declare \`type: \"storyboard\"\`.",
+              },
+              {
+                "code": "storyboard-content-id-required",
+                "message": "Structured storyboard roots must include a non-empty \`id\` string.",
+              },
+              {
+                "code": "storyboard-content-title-required",
+                "message": "Structured storyboard roots must include a non-empty \`title\` string.",
+              },
+            ],
+            "manifest": {
+              "entry": "profiles/storyboard/frames.json",
+              "localizationDefaultLocale": null,
+              "profile": "storyboard",
+            },
+            "profileInfo": {
+              "supportClass": "canonical-core",
+            },
+            "valid": false,
+            "warnings": [],
+          },
+          "validateText": "valid: no
+      profile: storyboard
+      profileStatus: canonical-core
+      entry: profiles/storyboard/frames.json
+      localization: none
+      errors:
+      - [storyboard-entry-format] \`storyboard\` packages must use a structured JSON entry under \`content/\`, such as \`content/root.json\`. HTML entries remain legacy fallback behavior.
+      - [storyboard-content-schema-version] Structured storyboard roots must include a non-empty \`schemaVersion\` string.
+      - [storyboard-content-type-invalid] Structured storyboard roots must declare \`type: "storyboard"\`.
+      - [storyboard-content-id-required] Structured storyboard roots must include a non-empty \`id\` string.
+      - [storyboard-content-title-required] Structured storyboard roots must include a non-empty \`title\` string.
+      warnings:
+      - none",
+        },
+      }
+    `);
   });
 });

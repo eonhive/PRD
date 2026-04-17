@@ -55,6 +55,32 @@ Supporting control docs:
 
 ---
 
+## Canonical Reading Paths
+
+Start at:
+
+* `docs/README.md`
+
+Use these focused paths from there:
+
+* core format and package canon
+  * `docs/core/PRD_MINIMAL_VALID_SPEC.md`
+  * `docs/core/PRD_MANIFEST_DRAFT.md`
+  * `docs/core/PRD_PACKAGE_LAYOUT_DRAFT.md`
+* runtime contracts
+  * `docs/runtime/PRD_CAPABILITY_MODEL.md`
+  * `docs/runtime/PRD_CONFORMANCE.md`
+  * `docs/runtime/PRD_CLI_JSON_CONTRACT.md`
+* control docs
+  * `docs/decisions/PRD_DECISIONS.md`
+  * `docs/governance/PRD_PROFILE_REGISTRY.md`
+  * `docs/governance/PRD_RELEASE_POLICY.md`
+* prompt packs and doctrine
+  * `docs/governance/PRD_PROMPT_DOCTRINE.md`
+  * `docs/prompts/PRD_MASTER_PROMPTS.md`
+
+---
+
 ## Core direction
 
 PRD is built around a few core pillars:
@@ -235,12 +261,16 @@ The current top-level scripts are:
 * `pnpm build`
 * `pnpm typecheck`
 * `pnpm test`
+* `pnpm docs:check`
 * `pnpm codex:check`
 * `pnpm codex:pack`
 * `pnpm codex:run:web`
 * `pnpm dev:web`
 * `pnpm examples:pack`
 * `pnpm examples:validate`
+* `pnpm examples:smoke`
+* `pnpm foundation:gate`
+* `pnpm runtime:conformance`
 * `pnpm release:check`
 
 Docs consistency guard scope:
@@ -257,6 +287,7 @@ prd inspect <path>
 
 CLI output/exit-code contract: `packages/prd-cli/README.md`.
 Versioned machine-readable JSON contract snippets: `docs/runtime/PRD_CLI_JSON_CONTRACT.md`.
+Published reference-viewer runtime corpus: `examples/runtime-conformance/runtime-conformance-manifest.json`.
 
 
 ## Contributor MVP gate (no npm credentials required)
@@ -303,6 +334,7 @@ Expected outcome:
 * `pnpm build`: exits 0 and builds all workspace targets
 * `pnpm examples:smoke`: exits 0 after running smoke scripts for `document-basic`, `resume-basic`, `comic-basic`, and `storyboard-basic`
 * `pnpm examples:smoke -- --json-summary`: exits 0 and writes JSON summaries for CI annotation under `examples/dist/smoke-summaries/`
+* `pnpm runtime:conformance`: exits 0 and writes the reference-viewer runtime summary under `examples/dist/runtime-conformance-summary.json`
 
 If all four pass, the local MVP contributor gate is considered green.
 
@@ -373,6 +405,10 @@ Release management uses **Changesets** plus the GitHub Actions Release workflow 
 * `pnpm release:status` to inspect pending release state
 
 The release workflow publishes only after the Node 20+ CI gate is green. For the one-time `0.1.0` preview, it first bootstraps any still-unpublished current preview packages and then falls back to normal Changesets behavior. Maintainer docs live in [PRD_RELEASE_POLICY.md](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/docs/governance/PRD_RELEASE_POLICY.md) and [PRD_NPM_RELEASE_RUNBOOK.md](/Users/nappy.cat/Labs/eonHive.lab/prd.lab/prd/docs/governance/PRD_NPM_RELEASE_RUNBOOK.md).
+
+`pnpm foundation:gate` is now the canonical repo-level conformance gate. It runs build, tests, docs consistency, example validation, and aggregate example smoke checks, then emits `examples/dist/foundation-gate-summary.json`.
+
+`pnpm runtime:conformance` is the canonical reference-viewer runtime corpus check. It evaluates the published fixtures in `examples/runtime-conformance/runtime-conformance-manifest.json` and emits `examples/dist/runtime-conformance-summary.json`.
 
 ### Codex Run Environment
 

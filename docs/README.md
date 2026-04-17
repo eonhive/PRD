@@ -6,6 +6,38 @@ It is organized by role so the live canon, active supporting docs, and archived 
 
 ---
 
+## Start Here
+
+If you are entering from the repo root:
+
+1. read `foundation/04_PRD/PRD_FOUNDATION.md`
+2. read `decisions/PRD_DECISIONS.md`
+3. pick the path you actually need below instead of browsing the tree blindly
+
+Primary paths:
+
+* core format canon
+  * `core/PRD_MINIMAL_VALID_SPEC.md`
+  * `core/PRD_MANIFEST_DRAFT.md`
+  * `core/PRD_PACKAGE_LAYOUT_DRAFT.md`
+* runtime contracts
+  * `runtime/PRD_CAPABILITY_MODEL.md`
+  * `runtime/PRD_CONFORMANCE.md`
+  * `runtime/PRD_CLI_JSON_CONTRACT.md`
+  * `../examples/runtime-conformance/runtime-conformance-manifest.json`
+* profile specs
+  * `profiles/PRD_PROFILE_GENERAL_DOCUMENT.md`
+  * `profiles/PRD_PROFILE_COMIC.md`
+  * `profiles/PRD_PROFILE_STORYBOARD.md`
+* control docs
+  * `governance/PRD_PROFILE_REGISTRY.md`
+  * `governance/PRD_PROMPT_DOCTRINE.md`
+  * `governance/PRD_RELEASE_POLICY.md`
+* prompt packs
+  * `prompts/PRD_MASTER_PROMPTS.md`
+
+---
+
 ## Canonical Source Order
 
 Use this order when producing or updating PRD work:
@@ -94,6 +126,11 @@ Viewer/renderer capability and runtime-facing spec docs:
 
 * `PRD_CAPABILITY_MODEL.md`
 * `PRD_CONFORMANCE.md`
+* `PRD_CLI_JSON_CONTRACT.md`
+
+Published executable runtime corpus:
+
+* `../examples/runtime-conformance/runtime-conformance-manifest.json`
 
 ### `profiles/`
 

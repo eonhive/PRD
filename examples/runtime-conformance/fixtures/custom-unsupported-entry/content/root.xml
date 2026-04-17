@@ -1,0 +1,4 @@
+<document>
+  <title>Custom Unsupported Entry</title>
+  <body>Custom XML entry that remains validator-valid but viewer-unsupported.</body>
+</document>

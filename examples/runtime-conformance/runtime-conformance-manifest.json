@@ -1,0 +1,76 @@
+{
+  "contractVersion": "prd-runtime-conformance-v0.1",
+  "runtimeId": "reference-viewer",
+  "fixtures": [
+    {
+      "id": "document-basic-structured",
+      "path": "examples/document-basic",
+      "expected": {
+        "validation": {
+          "valid": true,
+          "warningCodes": []
+        },
+        "runtime": {
+          "supportState": "fully-supported",
+          "renderMode": "structured-json-rendered"
+        }
+      }
+    },
+    {
+      "id": "comic-basic-structured",
+      "path": "examples/comic-basic",
+      "expected": {
+        "validation": {
+          "valid": true,
+          "warningCodes": []
+        },
+        "runtime": {
+          "supportState": "fully-supported",
+          "renderMode": "structured-json-rendered"
+        }
+      }
+    },
+    {
+      "id": "storyboard-basic-structured",
+      "path": "examples/storyboard-basic",
+      "expected": {
+        "validation": {
+          "valid": true,
+          "warningCodes": []
+        },
+        "runtime": {
+          "supportState": "fully-supported",
+          "renderMode": "structured-json-rendered"
+        }
+      }
+    },
+    {
+      "id": "comic-html-fallback",
+      "path": "examples/runtime-conformance/fixtures/comic-html-fallback",
+      "expected": {
+        "validation": {
+          "valid": true,
+          "warningCodes": ["comic-html-entry-legacy"]
+        },
+        "runtime": {
+          "supportState": "safe-mode",
+          "renderMode": "html-fallback-rendered"
+        }
+      }
+    },
+    {
+      "id": "custom-unsupported-entry",
+      "path": "examples/runtime-conformance/fixtures/custom-unsupported-entry",
+      "expected": {
+        "validation": {
+          "valid": true,
+          "warningCodes": ["profile-unknown"]
+        },
+        "runtime": {
+          "supportState": "unsupported-required-capability",
+          "renderMode": "unsupported-entry-mode"
+        }
+      }
+    }
+  ]
+}

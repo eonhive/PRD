@@ -1,6 +1,6 @@
 # PRD_CONFORMANCE.md
-_Last updated: April 7, 2026_  
-_Status: Conformance draft v0.1_
+_Last updated: April 16, 2026_
+_Status: Canonical runtime conformance draft v0.2_
 
 ## 1. Purpose
 
@@ -14,6 +14,25 @@ Its job is to make runtime support claims:
 - separate from structural package validity
 
 This is a runtime-facing spec document. It does not redefine the PRD package contract, manifest baseline, profile registry, or product UX beyond what a viewer or renderer owes the format.
+
+## 1.1 Executable Alignment
+
+The current executable runtime contract is anchored in:
+
+- `packages/prd-types/src/index.ts`
+  - `PrdViewerSupportState`
+  - `PrdRuntimeCapabilityDescriptor`
+  - `PrdReferenceLoadMode`
+- `packages/prd-viewer-core/src/index.ts`
+  - `openPrdDocument`
+  - `inferViewerRenderMode`
+  - `PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR`
+
+This means:
+
+- the support-state vocabulary is wider than the subset emitted by the current reference viewer
+- the current reference viewer descriptor is the truthful executable claim for this repo, not the broadest future conformance target
+- profile support for `comic` and `storyboard` is currently expressed through runtime behavior and `supportedProfiles`, not new manifest-required capability identifiers
 
 ---
 
@@ -159,13 +178,19 @@ A viewer or renderer may publish a capability/conformance descriptor such as:
 ```json
 {
   "viewerId": "reference-viewer",
-  "viewerVersion": "0.1",
+  "viewerVersion": "0.1.0",
+  "supportedProfiles": ["general-document", "comic", "storyboard"],
   "supported": [
     "general-document-structured-root",
-    "base-entry-html",
-    "static-snapshot"
+    "base-entry-html"
   ],
-  "safeMode": true
+  "supportStates": [
+    "fully-supported",
+    "safe-mode",
+    "unsupported-required-capability"
+  ],
+  "safeMode": true,
+  "referenceLoadMode": "eager-whole-package"
 }
 ```
 
@@ -174,6 +199,8 @@ Rules:
 - support claims must be testable against real fixtures
 - declarations should prefer specific supported behaviors over vague marketing statements
 - a viewer must not claim structured profile support if it only exposes raw file download or generic archive browsing
+- `supportedProfiles` and `supported` are different surfaces and should not be collapsed into one ambiguous list
+- `supportStates` should reflect the concrete labels the implementation currently emits
 
 ---
 
@@ -191,6 +218,12 @@ The following support-state labels are the current conformance vocabulary:
 | `unsupported-extension-ignored` | an optional unsupported extension was ignored without breaking the base path |
 | `unsupported-required-capability` | the intended required behavior cannot be honored |
 | `reserved-profile` | the profile is recognized by the architecture, but specialized runtime support is not implemented in this viewer yet |
+
+Current reference viewer subset:
+
+- `fully-supported`
+- `safe-mode`
+- `unsupported-required-capability`
 
 ### 8.1 Label usage rules
 
@@ -235,11 +268,28 @@ Tests should verify both:
 - the runtime label
 - the readable output path or fallback artifact that justified that label
 
+### 10.1 Published reference-viewer corpus
+
+The current repo now publishes a small executable runtime corpus for the reference viewer:
+
+- manifest: `examples/runtime-conformance/runtime-conformance-manifest.json`
+- runner: `pnpm runtime:conformance`
+- summary artifact: `examples/dist/runtime-conformance-summary.json`
+
+The published baseline currently covers:
+
+1. validator-valid structured `general-document` opening as `fully-supported`
+2. validator-valid structured `comic` opening as `fully-supported`
+3. validator-valid structured `storyboard` opening as `fully-supported`
+4. validator-valid legacy HTML `comic` opening as `safe-mode`
+5. validator-valid custom unsupported entry opening as `unsupported-required-capability`
+
+This corpus is explicitly scoped to the current `reference-viewer` baseline. It is a shared executable reference, not yet a universal certification program for all PRD runtimes.
+
 ---
 
 ## 11. Open Questions
 
 - Should later conformance drafts define named conformance tiers beyond the current support-state vocabulary?
 - Should renderer-only conformance be declared separately from full viewer conformance?
-- Should PRD publish a standard fixture corpus and expected-result manifest for conformance testing?
 - When richer comic/storyboard presentation lands, what should justify `partially-supported` rather than `fully-supported` for those profiles?

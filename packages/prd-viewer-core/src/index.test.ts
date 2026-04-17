@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import type { PrdPackageReader } from "@eonhive/prd-types";
 import { validatePackageFiles } from "@eonhive/prd-validator";
 import {
+  PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR,
+  PRD_REFERENCE_VIEWER_SUPPORT_STATES,
+  PRD_REFERENCE_VIEWER_SUPPORTED_CAPABILITIES,
   getViewerRenderModeMessage,
   inferViewerRenderMode,
   openPrdDocument
@@ -37,6 +40,25 @@ function toValidationFiles(files: Record<string, string>): Record<string, Uint8A
 }
 
 describe("openPrdDocument", () => {
+  it("publishes a typed runtime descriptor for the current reference viewer", () => {
+    expect(PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR.viewerId).toBe("reference-viewer");
+    expect(PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR.supportedProfiles).toEqual([
+      "general-document",
+      "comic",
+      "storyboard"
+    ]);
+    expect(PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR.supported).toEqual([
+      ...PRD_REFERENCE_VIEWER_SUPPORTED_CAPABILITIES
+    ]);
+    expect(PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR.supportStates).toEqual([
+      ...PRD_REFERENCE_VIEWER_SUPPORT_STATES
+    ]);
+    expect(PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR.safeMode).toBe(true);
+    expect(PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR.referenceLoadMode).toBe(
+      "eager-whole-package"
+    );
+  });
+
   it("opens structured general-document entries", async () => {
     const document = await openPrdDocument(
       createReader({

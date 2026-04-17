@@ -2,6 +2,18 @@
 
 ## 2026-04-16
 
+- Published a validator-valid runtime conformance corpus under `examples/runtime-conformance/`, including a machine-readable expected-results manifest for `fully-supported`, `safe-mode`, and `unsupported-required-capability` reference-viewer outcomes.
+- Added `scripts/runtime-conformance-check.mjs`, root `pnpm runtime:conformance`, and `examples/dist/runtime-conformance-summary.json` as the canonical executable runtime-baseline surface for the reference viewer.
+- Added manifest-driven runtime tests and script tests so the published corpus is verified through validator truth, viewer-core support-state truth, and summary artifact generation.
+- Completed the runtime-contract hardening slice by aligning `docs/runtime/PRD_CAPABILITY_MODEL.md` and `docs/runtime/PRD_CONFORMANCE.md` with executable type/code surfaces in `packages/prd-types` and `packages/prd-viewer-core`.
+- Added typed runtime descriptor surfaces in code: `PrdRuntimeCapabilityDescriptor`, `PrdReferenceLoadMode`, `PRD_REFERENCE_VIEWER_SUPPORTED_CAPABILITIES`, `PRD_REFERENCE_VIEWER_SUPPORT_STATES`, and `PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR`.
+- Expanded `packages/prd-viewer-core` tests to lock the current reference-viewer runtime descriptor and support-state subset to the documented runtime baseline.
+- Expanded root/docs navigation so canonical control docs, runtime contracts, and prompt packs are discoverable directly from `README.md` and `docs/README.md`.
+- Completed the conformance-lock slice by ratifying `docs/core/PRD_MINIMAL_VALID_SPEC.md`, replacing provisional `TBD` conformance-matrix rows with concrete validator/runtime truth, and cross-linking the minimal-valid baseline to live manifest/profile/runtime docs.
+- Added field-level conformance coverage to `docs/core/PRD_MANIFEST_DRAFT.md`, including current schema/validator truth for `required`, `identity`, `public`, `localization`, `compatibility`, `assets`, `attachments`, `extensions`, and `protected`.
+- Published a non-canonical invalid conformance fixture corpus under `examples/conformance/` for `general-document`, `comic`, and `storyboard`, and wired those directories into validator and built-CLI test coverage.
+- Added `scripts/foundation-gate.mjs`, root `pnpm foundation:gate`, and `examples/dist/foundation-gate-summary.json` as the canonical repo-level conformance gate/artifact surface, with dedicated script tests for summary generation and failure reporting.
+- Updated contributor-facing docs to treat `pnpm foundation:gate` as the canonical one-command local conformance gate while leaving `release:check` unchanged.
 - Revised `docs/core/PRD_MINIMAL_VALID_SPEC.md` (draft v0.2) to align with accepted decisions and reviewer feedback by restoring `.prd` ZIP transport as a normative interchange requirement, restoring MUST-level portability/openability constraints, and making `general-document` structured JSON entry conformance explicit.
 - Started NEXT_STEPS item 23 by adding `docs/core/PRD_MINIMAL_VALID_SPEC.md` (draft v0.1) with MVP-scoped normative rules, explicit non-goals, manifest/entry constraints, and a starter conformance matrix to map requirements to validator checks and fixtures.
 - Added a new active next-phase backlog slice in `NEXT_STEPS.md` (items 23-28) covering minimal valid spec ratification, manifest conformance mapping, profile fixture hardening, foundation-gate automation, capability/conformance docs, and docs discoverability alignment.

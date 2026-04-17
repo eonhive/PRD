@@ -1,0 +1,8 @@
+{
+  "prdVersion": "1.0",
+  "manifestVersion": "1.0",
+  "id": "urn:prd-conformance:general-document-invalid-entry",
+  "profile": "general-document",
+  "title": "General Document Invalid Entry Fixture",
+  "entry": "content/index.html"
+}

@@ -1,6 +1,7 @@
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { strToU8, zipSync } from "fflate";
 import { describe, expect, it } from "vitest";
 import { validateManifestObject, validatePackage } from "./index.js";
@@ -12,6 +13,14 @@ import {
   validatePackageDirectory,
   validatePrdArchive
 } from "./node.js";
+
+const thisDir = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(thisDir, "../../..");
+const conformanceFixturePaths = {
+  generalDocument: resolve(repoRoot, "examples/conformance/general-document-invalid-entry"),
+  comic: resolve(repoRoot, "examples/conformance/comic-invalid-entry"),
+  storyboard: resolve(repoRoot, "examples/conformance/storyboard-invalid-entry")
+} as const;
 
 const validManifest = {
   prdVersion: "1.0",
@@ -1171,6 +1180,40 @@ describe("validateManifestObject", () => {
     expect(codes).toContain("attachment-href-prefix");
     expect(codes).toContain("attachment-href-url-format");
     expect(codes).toContain("attachment-href-path-format");
+  });
+
+  it("accepts current draft `extensions` and `protected` declarations", () => {
+    const result = validateManifestObject({
+      ...validManifest,
+      extensions: {
+        "x-example": {
+          enabled: true
+        }
+      },
+      protected: {
+        present: true,
+        ref: "protected/manifest.json"
+      }
+    });
+
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects malformed optional manifest declaration blocks", () => {
+    const result = validateManifestObject({
+      ...validManifest,
+      localization: "en-US",
+      compatibility: "1.0",
+      extensions: 42,
+      protected: "protected/manifest.json"
+    });
+
+    expect(result.valid).toBe(false);
+    const codes = result.errors.map((issue) => issue.code);
+    expect(codes).toContain("localization-shape");
+    expect(codes).toContain("compatibility-shape");
+    expect(codes).toContain("extensions-shape");
+    expect(codes).toContain("protected-shape");
   });
 });
 
@@ -2371,6 +2414,38 @@ describe("node validators", () => {
     expect(genericArchiveResult.valid).toBe(true);
 
     await rm(root, { recursive: true, force: true });
+  });
+
+  it("validates conformance invalid fixtures with stable profile-entry issue codes", async () => {
+    const expectedCodes = [
+      {
+        label: "general-document",
+        path: conformanceFixturePaths.generalDocument,
+        expectedCode: "general-document-entry-format"
+      },
+      {
+        label: "comic",
+        path: conformanceFixturePaths.comic,
+        expectedCode: "comic-entry-format"
+      },
+      {
+        label: "storyboard",
+        path: conformanceFixturePaths.storyboard,
+        expectedCode: "storyboard-entry-format"
+      }
+    ] as const;
+
+    for (const fixture of expectedCodes) {
+      const result = await validatePackageDirectory(fixture.path);
+      expect(result.valid, `${fixture.label} fixture should be invalid`).toBe(false);
+      expect(result.errors.map((issue) => issue.code)).toContain(fixture.expectedCode);
+
+      const genericResult = await validatePackageAtPath(fixture.path);
+      expect(genericResult.valid, `${fixture.label} generic validation should be invalid`).toBe(
+        false
+      );
+      expect(genericResult.errors.map((issue) => issue.code)).toContain(fixture.expectedCode);
+    }
   });
 
   it("inspects a source directory and reports loading-relevant package facts", async () => {

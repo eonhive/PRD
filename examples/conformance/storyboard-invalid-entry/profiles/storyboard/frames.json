@@ -1,0 +1,17 @@
+{
+  "profile": "storyboard",
+  "frames": [
+    {
+      "id": "frame-1",
+      "asset": "frame-1-art",
+      "alt": "Wide rooftop establishing board",
+      "notes": "Opening wide shot"
+    },
+    {
+      "id": "frame-2",
+      "asset": "frame-2-art",
+      "alt": "Reaction insert on the turn toward the doorway",
+      "notes": "Reaction insert"
+    }
+  ]
+}

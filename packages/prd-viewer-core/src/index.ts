@@ -1,15 +1,42 @@
 import {
+  PRD_CANONICAL_CORE_PROFILE_IDS,
   type PrdComicRoot,
   type PrdGeneralDocumentRoot,
   type PrdOpenedDocument,
   type PrdPackageReader,
   type PrdManifest,
+  type PrdRuntimeCapabilityDescriptor,
   type PrdStoryboardRoot,
+  type PrdViewerSupportState,
   getProfileDisplayLabel,
   isHtmlEntryPath,
   isJsonEntryPath,
   normalizeProfileId
 } from "@eonhive/prd-types";
+
+export const PRD_REFERENCE_VIEWER_SUPPORTED_CAPABILITIES = [
+  "general-document-structured-root",
+  "base-entry-html"
+] as const;
+
+export const PRD_REFERENCE_VIEWER_SUPPORT_STATES = [
+  "fully-supported",
+  "safe-mode",
+  "unsupported-required-capability"
+] as const satisfies readonly PrdViewerSupportState[];
+
+export type PrdReferenceViewerSupportState =
+  (typeof PRD_REFERENCE_VIEWER_SUPPORT_STATES)[number];
+
+export const PRD_REFERENCE_VIEWER_RUNTIME_DESCRIPTOR: PrdRuntimeCapabilityDescriptor = {
+  viewerId: "reference-viewer",
+  viewerVersion: "0.1.0",
+  supportedProfiles: [...PRD_CANONICAL_CORE_PROFILE_IDS],
+  supported: [...PRD_REFERENCE_VIEWER_SUPPORTED_CAPABILITIES],
+  supportStates: [...PRD_REFERENCE_VIEWER_SUPPORT_STATES],
+  safeMode: true,
+  referenceLoadMode: "eager-whole-package"
+};
 
 function parseGeneralDocumentEntry(entryText: string): PrdGeneralDocumentRoot {
   return JSON.parse(entryText) as PrdGeneralDocumentRoot;

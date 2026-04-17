@@ -18,6 +18,19 @@ export const PRD_CANONICAL_CORE_PROFILE_IDS = [
 
 export const PRD_IMPLEMENTATION_SUPPORTED_PROFILE_IDS = [] as const;
 
+export const PRD_VIEWER_SUPPORT_STATES = [
+  "fully-supported",
+  "partially-supported",
+  "safe-mode",
+  "static-fallback",
+  "protected-unavailable",
+  "unsupported-extension-ignored",
+  "unsupported-required-capability",
+  "reserved-profile"
+] as const;
+
+export const PRD_REFERENCE_LOAD_MODES = ["eager-whole-package"] as const;
+
 export const PRD_LEGACY_PROFILE_ALIASES = {
   "responsive-document": "general-document"
 } as const;
@@ -40,15 +53,18 @@ export type PrdProfileSupportClass =
   | "community-custom"
   | "unknown";
 
-export type PrdViewerSupportState =
-  | "fully-supported"
-  | "partially-supported"
-  | "safe-mode"
-  | "static-fallback"
-  | "protected-unavailable"
-  | "unsupported-extension-ignored"
-  | "unsupported-required-capability"
-  | "reserved-profile";
+export type PrdViewerSupportState = (typeof PRD_VIEWER_SUPPORT_STATES)[number];
+export type PrdReferenceLoadMode = (typeof PRD_REFERENCE_LOAD_MODES)[number];
+
+export interface PrdRuntimeCapabilityDescriptor {
+  viewerId: string;
+  viewerVersion: string;
+  supportedProfiles?: PrdKnownProfileId[];
+  supported: string[];
+  supportStates: PrdViewerSupportState[];
+  safeMode: boolean;
+  referenceLoadMode?: PrdReferenceLoadMode;
+}
 
 export interface PrdLocalization {
   defaultLocale: string;

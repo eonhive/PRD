@@ -3,6 +3,7 @@ import { basename, join, relative } from "node:path";
 import { strFromU8, unzipSync } from "fflate";
 import {
   PRD_LOCALIZED_ENTRIES_PATH,
+  type PrdReferenceLoadMode,
   isHtmlEntryPath,
   isJsonEntryPath
 } from "@eonhive/prd-types";
@@ -18,7 +19,6 @@ export type PrdInspectionEntryKind =
   | "html-fallback"
   | "unsupported";
 export type PrdInspectionSegmentation = "none" | "general-document-sections";
-export type PrdReferenceLoadMode = "eager-whole-package";
 
 export interface PrdPackageInspectionResult extends PrdPackageValidationResult {
   sourceKind: PrdInspectionSourceKind;
