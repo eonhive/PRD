@@ -28,7 +28,9 @@ pnpm release:audit:registry
 - npm auth works for the token
 - the token owner is visible in the `eonhive` npm org
 - the repo is still targeting the expected `@eonhive/prd-*` package set
-- first-preview bootstrap is still the correct release mode when packages are unpublished
+- release mode is correct for the current unified package version:
+  - `0.1.0` may use first-preview bootstrap
+  - later unified versions such as `0.1.1` use normal Changesets release mode
 
 It emits `examples/dist/release-publish-preflight-summary.json`.
 
@@ -89,6 +91,8 @@ That means:
 - that bootstrap step checks npm for the current `0.1.0` package versions
 - any still-unpublished preview packages are published directly in dependency order
 - future releases should use normal Changesets version PR flow
+
+For later unified unpublished versions such as `0.1.1`, `pnpm release:preflight` should pass in normal versioned-release mode and `pnpm release:bootstrap --publish` should no-op because the workspace versions are no longer `0.1.0`.
 
 The publish set for the first preview is:
 

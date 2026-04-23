@@ -108,9 +108,43 @@ describe("runReleasePublishPreflight", () => {
     );
     expect(writtenSummary.checks.npmAuth.username).toBe("stan");
     expect(writtenSummary.checks.organizationMembership.role).toBe("owner");
+    expect(writtenSummary.checks.bootstrapMode.releaseMode).toBe("bootstrap-preview");
     expect(writtenSummary.checks.bootstrapMode.bootstrapRequired).toBe(true);
     expect(writtenSummary.checks.bootstrapMode.missingPackages).toHaveLength(4);
     expect(recordedCommands[0].args).toEqual(["org", "ls", "eonhive", "--json"]);
+  });
+
+  it("passes when an unpublished 0.1.1 package set uses normal changesets release mode", async () => {
+    const repoRoot = await createTempDir("prd-release-preflight-versioned-");
+    const summaryPath = join(repoRoot, "summary.json");
+    await createWorkspace(repoRoot, "0.1.1");
+
+    const result = await runReleasePublishPreflight({
+      repoRoot,
+      summaryPath,
+      npmToken: "token",
+      fetchImpl: async (url) => {
+        if (String(url).endsWith("/-/whoami")) {
+          return createJsonResponse(200, { username: "stan" });
+        }
+
+        return createJsonResponse(404, {});
+      },
+      commandRunner: async () => ({
+        stdout: JSON.stringify({ stan: "owner" }),
+        stderr: ""
+      })
+    });
+
+    const writtenSummary = JSON.parse(await readFile(summaryPath, "utf8"));
+
+    expect(result.status).toBe("passed");
+    expect(writtenSummary.checks.packageTargets.versionSet).toEqual(["0.1.1"]);
+    expect(writtenSummary.checks.bootstrapMode.releaseMode).toBe(
+      "changesets-versioned"
+    );
+    expect(writtenSummary.checks.bootstrapMode.bootstrapRequired).toBe(false);
+    expect(writtenSummary.checks.bootstrapMode.missingPackages).toHaveLength(4);
   });
 
   it("fails cleanly when NPM_TOKEN is missing", async () => {
