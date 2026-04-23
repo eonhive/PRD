@@ -1,7 +1,7 @@
 /**
  * Company: EonHive Inc.
  * Title: Release Publish Preflight Script
- * Purpose: Verify npm token auth, org membership, package targets, and first-preview bootstrap state before CI publish.
+ * Purpose: Verify npm token auth, org membership, package targets, and release mode before CI publish.
  * Author: Stan Nesi
  * Created: 2026-04-22
  * Updated: 2026-04-22
@@ -295,6 +295,7 @@ export async function runReleasePublishPreflight(options = {}) {
       },
       bootstrapMode: {
         status: "pending",
+        releaseMode: null,
         previewEligible: false,
         bootstrapRequired: false,
         missingPackages: [],
@@ -326,6 +327,12 @@ export async function runReleasePublishPreflight(options = {}) {
         summary,
         "Restore the expected publish set (@eonhive/prd-types, @eonhive/prd-validator, @eonhive/prd-packager, @eonhive/prd-cli) before rerunning Release."
       );
+    } else if (versionSet.length !== 1) {
+      summary.checks.packageTargets.status = "failed";
+      markFailed(
+        summary,
+        "Keep the public PRD package versions aligned to one release version before rerunning Release."
+      );
     } else {
       summary.checks.packageTargets.status = "passed";
     }
@@ -343,6 +350,12 @@ export async function runReleasePublishPreflight(options = {}) {
     const publishedPackages = packageStatuses.filter((pkg) => pkg.published);
     const previewEligible =
       versionSet.length === 1 && versionSet[0] === previewVersion;
+    const releaseMode =
+      versionSet.length === 1
+        ? previewEligible
+          ? "bootstrap-preview"
+          : "changesets-versioned"
+        : null;
 
     summary.checks.bootstrapMode.missingPackages = missingPackages.map(
       ({ name, version }) => `${name}@${version}`
@@ -350,15 +363,13 @@ export async function runReleasePublishPreflight(options = {}) {
     summary.checks.bootstrapMode.publishedPackages = publishedPackages.map(
       ({ name, version }) => `${name}@${version}`
     );
+    summary.checks.bootstrapMode.releaseMode = releaseMode;
     summary.checks.bootstrapMode.previewEligible = previewEligible;
-    summary.checks.bootstrapMode.bootstrapRequired = missingPackages.length > 0;
+    summary.checks.bootstrapMode.bootstrapRequired =
+      releaseMode === "bootstrap-preview" && missingPackages.length > 0;
 
-    if (missingPackages.length > 0 && !previewEligible) {
+    if (versionSet.length !== 1) {
       summary.checks.bootstrapMode.status = "failed";
-      markFailed(
-        summary,
-        "Missing preview packages must remain at 0.1.0 for the first bootstrap publish. Align package versions or switch to normal Changesets release flow."
-      );
     } else {
       summary.checks.bootstrapMode.status = "passed";
     }

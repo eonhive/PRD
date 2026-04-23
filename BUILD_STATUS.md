@@ -3,6 +3,7 @@
 ## 2026-04-23
 
 - Started the `0.1.1` corrective-release slice after confirming published `0.1.0` npm tarballs still contained `workspace:*` internal dependency metadata for `@eonhive/prd-validator`, `@eonhive/prd-packager`, and `@eonhive/prd-cli`.
+- Fixed `scripts/release-publish-preflight.mjs` so unified unpublished post-preview versions such as `0.1.1` now pass in normal Changesets release mode instead of incorrectly failing unless the version stayed at `0.1.0`.
 - Replaced publishable-package `workspace:*` dependency ranges with concrete internal semver ranges so future npm publishes do not rely on publish-time workspace rewriting.
 - Added `scripts/release-registry-audit.mjs`, root `pnpm release:audit:registry`, and `examples/dist/release-registry-audit-summary.json` as the canonical post-publish registry metadata audit surface.
 - Wired `.github/workflows/post-publish-consumer-smoke.yml` to run registry audit before npm consumer smoke and upload both audit and smoke summary artifacts.
